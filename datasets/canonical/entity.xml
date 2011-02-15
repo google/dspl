@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<dspl targetNamespace="http://www.google.com/publicdata/dataset/google/entity"
+      xmlns="http://schemas.google.com/dspl/2010">
+
+  <info>
+    <name>
+      <value xml:lang="en">Entity concepts</value>
+    </name>
+    <description>
+      <value xml:lang="en">Entity concepts.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://code.google.com/apis/publicdata/docs/canonical/entity.html</value>
+    </url>
+  </info>
+
+  <provider>
+    <name>
+      <value xml:lang="en">Google Inc.</value>
+    </name>
+    <description>
+      <value xml:lang="en">Google Inc.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://www.google.com</value>
+    </url>
+  </provider>
+
+  <concepts>
+    <concept id="entity">
+      <info>
+        <name>
+          <value xml:lang="en">Entity</value>
+        </name>
+        <description>
+          <value xml:lang="en">Base concept for defining concepts that represent entities.</value>
+        </description>
+      </info>
+      <type ref="string"/>
+      <attribute concept="entity_order"/>
+      <property id="name">
+          <info>
+            <name>
+              <value xml:lang="en">Name</value>
+            </name>
+            <description>
+              <value xml:lang="en">
+                The name used to display an entity.
+                
+                Example:
+
+                  <![CDATA[<concept id="airport" extends="entity:entity">
+                    <info>
+                      <name>
+                        <value>Airport</value>
+                      </name>
+                      <description>
+                        <value>Airports, identified by their 3-letter IATA code</value>
+                      </description>
+                    </info>
+                    <table ref="airports_table"/>
+                  </concept>]]>
+
+                The airports_table contains a “name” column, with the name of each airport:
+
+                  airport,name
+                  MLB,Melbourne International Airport
+                  SFO,San Francisco International Airport
+                  LGW,London Gatwick Airport
+
+                Note: names can be provided in multiple languages, in different columns, 
+                using concept table mappings.
+              </value>
+            </description>
+          </info>
+        <type ref="string"/>
+      </property>
+      <property id="description">
+        <info>
+          <name>
+            <value xml:lang="en">Description</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              The description of an entity.
+
+              Usage example:
+              
+                <![CDATA[<concept id="airport" extends="entity:entity">
+                  <info>
+                    <name>
+                      <value>Airport</value>
+                    </name>
+                    <description>
+                      <value>Airports, identified by their 3-letter IATA code</value>
+                    </description>
+                  </info>
+                  <table ref="airports_table"/>
+                </concept>]]>
+              
+              The airports_table contains a “description” column, with a description of each airport:
+                            
+                airport,name,description
+                MLB,Melbourne International Airport, "... located 1 1/2 miles northwest of the downtown business district ..."
+                SFO,San Francisco International Airport, "... international airport located 13 miles south of San Francisco ..."
+                LGW, London Gatwick Airport,  "... located 5 km (3.1 mi) north of the centre of Crawley, West Sussex ..."
+                LHR, London Heathrow Airport, "... largest airport in the United Kingdom ..."
+            </value>
+          </description>
+        </info>
+        <type ref="string"/>
+      </property>
+      <property id="info_url">
+        <info>
+          <name>
+            <value xml:lang="en">Info Url</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              A URL where more information can be found about an entity.
+
+              Usage example:
+              
+                <![CDATA[<concept id="airport" extends="entity:entity">
+                  <info>
+                    <name>
+                      <value>Airport</value>
+                    </name>
+                    <description>
+                      <value>Airports, identified by their 3-letter IATA code</value>
+                    </description>
+                  </info>
+                  <table ref="airports_table"/>
+                </concept>]]>
+              
+              The countries table contains an “info_url” column, with an info URL for each country.
+              
+                country,  name,          info_url
+                AD,       Andorra,       http://en.wikipedia.org/wiki/Andorra
+                AF,       Afghanistan,   http://en.wikipedia.org/wiki/Afghanistan
+                AI,       Anguilla,      http://en.wikipedia.org/wiki/Anguilla
+                AL,       Albania,       http://en.wikipedia.org/wiki/Albania
+            </value>
+          </description>
+        </info>
+        <type ref="string"/>
+      </property>
+      <property id="color">
+        <info>
+          <name>
+            <value xml:lang="en">Color</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              A color, represented by its hexadecimal code (e.g., "#FFAB00").
+
+              Example:
+              
+                <![CDATA[<concept id="us_political_party" extends="entity:entity">
+                  <info>
+                    <name>
+                      <value>US Political party</value>
+                    </name>
+                  </info>
+                  <table ref="parties_table"/>
+                </concept>]]>
+              
+              The parties_table contains a party_color column:
+              
+                party, name,             color
+                rep,   Republican party, #FF0000
+                dem,   Democratic party, #0000FF
+            </value>
+          </description>
+        </info>
+        <type ref="string"/>
+      </property>
+    </concept>
+
+    <concept id="entity_order">
+      <info>
+        <name>
+          <value xml:lang="en">Entity order</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Specifies the order in which the entities should be displayed.
+            ALPHA is alphabetical order, TABLE is the order of entities in the
+            table.
+            
+            Example:
+
+              <![CDATA[<concept id="industry" extends="entity:entity">
+                <info>
+                  <name>
+                    <value xml:lang="en">Industry</value>
+                  </name>
+                </info>
+                <attribute id="order">
+                  <value>NATURAL</value>
+                </attribute>
+                <property id="industry" isParent="true"/>
+                <table ref="industries_tbl"/>
+              </concept>]]>
+          </value>
+        </description>
+      </info>
+      <type ref="string" />
+      <defaultValue>ALPHA</defaultValue>
+      <table ref="entity_order_table" />
+    </concept>
+  </concepts>
+
+  <tables>
+    <table id="entity_order_table">
+      <column id="entity_order" type="string" />
+      <data>
+        <file format="csv" encoding="utf-8">entity_order.csv</file>
+      </data>
+    </table>
+  </tables>
+</dspl>

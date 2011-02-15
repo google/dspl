@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<dspl targetNamespace="http://www.google.com/publicdata/dataset/google/quantity"
+      xmlns="http://schemas.google.com/dspl/2010"
+      xmlns:unit="http://www.google.com/publicdata/dataset/google/unit"
+      xmlns:geo="http://www.google.com/publicdata/dataset/google/geo"
+      xmlns:time="http://www.google.com/publicdata/dataset/google/time">
+
+  <import namespace="http://www.google.com/publicdata/dataset/google/unit"/>
+  <import namespace="http://www.google.com/publicdata/dataset/google/geo"/>
+  <import namespace="http://www.google.com/publicdata/dataset/google/time"/>
+
+  <info>
+    <name>
+      <value xml:lang="en">Quantity concepts</value>
+    </name>
+    <description>
+      <value xml:lang="en">DSPL quantity concepts.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://code.google.com/apis/publicdata/docs/canonical/quantity.html</value>
+    </url>
+  </info>
+
+  <provider>
+    <name>
+      <value xml:lang="en">Google Inc.</value>
+    </name>
+    <description>
+      <value xml:lang="en">Google Inc.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://www.google.com</value>
+    </url>
+  </provider>
+
+  <concepts>
+    <concept id="quantity">
+      <info>
+        <name>
+          <value xml:lang="en">Quantity</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Base concept for defining concept that represent numerical quantities.
+          </value>
+        </description>
+      </info>
+      <type ref="float"/>
+      <attribute concept="unit:unit">
+        <info>
+          <name><value xml:lang="en">Unit</value></name>
+          <description>
+            <value xml:lang="en">The unit of the quantity</value>
+          </description>
+        </info>
+      </attribute>
+      <attribute id="significant_digits">
+        <info>
+          <name>
+            <value xml:lang="en">Number of significant digits</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              Specifies the number of significant digits to use when displaying the
+              values of a metric concept.
+            </value>
+          </description>
+        </info>
+        <type ref="integer"/>
+      </attribute>
+      <attribute id="decimal_places">
+        <info>
+          <name>
+            <value xml:lang="en">Number of decimal places</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              Specifies the number of decimal places to use for displaying the
+              values of a metric concept.
+            </value>
+          </description>
+        </info>
+        <type ref="integer"/>
+      </attribute>
+    </concept>
+
+    <concept id="count" extends="quantity">
+      <info>
+        <name>
+          <value xml:lang="en">Count</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Indicates that a numeric concept is a count, i.e., a denumeration
+            of parts of a non-continuous quantity.
+
+            Example concept: Population.
+          </value>
+        </description>
+      </info>
+    </concept>
+
+    <concept id="magnitude" extends="quantity">
+      <info>
+        <name>
+          <value xml:lang="en">Magnitude</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Indicates that a numeric concept is a magnitude, i.e., a continuous
+            quantity that is measurable.
+
+            Example concepts: Gross Domestic Product, National Debt (in $).
+          </value>
+        </description>
+      </info>
+    </concept>
+
+    <concept id="fraction" extends="magnitude">
+      <info>
+        <name>
+          <value xml:lang="en">Fraction</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Indicates that a numeric concept represents a fraction, i.e.,
+            the division of two quantities.
+          </value>
+        </description>
+      </info>
+      <attribute id="denominator">
+        <info>
+          <name><value xml:lang="en">Denominator</value></name>
+          <description>
+            <value xml:lang="en">The denominator of the fraction.</value>
+          </description>
+        </info>
+        <type ref="concept"/>
+      </attribute>
+      <attribute id="numerator">
+        <info>
+          <name><value xml:lang="en">Numerator</value></name>
+          <description>
+            <value xml:lang="en">The numerator of the fraction.</value>
+          </description>
+        </info>
+        <type ref="concept"/>
+      </attribute>
+    </concept>
+
+    <concept id="ratio" extends="fraction">
+      <info>
+        <name>
+          <value xml:lang="en">Ratio</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            Indicates that a numeric concept is a ratio, i.e., a fraction of two
+            quantities of the same nature.
+
+            Example concept: Ratio of girls to boys in primary and secondary education.
+          </value>
+        </description>
+      </info>
+      <attribute id="is_percentage">
+        <info>
+          <name>
+            <value xml:lang="en">Is percentage</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              Set to true if this ratio is a percentage, set to false
+              otherwise.
+            </value>
+          </description>
+        </info>
+        <type ref="boolean"/>
+      </attribute>
+      <attribute id="percentage_of">
+        <info>
+          <name>
+            <value xml:lang="en">Percentage of</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              If this is a percentage, this attribute provides a descriptive text
+              to display next to number that specifies what this is a percentage of.
+
+              For instance, the "unemployment rate" metric has a percentage_of
+              attribute set to: "of the labor force" to that the value reads
+              "10.5% of the labor force".
+            </value>
+          </description>
+        </info>
+        <type ref="string"/>
+      </attribute>
+    </concept>
+
+
+    <concept id="index" extends="rate">
+      <info>
+        <name>
+          <value xml:lang="en">Index</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            A quantity that shows by its variations the changes of a magnitude
+            over time or space, often normalized to a reference value.
+
+            Example concept: Consumer Price Index.
+          </value>
+        </description>
+      </info>
+      <attribute id="base_value" concept="quantity">
+        <info>
+          <name><value xml:lang="en">Base value</value></name>
+          <description>
+            <value>The reference value for the index (e.g., 100).</value>
+          </description>
+        </info>
+      </attribute>
+      <attribute id="base_time" concept="time:time_point">
+        <info>
+          <name><value xml:lang="en">Base time</value></name>
+          <description>
+            <value>The reference time the index is defined for.</value>
+          </description>
+        </info>
+      </attribute>
+      <attribute id="base_location" concept="geo:location">
+        <info>
+          <name><value xml:lang="en">Base location</value></name>
+          <description>
+            <value xml:lang="en">The reference location the index is defined for.</value>
+          </description>
+        </info>
+      </attribute>
+    </concept>
+
+    <concept id="rate" extends="ratio">
+      <info>
+        <name>
+          <value xml:lang="en">Rate</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            A quantity considered as a proportion of another quantity.
+
+            Example concepts: Literacy rate, GDP per Capita, unemployment rate.
+          </value>
+        </description>
+      </info>
+    </concept>
+
+    <concept id="change_rate" extends="rate">
+      <info>
+        <name>
+          <value xml:lang="en">Change rate</value>
+        </name>
+        <description>
+          <value xml:lang="en">
+            The rate at which some quantity changes.
+
+            Example concept: GDP growth rate.
+          </value>
+        </description>
+      </info>
+      <attribute id="base_quantity">
+        <info>
+          <name>
+            <value xml:lang="en">Base quantity</value>
+          </name>
+          <description>
+            <value xml:lang="en">
+              The quantity (concept) that this is a change rate for.
+            </value>
+          </description>
+        </info>
+        <type ref="concept"/>
+      </attribute>
+    </concept>
+  </concepts>
+</dspl>

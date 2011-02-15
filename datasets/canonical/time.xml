@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<dspl targetNamespace="http://www.google.com/publicdata/dataset/google/time"
+      xmlns="http://schemas.google.com/dspl/2010">
+
+    <info>
+      <name>
+        <value xml:lang="en">Google date and time</value>
+      </name>
+      <description>
+        <value xml:lang="en">Google date and time dataset</value>
+      </description>
+      <url>
+        <value xml:lang="en">http://code.google.com/apis/publicdata/docs/canonical/time.html</value>
+      </url>
+    </info>
+    <provider>
+      <name><value xml:lang="en">Google Inc.</value></name>
+      <description><value xml:lang="en">Google Inc.</value></description>
+      <url><value xml:lang="en">http://www.google.com</value></url>
+    </provider>
+
+    <concepts>
+      <concept id="time_point">
+        <info>
+          <name><value>Point in time</value></name>
+          <description><value>Point in time, with a given granularity.</value></description>
+        </info>
+        <type ref="date"/>
+        <attribute concept="granularity"/>
+      </concept>
+
+      <concept id="year" extends="time_point">
+        <info>
+          <name><value xml:lang="en">Year date</value></name>
+          <description>
+            <value xml:lang="en">
+              A date with yearly granularity.
+
+              The year concept is usually used directly in a slice definition to define a dimension that
+              contains year. For example, a slice for yearly population by country would be defined
+              as follows:
+
+                <![CDATA[<slices>
+                  <slice id="country_slice">
+                    <dimension concept="country"/>
+                    <dimension concept="time:year"/>
+                    <metric concept="population"/>
+                    <table ref="country_slice_table"/>
+                  </slice>
+                </slices>]]>
+
+              The table definition for this slice would be defined as follows:
+
+                <![CDATA[<tables>
+                  ...
+                  <table id="country_slice_table">
+                    <column id="country" type="text"/>
+                    <column id="year" type="date" format="yyyy"/>
+                    <column id="population" type="integer"/>
+                    <data>
+                      <file format="csv" encoding="utf-8">country_slice.csv</file>
+                    </data>
+                  </table>
+                  ...
+                </tables>]]>
+
+
+              And the data contained in the CSV file for this table would look like:
+
+                country, year, population
+                AF, 1960, 9616353
+                AF, 1961, 9799379
+                AF, 1962, 9989846
+                AF, 1963, 10188299
+                ...
+            </value>
+          </description>
+        </info>
+        <attribute id="granularity">
+          <value>YEARLY</value>
+        </attribute>
+      </concept>
+
+      <concept id="quarter" extends="time_point">
+        <info>
+          <name><value xml:lang="en">Quarter date</value></name>
+          <description>
+            <value xml:lang="en">
+              A date with quarterly granularity.
+              See the example for the year concept above.
+            </value>
+          </description>
+        </info>
+        <attribute id="granularity">
+          <value>QUARTERLY</value>
+        </attribute>
+      </concept>
+
+      <concept id="month" extends="time_point">
+        <info>
+          <name>
+            <value xml:lang="en">Month date</value></name>
+          <description>
+            <value xml:lang="en">
+              A date with monthly granularity.
+              See the example for the year concept above.
+            </value>
+          </description>
+        </info>
+        <attribute id="granularity">
+          <value>MONTHLY</value>
+        </attribute>
+      </concept>
+
+      <concept id="week" extends="time_point">
+        <info>
+          <name><value xml:lang="en">Week date</value></name>
+          <description>
+            <value xml:lang="en">
+              A date with weekly granularity.
+              See the example for the year concept above.
+            </value>
+          </description>
+        </info>
+        <attribute id="granularity">
+          <value>WEEKLY</value>
+        </attribute>
+      </concept>
+
+      <concept id="day" extends="time_point">
+        <info>
+          <name><value xml:lang="en">Day date</value></name>
+          <description>
+            <value xml:lang="en">
+              A date with daily granularity.
+              See the example for the year concept above.
+            </value>
+          </description>
+        </info>
+        <attribute id="granularity">
+          <value>DAILY</value>
+        </attribute>
+      </concept>
+
+      <concept id="granularity">
+        <info>
+          <name><value xml:lang="en">Granularity</value></name>
+          <description>
+            <value xml:lang="en">
+              Granularity of time, i.e., the uncertainty that
+              a point in time may be anywhere within some time interval.
+            </value>
+          </description>
+        </info>
+        <type ref="string"/>
+        <table ref="granularity_table"/>
+      </concept>
+    </concepts>
+
+  <tables>
+    <table id="granularity_table">
+      <column id="granularity" type="string" />
+      <data>
+        <file format="csv" encoding="utf-8">granularity.csv</file>
+      </data>
+    </table>
+  </tables>
+</dspl>

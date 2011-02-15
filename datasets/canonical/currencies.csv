@@ -1,0 +1,170 @@
+currency,name,symbol
+AED,"UAE Dirham",
+AFN,Afghani,؋
+ALL,Lek,Lek
+AMD,"Armenian Dram",
+ANG,"Netherlands Antillian Guilder",ƒ
+AOA,Kwanza,
+ARS,"Argentine Peso",$
+AUD,"Australian Dollar",$
+AWG,"Aruban Guilder",ƒ
+AZN,"Azerbaijanian Manat",ман
+BAM,"Convertible Marks",KM
+BBD,"Barbados Dollar",$
+BDT,Taka,
+BGN,"Bulgarian Lev",лв
+BHD,"Bahraini Dinar",
+BIF,"Burundi Franc",
+BMD,"Bermudian Dollar (customarily known as Bermuda Dollar)",$
+BND,"Brunei Dollar",$
+"BOB BOV","Boliviano Mvdol",$b
+BRL,"Brazilian Real",R$
+BSD,"Bahamian Dollar",$
+BWP,Pula,P
+BYR,"Belarussian Ruble",p.
+BZD,"Belize Dollar",BZ$
+CAD,"Canadian Dollar",$
+CDF,"Congolese Franc",
+CHF,"Swiss Franc",CHF
+"CLP CLF","Chilean Peso Unidades de fomento",$
+CNY,"Yuan Renminbi",¥
+"COP COU","Colombian Peso Unidad de Valor Real",$
+CRC,"Costa Rican Colon",₡
+"CUP CUC","Cuban Peso Peso Convertible",₱
+CVE,"Cape Verde Escudo",
+CZK,"Czech Koruna",Kč
+DJF,"Djibouti Franc",
+DKK,"Danish Krone",kr
+DOP,"Dominican Peso",RD$
+DZD,"Algerian Dinar",
+EEK,Kroon,
+EGP,"Egyptian Pound",£
+ERN,Nakfa,
+ETB,"Ethiopian Birr",
+EUR,Euro,€
+FJD,"Fiji Dollar",$
+FKP,"Falkland Islands Pound",£
+GBP,"Pound Sterling",£
+GEL,Lari,
+GHS,Cedi,
+GIP,"Gibraltar Pound",£
+GMD,Dalasi,
+GNF,"Guinea Franc",
+GTQ,Quetzal,Q
+GYD,"Guyana Dollar",$
+HKD,"Hong Kong Dollar",$
+HNL,Lempira,L
+HRK,"Croatian Kuna",kn
+"HTG USD","Gourde US Dollar",
+HUF,Forint,Ft
+IDR,Rupiah,Rp
+ILS,"New Israeli Sheqel",₪
+INR,"Indian Rupee",
+"INR BTN","Indian Rupee Ngultrum",
+IQD,"Iraqi Dinar",
+IRR,"Iranian Rial",﷼
+ISK,"Iceland Krona",kr
+JMD,"Jamaican Dollar",J$
+JOD,"Jordanian Dinar",
+JPY,Yen,¥
+KES,"Kenyan Shilling",
+KGS,Som,лв
+KHR,Riel,៛
+KMF,"Comoro Franc",
+KPW,"North Korean Won",₩
+KRW,Won,₩
+KWD,"Kuwaiti Dinar",
+KYD,"Cayman Islands Dollar",$
+KZT,Tenge,лв
+LAK,Kip,₭
+LBP,"Lebanese Pound",£
+LKR,"Sri Lanka Rupee",₨
+LRD,"Liberian Dollar",$
+LTL,"Lithuanian Litas",Lt
+LVL,"Latvian Lats",Ls
+LYD,"Libyan Dinar",
+MAD,"Moroccan Dirham",
+MDL,"Moldovan Leu",
+MGA,"Malagasy Ariary",
+MKD,Denar,ден
+MMK,Kyat,
+MNT,Tugrik,₮
+MOP,Pataca,
+MRO,Ouguiya,
+MUR,"Mauritius Rupee",₨
+MVR,Rufiyaa,
+MWK,Kwacha,
+"MXN MXV","Mexican Peso Mexican Unidad de Inversion (UDI)",$
+MYR,"Malaysian Ringgit",RM
+MZN,Metical,MT
+NGN,Naira,₦
+NIO,"Cordoba Oro",C$
+NOK,"Norwegian Krone",kr
+NPR,"Nepalese Rupee",₨
+NZD,"New Zealand Dollar",$
+OMR,"Rial Omani",﷼
+"PAB USD","Balboa US Dollar",B/.
+PEN,"Nuevo Sol",S/.
+PGK,Kina,
+PHP,"Philippine Peso",Php
+PKR,"Pakistan Rupee",₨
+PLN,Zloty,zł
+PYG,Guarani,Gs
+QAR,"Qatari Rial",﷼
+RON,"New Leu",lei
+RSD,"Serbian Dinar",Дин.
+RUB,"Russian Ruble",руб
+RWF,"Rwanda Franc",
+SAR,"Saudi Riyal",﷼
+SBD,"Solomon Islands Dollar",$
+SCR,"Seychelles Rupee",₨
+SDG,"Sudanese Pound",
+SEK,"Swedish Krona",kr
+SGD,"Singapore Dollar",$
+SHP,"Saint Helena Pound",£
+SLL,Leone,
+SOS,"Somali Shilling",S
+SRD,"Surinam Dollar",$
+STD,Dobra,
+"SVC USD","El Salvador Colon US Dollar",$
+SYP,"Syrian Pound",£
+SZL,Lilangeni,
+THB,Baht,฿
+TJS,Somoni,
+TMT,Manat,
+TND,"Tunisian Dinar",
+TOP,Pa'anga,
+TRY,"Turkish Lira",TL
+TTD,"Trinidad and Tobago Dollar",TT$
+TWD,"New Taiwan Dollar",NT$
+TZS,"Tanzanian Shilling",
+UAH,Hryvnia,₴
+UGX,"Uganda Shilling",
+USD,"US Dollar",$
+"UYU UYI","Peso Uruguayo Uruguay Peso en Unidades Indexadas",$U
+UZS,"Uzbekistan Sum",лв
+VEF,"Bolivar Fuerte",Bs
+VND,Dong,₫
+VUV,Vatu,
+WST,Tala,
+XAF,"CFA Franc BEAC",
+XAG,Silver,
+XAU,Gold,
+XBA,"Bond Markets Units European Composite Unit (EURCO)",
+XBB,"European Monetary Unit (E.M.U.-6)",
+XBC,"European Unit of Account 9(E.U.A.-9)",
+XBD,"European Unit of Account 17(E.U.A.-17)",
+XCD,"East Caribbean Dollar",$
+XDR,SDR,
+XFU,UIC-Franc,
+XOF,"CFA Franc BCEAO",
+XPD,Palladium,
+XPF,"CFP Franc",
+XPT,Platinum,
+XTS,"Codes specifically reserved for testing purposes",
+YER,"Yemeni Rial",﷼
+ZAR,Rand,R
+"ZAR LSL","Rand Loti",
+"ZAR NAD","Rand Namibia Dollar",
+ZMK,"Zambian Kwacha",
+ZWL,"Zimbabwe Dollar",

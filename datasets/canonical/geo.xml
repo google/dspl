@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<dspl targetNamespace="http://www.google.com/publicdata/dataset/google/geo"
+      xmlns="http://schemas.google.com/dspl/2010"
+      xmlns:entity="http://www.google.com/publicdata/dataset/google/entity">
+
+  <import namespace="http://www.google.com/publicdata/dataset/google/entity"/>
+
+  <info>
+    <name>
+      <value xml:lang="en">Geographical concepts</value>
+    </name>
+    <description>
+      <value xml:lang="en">Canonical concepts for geographical data.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://code.google.com/apis/publicdata/docs/canonical/geo.html</value>
+    </url>
+  </info>
+
+  <provider>
+    <name>
+      <value xml:lang="en">Google Inc.</value>
+    </name>
+    <description>
+      <value xml:lang="en">Google Inc.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://www.google.com</value>
+    </url>
+  </provider>
+
+  <concepts>
+    <concept id="location" extends="entity:entity">
+      <info>
+        <name><value xml:lang="en">Location</value></name>
+        <description>
+          <value xml:lang="en">Base concept for locations.</value>
+        </description>
+      </info>
+      <property id="latitude">
+        <info>
+          <name>
+            <value xml:lang="en">Latitude</value>
+          </name>
+        </info>
+        <type ref="float"/>
+      </property>
+      <property id="longitude">
+        <info>
+          <name>
+            <value xml:lang="en">Longitude</value>
+          </name>
+        </info>
+        <type ref="float"/>
+      </property>
+    </concept>
+
+    <concept id="country" extends="location">
+      <info>
+        <name>
+          <value xml:lang="en">Country or Territory</value>
+        </name>
+        <description>
+          <value xml:lang="en">A country or territory, identified by its ISO-3166-1 2-letter code.</value>
+        </description>
+        <pluralName>
+          <value xml:lang="en">Countries</value>
+        </pluralName>
+        <totalName>
+          <value xml:lang="en">World</value>
+        </totalName>
+      </info>
+      <table ref="countries_table"/>
+    </concept>
+  </concepts>
+
+  <tables>
+    <table id="countries_table">
+      <column id="country" type="string"/>
+      <column id="latitude" type="float"/>
+      <column id="longitude" type="float"/>
+      <column id="name" type="string"/>
+      <data>
+        <file format="csv" encoding="utf-8">countries.csv</file>
+      </data>
+    </table>
+  </tables>
+</dspl>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<dspl targetNamespace="http://www.google.com/publicdata/dataset/google/geo/us"
+      xmlns="http://schemas.google.com/dspl/2010"
+      xmlns:geo="http://www.google.com/publicdata/dataset/google/geo">
+
+  <import namespace="http://www.google.com/publicdata/dataset/google/geo"/>
+
+  <info>
+    <name>
+      <value xml:lang="en">US geographical concepts</value>
+    </name>
+    <description>
+      <value xml:lang="en">Canonical concepts for US geographical data.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://code.google.com/apis/publicdata/docs/canonical/geo.us.html</value>
+    </url>
+  </info>
+
+  <provider>
+    <name>
+      <value xml:lang="en">Google Inc.</value>
+    </name>
+    <description>
+      <value xml:lang="en">Google Inc.</value>
+    </description>
+    <url>
+      <value xml:lang="en">http://www.google.com</value>
+    </url>
+  </provider>
+
+  <concepts>
+    <concept id="state" extends="geo:location">
+      <info>
+        <name>
+          <value xml:lang="en">US State</value>
+        </name>
+        <description>
+          <value xml:lang="en">A US State, identified by its two letter code.</value>
+        </description>
+        <pluralName>
+          <value xml:lang="en">States</value>
+        </pluralName>
+        <totalName>
+          <value xml:lang="en">All US</value>
+        </totalName>
+      </info>
+      <property concept="geo:country" isParent="true" />
+      <table ref="states_table"/>
+    </concept>
+  </concepts>
+
+  <tables>
+    <table id="states_table">
+      <column id="state" type="string"/>
+      <column id="latitude" type="float"/>
+      <column id="longitude" type="float"/>
+      <column id="name" type="string"/>
+      <column id="country" type="string">
+        <value>US</value>
+      </column>
+      <data>
+        <file format="csv" encoding="utf-8">states.csv</file>
+      </data>
+    </table>
+  </tables>
+</dspl>
