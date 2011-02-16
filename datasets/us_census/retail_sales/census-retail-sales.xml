@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dspl xmlns="http://schemas.google.com/dspl/2010"
+      xmlns:entity="http://www.google.com/publicdata/dataset/google/entity"
+      xmlns:quantity="http://www.google.com/publicdata/dataset/google/quantity"
+      xmlns:unit="http://www.google.com/publicdata/dataset/google/unit"
+      xmlns:geo="http://www.google.com/publicdata/dataset/google/geo"
+      xmlns:time="http://www.google.com/publicdata/dataset/google/time">
+
+   <import namespace="http://www.google.com/publicdata/dataset/google/entity"/>
+   <import namespace="http://www.google.com/publicdata/dataset/google/quantity"/>
+   <import namespace="http://www.google.com/publicdata/dataset/google/unit"/>
+   <import namespace="http://www.google.com/publicdata/dataset/google/geo"/>
+   <import namespace="http://www.google.com/publicdata/dataset/google/time"/>
+
+   <info>
+      <name>
+         <value xml:lang="en">Retail Sales in the U.S.</value>
+      </name>
+      <description>
+         <value xml:lang="en">Monthly Retail Trade and Food Services report
+            for the United States. This dataset was prepared by Google based
+            on data downloaded from the U.S. Census Bureau.</value>
+      </description>
+      <url>
+         <value xml:lang="en">http://www.census.gov/retail/</value>
+      </url>
+   </info>
+
+   <provider>
+      <name>
+         <value xml:lang="en">U.S. Census Bureau</value>
+      </name>
+      <description>
+         <value xml:lang="en">U.S. Census Bureau</value>
+      </description>
+      <url>
+         <value xml:lang="en">http://www.census.gov/retail/</value>
+      </url>
+   </provider>
+
+   <topics>
+      <topic id="industry">
+         <info>
+            <name>
+               <value xml:lang="en">Industry</value>
+            </name>
+         </info>
+      </topic>
+   </topics>
+
+   <concepts>
+      <concept id="business" extends="entity:entity">
+         <info>
+            <name>
+               <value xml:lang="en">Type of business</value>
+            </name>
+            <description>
+               <value xml:lang="en">The principal kind of business being conducted at an establishment</value>
+            </description>
+            <pluralName>
+               <value xml:lang="en">Types of business</value>
+            </pluralName>
+         </info>
+         <topic ref="industry"/>
+         <type ref="string"/>
+         <attribute concept="entity:entity_order">
+            <value>TABLE</value>
+         </attribute>
+         <property id="parent" concept="business" isParent="true">
+            <info>
+               <name>
+                  <value xml:lang="en">Parent Business</value>
+               </name>
+            </info>
+         </property>
+         <defaultValue>44x72</defaultValue>
+         <table ref="businesses"/>
+      </concept>
+
+      <concept id="seasonality">
+         <info>
+            <name>
+               <value xml:lang="en">Seasonality</value>
+            </name>
+            <description>
+               <value xml:lang="en">Are values seasonally adjusted or not</value>
+            </description>
+            <pluralName>
+               <value xml:lang="en">Seasonalities</value>
+            </pluralName>
+         </info>
+         <type ref="string"/>
+         <defaultValue>Seasonally Adjusted</defaultValue>
+         <table ref="seasonalities"/>
+      </concept>
+
+     <!-- Metrics -->
+     <concept id="sales" extends="quantity:amount">
+         <info>
+            <name>
+               <value xml:lang="en">Retail Sales Volume</value>
+            </name>
+            <description>
+               <value xml:lang="en">Sales include merchandise sold by establishments primarily engaged in retail trade.</value>
+            </description>
+          </info>
+        <type ref="integer"/>
+        <attribute id="unit" concept="unit:currency">
+           <type ref="string"/>
+           <value>USD</value>
+        </attribute>
+      </concept>
+   </concepts>
+
+   <slices>
+      <slice id="retail_sales_business">
+         <dimension concept="seasonality"/>
+         <dimension concept="business"/>
+         <dimension concept="time:month"/>
+         <metric concept="sales"/>
+         <table ref="retail_sales_business_tbl">
+            <mapDimension concept="time:month" toColumn="date"/>
+            <mapDimension concept="seasonality" toColumn="s_adj"/>
+         </table>
+      </slice>
+   </slices>
+
+   <tables>
+      <table id="businesses">
+         <column id="business" type="string"/>
+         <column id="name" type="string"/>
+         <column id="parent" type="string"/>
+         <data>
+            <file encoding="utf-8" format="csv">businesses.csv</file>
+         </data>
+      </table>
+
+      <table id="seasonalities">
+         <column id="seasonality" type="string"/>
+         <data>
+            <file encoding="utf-8" format="csv">seasonalities.csv</file>
+         </data>
+      </table>
+
+      <table id="retail_sales_business_tbl">
+         <column id="s_adj" type="string"/>
+         <column id="business" type="string"/>
+         <column format="yyyy.MM" id="date" type="date"/>
+         <column id="sales" type="integer"/>
+         <data>
+            <file encoding="utf-8" format="csv">retail_sales_business.csv</file>
+         </data>
+      </table>
+
+   </tables>
+</dspl>
