@@ -84,17 +84,17 @@
       </attribute>
     </concept>
 
-    <concept id="count" extends="quantity">
+    <concept id="amount" extends="quantity">
       <info>
         <name>
-          <value xml:lang="en">Count</value>
+          <value xml:lang="en">Amount</value>
         </name>
         <description>
           <value xml:lang="en">
-            Indicates that a numeric concept is a count, i.e., a denumeration
-            of parts of a non-continuous quantity.
+            Indicates that a numeric concept is an amount, i.e., a count
+            of discrete elements.
 
-            Example concept: Population.
+            Example concept: Population, Gross Domestic Product.
           </value>
         </description>
       </info>
@@ -110,7 +110,7 @@
             Indicates that a numeric concept is a magnitude, i.e., a continuous
             quantity that is measurable.
 
-            Example concepts: Gross Domestic Product, National Debt (in $).
+            Example concepts: Temperature.
           </value>
         </description>
       </info>

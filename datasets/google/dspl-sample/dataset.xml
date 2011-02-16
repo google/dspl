@@ -61,7 +61,7 @@
   </topics>
 
   <concepts>
-    <!-- As noted in the tutorial, this concept should extend quantity:count.-->
+    <!-- As noted in the tutorial, this concept should extend quantity:amount.-->
     <concept id="population">
       <info>
         <name>
