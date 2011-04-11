@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://schemas.google.com/dspl/2010"
+           xmlns="http://schemas.google.com/dspl/2010"
+           elementFormDefault="qualified">
+  <xs:import namespace="http://www.w3.org/2001/XMLSchema"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema specifies the XML syntax for the DataSet Publishing Language (DSPL).
+      For a description of this format, please refer to the documentation at:
+
+      http://code.google.com/apis/publicdata
+
+      Copyright 2010 Google Inc. All Rights Reserved.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="dspl">
+    <xs:annotation>
+      <xs:documentation>
+        A DSPL specification describes a dataset. A dataset is
+        identified by its namespace. A dataset is comprised of the
+        following elements:
+
+        - Tables: Data for the concepts and slices defined in the
+        dataset
+
+        - Concepts: User-specified definitions and structures used in
+        the dataset
+
+        - Slices: Combinations of dimensions and metrics present in
+        the dataset
+
+        - Topics: Hierarchical labels used to organise the concepts of
+        the dataset
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="import" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>
+              Import directive for external datasets -- modeled after
+              the XML Schema import directive.  In order to use
+              elements defined in an external dataset, the external
+              dataset must be referenced using an import directive.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:attribute name="namespace" use="required">
+              <xs:annotation>
+                <xs:documentation>
+                  The namespace of the imported dataset, specified as
+                  a URI. A prefix must be associated with this
+                  namespace before its contents can be referenced. See
+                  [XML Namespaces] for more information about the use
+                  of namespaces and prefixes in XML.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
+            <xs:attribute name="location" use="optional">
+              <xs:annotation>
+                <xs:documentation>
+                  An optional location where the definition of the
+                  imported dataset can be found, specified as a
+                  URL. If the location is omitted, the system
+                  processing this DSPL dataset must already know the
+                  imported dataset.
+
+                  Implementation note: The Google dataset importer
+                  ignores the location attribute. Any imported dataset
+                  must be known by the Google importer beforehand.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:attribute>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="info" type="Info" minOccurs="1">
+          <xs:annotation>
+            <xs:documentation>
+              General information about the dataset.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+
+        <xs:element name="provider" type="Info">
+          <xs:annotation>
+            <xs:documentation>
+              General information about the dataset provider.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+
+        <xs:element name="attribute" type="Attribute" minOccurs="0" maxOccurs="unbounded">
+          <xs:annotation>
+            <xs:documentation>
+              Attribute associated with the dataset.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+
+        <xs:element name="topics" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              A hierarchy of topics used to organize the contents of
+              the dataset. The order in which topics are given is
+              meaningful and should be respected by visualizations
+              that displays these topics.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="topic" type="Topic" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="concepts" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              A list of concepts defined in this dataset.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="concept" type="Concept" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="slices" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              A list of slices defined in this dataset.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="slice" type="Slice" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+
+        <xs:element name="tables" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              A list of tables defined in this dataset.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="table" type="Table" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="targetNamespace" type="xs:anyURI" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+              Each dataset may provide a target namespace. The
+              target namespace is a URI that uniquely identifies the
+              dataset. For more information about the use of namespaces in XML,
+              see:
+
+              http://www.w3.org/TR/REC-xml-names/
+
+              If no targetNamespace is provided,  then a namespace will be
+              generated when the dataset is imported.
+            </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="Info">
+    <xs:annotation>
+      <xs:documentation>
+        Textual information about an element of the dataset.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="name" type="Values">
+        <xs:annotation>
+          <xs:documentation>
+            The name of the described element.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="description" type="Values" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The description of the described element.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="url" type="Values" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The URL of a webpage where more information can be found
+            on the described element.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ConceptInfo">
+    <xs:annotation>
+      <xs:documentation>
+        Textual information about a concept in the dataset. This extension of
+        the base Info type adds a few additional fields that only apply to
+        concepts.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="Info">
+        <xs:sequence>
+          <xs:element name="pluralName" type="Values" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                A name used to refer to a collection of instances of
+                the concept (e.g., pluralName of "State" is "States").
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="totalName" type="Values" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                A name used to refer to all the instances of the
+                concept (e.g., totalName for "State" is "All US").
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="singularNonCapitalizedName" type="Values" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The singular, non-capitalized name used to refer to
+                this concept (to be used in sentences).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="pluralNonCapitalizedName" type="Values" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>
+                The plural, non-capitalized name used to refer to this
+                concept (to be used in sentences).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+          <xs:element name="synonym" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+              <xs:documentation>
+                A synonym that can be used to refer to this concept.
+              </xs:documentation>
+            </xs:annotation>
+            <xs:complexType>
+              <xs:group ref="ValuesGroup"/>
+              <xs:attribute name="confidence" default="high" use="optional">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:enumeration value="high" />
+                    <xs:enumeration value="low" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:attribute>
+            </xs:complexType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="Topic">
+    <xs:annotation>
+      <xs:documentation>
+        A topic is a label that can be attached to concepts. Topics
+        are organized hierarchically.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="info" type="Info">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information about the topic.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="topic" type="Topic" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            Child topics can be inlined inside their parent topic. If
+            so, the order of children is meaningful and should be
+            respected by applications that display these topics.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="Id" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The unique identifier of the topic in the dataset.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="parentTopic" type="xs:QName" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          The id of the parent topic of this topic, if it has one. parentTopic
+          cannot be specified for topics that are inlined inside other topics.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Concept">
+    <xs:annotation>
+      <xs:documentation>
+        A concept is a definition of a type of data that appears in the
+        dataset (e.g., "GDP" or "County").  A concept may be associated with
+        an enumeration of all its possible values or not. A concept defined in
+        some dataset may be referenced in other datasets.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="info" type="ConceptInfo">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information, such as the name and description of
+            the concept.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="topic" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            A topic the concept is associated with.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="ref" type="xs:QName">
+            <xs:annotation>
+              <xs:documentation>
+                The unique identifier of the topic this concept is
+                associated with.
+
+                The referenced topic may be defined in the same
+                dataset or externally, i.e., in another dataset. A
+                reference to an external topic must be of the form
+                "prefix:other_topic_id", where "prefix" is the prefix
+                used for the namespace of the external dataset (see
+                XML namespaces).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The data type of the concept. A concept must provide a type declaration or extend
+            another concept. In the case where it's extending a concept, it may also
+            provide a type declaration. The type of the extended concept must be less restrictive
+            than the type of the concept extending it.
+
+            "Less restrictive than" (LRT) is a partial order defined as follows:
+
+            string LRT float
+            float LRT integer
+            string LRT date
+            string LRT boolean
+          </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexType>
+          <xs:attribute name="ref" type="DataType" use="required"/>
+        </xs:complexType>
+      </xs:element>
+
+      <xs:element name="attribute" type="Attribute" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            An attribute of the concept. Attributes represent additional
+            information about the concept (e.g., GDP is a percentage).
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="property" type="ConceptProperty" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            A property of the concept. Properties represent additional
+            information about instances of the concept (e.g., a concept
+            "city" may have a property "country").
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="defaultValue" type="Value" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            A default value for the concept, to be used by
+            applications when they need to pick one of the possible
+            values of the concept.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:choice>
+        <xs:element name="table" type="ConceptTableMapping" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              A reference to a table that contains all the
+              possible values for the concept and its non-constant
+              properties.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="data" minOccurs="0">
+          <xs:annotation>
+            <xs:documentation>
+              DEPRECATED: Simply use 'table' (without the surrounding 'data' element)
+
+              All the possible values this concept may take. Data may be
+              either provided inline, as a list of values, or point to
+              one of the tables of the dataset. If the concept has
+              non-constant properties, then data may only be given as a
+              table.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="table" type="ConceptTableMapping">
+                <xs:annotation>
+                  <xs:documentation>
+                    A reference to a table that contains all the
+                    possible values for the concept and its non-constant
+                    properties.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="id" type="Id" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The unique identifier of the concept, which must be globally
+          unique within the dataset.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="extends" type="xs:QName" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          The unique identifier of a concept that this
+          concept extends.
+
+          The referenced concept may be defined in the same
+          dataset or externally, i.e., in another dataset. A
+          reference to an external concept must be of the form
+          "prefix:other_concept_id", where "prefix" is the
+          prefix used for the namespace of the external
+          dataset (see XML namespaces).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Slice">
+    <xs:annotation>
+      <xs:documentation>
+        A slice describes a combination of concepts for which data
+        exists.  Metrics are the concepts that provide values, while
+        dimensions are the concepts used to access these values. More
+        precisely, the dimensions are a primary key for the data of
+        the slice. That is, for any combination of values of the
+        dimensions, there is at most one data row in the slice.
+
+        Slices in a dataset must follow the following requirements:
+
+        - No two dimensions or metrics in a slice may refer to the
+        same concept.
+
+        - No two slices in the dataset may have the same dimensions
+        and metrics.
+
+        TODO (benjello): Add syntax for dense cubes.
+
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="info" type="Info" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information about the slice.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="dimension" type="SliceConceptRef" maxOccurs="unbounded"/>
+      <xs:element name="metric" type="SliceConceptRef" maxOccurs="unbounded"/>
+      <xs:choice>
+        <xs:element name="table" type="SliceTableMapping">
+          <xs:annotation>
+            <xs:documentation>
+              A mapping to a table where the slice data can be
+              accessed.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element name="data">
+          <xs:annotation>
+            <xs:documentation>
+              DEPRECATED: Simply use Table (without the surrounding 'data' element)
+              A mapping to a table where the slice data can be accessed.
+            </xs:documentation>
+          </xs:annotation>
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="table" type="SliceTableMapping">
+                <xs:annotation>
+                  <xs:documentation>
+                    A mapping to a table where the slice data can be
+                    accessed.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:sequence>
+    <xs:attribute name="id" type="Id" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The unique identifier of the slice.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ConceptTableMapping">
+    <xs:annotation>
+      <xs:documentation>
+        A mapping to a table that provides data for a concept.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mapConcept" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            A mapping to the id of the table column that contains the
+            values of the concept.  This mapping may be omitted if the
+            table column that contains the concept values has the same
+            id as the concept id.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="toColumn" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped table column.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="mapProperty" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            A mapping to the id of the table column that contains the
+            values of a property of the concept.  This mapping may be
+            omitted if the table column that contains the concept
+            property values has the property id as its id.
+
+            A single property can be mapped to multiple table columns
+            (one per language) by specifying different values for the
+            language attribute.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="ref" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped concept property.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="toColumn" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped table column.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute ref="xml:lang" use="optional">
+            <xs:annotation>
+              <xs:documentation>
+                The language/locale of the values in the mapped column.
+                See [BCP 47] for possible values of the xml:lang
+                attribute.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="ref" type="LocalId" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The id of the table that contains data for the concept.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="SliceTableMapping">
+    <xs:annotation>
+      <xs:documentation>
+        A mapping to a table that provides data for a slice.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mapDimension" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            A mapping to the id of the column that contains the values
+            of a dimension of the slice.  This mapping may be omitted
+            if the table column that contains the slice dimension
+            values has the concept id as its column id. If the referenced
+            concept comes from an external dataset, the mapping may be omitted
+            if the id of the column matches the local id of the concept
+            (i.e., without the prefix).
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="concept" type="xs:QName" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped dimension concept.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="toColumn" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped table column.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="mapMetric" minOccurs="0" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            A mapping to the id of the column that contains the values
+            of a metric of the slice.  This mapping may be omitted if
+            the table column that contains the slice metric values has
+            the concept id as its column id.  If the referenced
+            concept comes from an external dataset, the mapping may be omitted
+            if the id of the column matches the local id of the concept
+            (i.e., without the prefix).
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:attribute name="concept" type="xs:QName" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped metric concept.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="toColumn" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The id of the mapped table column.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="ref" type="xs:QName" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The identifier of the table that contains data for the slice.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="ConceptProperty">
+    <xs:annotation>
+      <xs:documentation>
+        A property of a concept (e.g., the country of a city).
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence>
+      <xs:element name="info" type="Info" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information about the concept property.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+
+      <xs:element name="type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The data type of the concept property.
+          </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexType>
+          <xs:attribute name="ref" type="DataType" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="LocalId" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          The id of the concept property. This identifier must be unique within the concept
+          (across attributes and properties).
+
+          The id may be omitted if the concept property is specified. In that case, an id is
+          implicitly created with value the local name of the referenced concept. For instance
+
+          &lt;property concept=&quot;geo:country&quot;/&gt;
+
+          is equivalent to
+
+          &lt;property id=&quot;country&quot; concept=&quot;geo:country&quot;/&gt;
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="concept" type="xs:QName" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          A reference to a concept that corresponds to the values of the property.
+
+          If the property specifies a type, then the type must match the type of the
+          referenced concept.
+
+          A reference to an external concept must be of the form "prefix:other_concept_id",
+          where "prefix" is the prefix used for the namespace of the external dataset
+          (see XML namespaces).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="isParent" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>
+          If true, then this property must reference a
+          concept, and this property denotes a hierarchical
+          relationship between this concept and the referenced
+          concept (e.g., the continent of a country).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="isMapping" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>
+          If true, then this property must reference a
+          concept, and this property denotes a mapping
+          (1-to-1) relationship between this concept and the
+          referenced concept. Each instance of the referenced
+          concept is referenced by at most one instance of
+          this concept.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+    <xs:attribute name="isRequired" type="xs:boolean" use="optional" default="false">
+      <xs:annotation>
+        <xs:documentation>
+          If true, then any instance of the enclosing concept must provide a
+          value for this property. In particular, if the concept provides a
+          table, then that table must have a column for this property, with
+          all values filled in.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+
+  </xs:complexType>
+
+  <xs:complexType name="Attribute">
+    <xs:annotation>
+      <xs:documentation>
+        An attribute of a dataset or a concept.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:sequence>
+      <xs:element name="info" type="Info" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information about the attribute.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="type" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            The data type of the attribute.
+          </xs:documentation>
+        </xs:annotation>
+
+        <xs:complexType>
+          <xs:attribute name="ref" type="DataType" use="required"/>
+          <xs:attribute name="format" type="xs:string" use="optional">
+            <xs:annotation>
+              <xs:documentation>
+                A format for the value, used to parse a textual
+                representation of the values. See [Date formats spec]
+                for dates.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:group ref="ValuesGroup" minOccurs="0"/>
+    </xs:sequence>
+
+    <xs:attribute name="id" type="LocalId" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          The id of the concept attribute. This identifier must be unique within the concept
+          (across attributes and properties).
+
+          The id may be omitted if the concept attribute is specified. In that case, an id is
+          implicity created with value the local name of the referenced concept. For instance
+
+          &lt;attribute concept=&quot;unit:currency&quot;/&gt;
+
+          is equivalent to
+
+          &lt;attribute id=&quot;currency&quot; concept=&quot;unit:currency&quot;/&gt;
+
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="concept" type="xs:QName" use="optional">
+      <xs:annotation>
+        <xs:documentation>
+          A reference to a concept that corresponds to the values of the attribute.
+
+          If the attribute specifies a type, then the type must match the type of
+          the referenced concept.
+
+          A reference to an external concept must be of the form "prefix:other_concept_id",
+          where "prefix" is the prefix used for the namespace of the external dataset
+          (see XML namespaces).
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Table">
+    <xs:annotation>
+      <xs:documentation>
+        A table provides data for the dataset. A table may provide data
+        for a concept or for a slice.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="info" type="Info" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            Textual information about the table.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+      <xs:element name="column" maxOccurs="unbounded">
+        <xs:annotation>
+          <xs:documentation>
+            The specification of a column in the table.
+          </xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="value" type="xs:string" minOccurs="0">
+              <xs:annotation>
+                <xs:documentation>
+                  A constant value for the column. If present it will be the value for this column
+                  in all rows of the table.  It will be interpreted using the column format
+                  (if specified) and must conform to the type of the column.  The associated data,
+                  if any, must not provide values for this column.
+                </xs:documentation>
+              </xs:annotation>
+            </xs:element>
+          </xs:sequence>
+          <xs:attribute name="id" type="LocalId" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The identifier of the table column.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="type" type="DataType" use="required">
+            <xs:annotation>
+              <xs:documentation>
+                The data type of the table column. All values of the
+                column in the table must conform to this data type.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+          <xs:attribute name="format" type="xs:string" use="optional">
+            <xs:annotation>
+              <xs:documentation>
+                A format for the column, used to parse a textual
+                representation of the values.
+
+                Date formats are defined by:
+
+                http://joda-time.sourceforge.net/api-release/org/joda/time/format/DateTimeFormat.html
+
+              </xs:documentation>
+            </xs:annotation>
+          </xs:attribute>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="data" type="Data" minOccurs="0">
+        <xs:annotation>
+          <xs:documentation>
+            A data source where data for the table can be found.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="id" type="Id" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The unique identifier of the table in the dataset.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="SliceConceptRef">
+    <xs:annotation>
+      <xs:documentation>
+        A dimension or metric of a slice.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="concept" type="xs:QName" use="required">
+      <xs:annotation>
+        <xs:documentation>
+          The concept that the dimension or metric corresponds to.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="Value">
+    <xs:annotation>
+      <xs:documentation>
+        An atomic data value.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute ref="xml:lang" use="optional">
+          <xs:annotation>
+            <xs:documentation>
+              The language/locale that applies to the value.
+              See [BCP 47] for possible values of the xml:lang
+              attribute.
+            </xs:documentation>
+          </xs:annotation>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:group name="ValuesGroup">
+    <xs:annotation>
+      <xs:documentation>
+        A group of atomic values. There must be at most one value per locale
+        (xml:lang attribute), and at most one value with no locale.
+        All values are either value elements or conceptValue elements.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="value" type="Value" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="conceptValue" minOccurs="0">
+        <xs:complexType>
+          <xs:attribute name="concept" type="xs:QName" use="required"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="Values">
+    <xs:group ref="ValuesGroup"></xs:group>
+  </xs:complexType>
+
+  <xs:simpleType name="DataType">
+    <xs:annotation>
+      <xs:documentation>
+        Data types supported for atomic data values.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="string"/>
+      <xs:enumeration value="float"/>
+      <xs:enumeration value="integer"/>
+      <xs:enumeration value="boolean"/>
+      <xs:enumeration value="date"/>
+      <xs:enumeration value="concept"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="Data">
+    <xs:annotation>
+      <xs:documentation>
+        Data for a table.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:choice>
+      <xs:element name="file">
+        <xs:complexType>
+          <xs:simpleContent>
+            <xs:extension base="xs:string">
+              <xs:attribute name="format" type="xs:string" use="optional" default="csv">
+                <xs:annotation>
+                  <xs:documentation>
+                    The format of the data in the file.
+
+                    Implementation note: CSV is the only format
+                    currently supported by the Google importer.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+              <xs:attribute name="encoding" type="xs:string" use="optional" default="utf-8">
+                <xs:annotation>
+                  <xs:documentation>
+                    The encoding of data in the file.
+                  </xs:documentation>
+                </xs:annotation>
+              </xs:attribute>
+            </xs:extension>
+          </xs:simpleContent>
+        </xs:complexType>
+      </xs:element>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:simpleType name="Id">
+    <xs:annotation>
+      <xs:documentation>
+        A global identifier used in the dataset (for concepts, slices
+        and topics). The length of global identifiers is limited to 64
+        characters. No value can appear twice as a global identifier
+        in a dataset.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:ID">
+      <xs:maxLength value="64"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="LocalId">
+    <xs:annotation>
+      <xs:documentation>
+        A local identifier used in the dataset. Local identifiers must
+        be unique within the scope they are defined in, e.g., property
+        ids are unique within a concept, column ids are unique within
+        a table.  The length of local identifiers is limited to 64
+        characters.
+      </xs:documentation>
+    </xs:annotation>
+
+    <xs:restriction base="xs:NCName">
+      <xs:maxLength value="64"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+
+

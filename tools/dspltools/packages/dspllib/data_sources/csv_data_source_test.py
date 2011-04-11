@@ -1,0 +1,183 @@
+#!/usr/bin/python2.4
+#
+# Copyright 2011, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#    * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#    * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""Tests of csv_data_source module."""
+
+
+__author__ = 'Benjamin Yolken <yolken@google.com>'
+
+import StringIO
+import unittest
+
+import csv_data_source
+import data_source
+
+
+_TEST_CSV_CONTENT = (
+"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;rollup=true],metric1[extends=quantity:ratio;slice_role=metric],metric2[aggregation=avg],metric3[aggregation=count]
+1980-01-01,red,california,89,321,71.21
+1981-01-01,red,california,99,231,391.2
+1982-01-01,blue,maine's,293,32,2.31
+1983-01-01,blue,california,293,12,10.3
+1984-01-01,red,maine's,932,48,10.78""")
+
+
+class CSVDataSourceTests(unittest.TestCase):
+  """Tests of the CSVDataSource object."""
+
+  def setUp(self):
+    self.csv_file = StringIO.StringIO(_TEST_CSV_CONTENT)
+    self.csv_data_source = csv_data_source.CSVDataSource(
+        self.csv_file, verbose=False)
+
+  def tearDown(self):
+    self.csv_data_source.Close()
+    self.csv_file.close()
+
+  def testColumnBundle(self):
+    column_bundle = self.csv_data_source.GetColumnBundle()
+
+    self.assertEqual(
+        [c.column_id for c in column_bundle.GetColumnIterator()],
+        ['date', 'category1', 'category2', 'metric1', 'metric2', 'metric3'])
+    self.assertEqual(
+        [c.data_type for c in column_bundle.GetColumnIterator()],
+        ['date', 'string', 'string', 'integer', 'integer', 'float'])
+    self.assertEqual(
+        [c.data_format for c in column_bundle.GetColumnIterator()],
+        ['yyyy-MM-dd', '', '', '', '', ''])
+    self.assertEqual(
+        [c.concept_ref for c in column_bundle.GetColumnIterator()],
+        ['time:day', '', 'geo:us_state', '', '', ''])
+    self.assertEqual(
+        [c.concept_extension for c in column_bundle.GetColumnIterator()],
+        ['', '', '', 'quantity:ratio', '', ''])
+    self.assertEqual(
+        [c.slice_role for c in column_bundle.GetColumnIterator()],
+        ['dimension', 'dimension', 'dimension', 'metric', 'metric',
+         'metric'])
+    self.assertEqual(
+        [c.rollup for c in column_bundle.GetColumnIterator()],
+        [False, False, True, False, False, False])
+
+  def testEntityTableGeneration(self):
+    """Test that single-concept tables are generated correctly."""
+    table_data = self.csv_data_source.GetTableData(
+        data_source.QueryParameters(['category2']))
+
+    # Make sure quotes are properly escaped
+    self.assertEqual(table_data.rows,
+                     [['california'], ['maine\'s']])
+
+  def testSliceTableGeneration(self):
+    """Test that slice tables are generated correctly."""
+    table_data = self.csv_data_source.GetTableData(
+        data_source.QueryParameters(
+            ['category2', 'metric1', 'metric2', 'metric3']))
+
+    self.assertEqual(
+        table_data.rows,
+        [['california', 89 + 99 + 293, (321.0 + 231.0 + 12.0) / 3.0, 3],
+         ['maine\'s', 293 + 932, (32.0 + 48.0) / 2.0, 2]])
+
+
+class CSVDataSourceErrorTests(unittest.TestCase):
+  """Tests of the CSVDataSource object for error cases."""
+
+  def setUp(self):
+    pass
+
+  def testBadHeaderKey(self):
+    """Test that unknown key in header generates error."""
+    csv_file = StringIO.StringIO(
+        'date[unknown_key=unknown_value],metric\n1990,23232')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testBadDataType(self):
+    """Test that unknown type value generates error."""
+    csv_file = StringIO.StringIO('date[type=unknown_type],metric\n1990,23232')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testBadAggregation(self):
+    """Test that unknown aggregation operator generates error."""
+    csv_file = StringIO.StringIO(
+        'date[aggregation=unknown_aggregation],metric\n1990,23232')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testBadSliceRoleKey(self):
+    """Test that unknown value for slice_role generates error."""
+    csv_file = StringIO.StringIO(
+        'date[slice_role=unknown_role],metric\n1990,23232')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testBadColumnID(self):
+    """Test that a badly formatted column ID generates error."""
+    csv_file = StringIO.StringIO('my date[type=date],metric\n1990,23232')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testBadDataRow(self):
+    """Test that row with wrong number of entries causes error."""
+    csv_file = StringIO.StringIO('date,metric\n01/01/1990,23232,31')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+
+if __name__ == '__main__':
+  unittest.main()

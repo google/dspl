@@ -1,0 +1,13 @@
+URL: http://www.familieleuthe.de/MiniXsv.html
+Version: 0.9.0
+License: Python (MIT Style)
+License File: README.txt
+
+Description: "minixsv is a lightweight XML schema validator written in 'pure'
+Python. Currently a subset of the XML schema standard is supported.
+minixsv is based on genxmlif, a generic XML interface class,
+which currently supports minidom, elementtree or 4DOM/pyXML as XML parser.
+Other parsers can be adapted by implementing an appropriate derived interface
+class."
+
+Local Modifications: none.
