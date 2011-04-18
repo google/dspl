@@ -29,25 +29,35 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Setup script for the DSPLtools suite."""
-
-from distutils.core import setup
+"""Run all tests defined in the DSPL Tools code."""
 
 
-setup(name='dspltools',
-      version='0.2',
-      description='Suite of command-line tools for generating DSPL datasets',
-      author='Benjamin Yolken',
-      author_email='yolken@google.com',
-      url='http://code.google.com/apis/publicdata/docs/dspltools.html',
-      packages=['dspllib', 'dspllib.data_sources',
-                'dspllib.model', 'dspllib.validation', 'genxmlif',
-                'minixsv'],
-      package_dir={'dspllib': 'packages/dspllib',
-                   'genxmlif': 'packages/third_party/minixsv/genxmlif',
-                   'minixsv': 'packages/third_party/minixsv/minixsv'},
-      package_data={'dspllib.validation': ['schemas/*.xsd',
-                                           'test_dataset/*.csv',
-                                           'test_dataset/*.xml'],
-                    'minixsv': ['*.xsd', 'minixsv']},
-      scripts=['scripts/dsplcheck.py', 'scripts/dsplgen.py'],)
+__author__ = 'Benjamin Yolken <yolken@google.com>'
+
+import unittest
+
+_TEST_MODULE_NAMES = [
+    'dsplcheck_test',
+    'dsplgen_test',
+    'dspllib.data_sources.csv_data_source_test',
+    'dspllib.data_sources.data_source_test',
+    'dspllib.data_sources.data_source_to_dspl_test',
+    'dspllib.model.dspl_model_loader_test',
+    'dspllib.model.dspl_model_test',
+    'dspllib.validation.dspl_validation_test',
+    'dspllib.validation.xml_validation_test']
+
+
+def main():
+  """Run all DSPL Tools tests and print the results to stderr."""
+  test_suite = unittest.TestSuite()
+
+  for test_module_name in _TEST_MODULE_NAMES:
+    test_suite.addTests(
+        unittest.defaultTestLoader.loadTestsFromName(test_module_name))
+
+  unittest.TextTestRunner().run(test_suite)
+
+
+if __name__ == '__main__':
+  main()

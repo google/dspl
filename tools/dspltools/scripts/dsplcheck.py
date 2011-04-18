@@ -37,6 +37,8 @@ __author__ = 'Benjamin Yolken <yolken@google.com>'
 import optparse
 import sys
 
+from dspllib.model import dspl_model_loader
+from dspllib.validation import dspl_validation
 from dspllib.validation import xml_validation
 
 
@@ -52,10 +54,16 @@ def LoadOptionsFromFlags(argv):
   usage_string = 'python dsplcheck.py [options] [DSPL XML file]'
 
   parser = optparse.OptionParser(usage=usage_string)
+
   parser.set_defaults(verbose=True)
   parser.add_option('-q', '--quiet',
                     action='store_false', dest='verbose',
                     help='Quiet mode')
+
+  parser.set_defaults(full_check=True)
+  parser.add_option('-x', '--xml_only',
+                    action='store_false', dest='full_check',
+                    help='Schema validation only (no model checking)')
 
   (options, args) = parser.parse_args(args=argv)
 
@@ -63,6 +71,7 @@ def LoadOptionsFromFlags(argv):
     parser.error('An XML file is required')
 
   return {'verbose': options.verbose,
+          'full_check': options.full_check,
           'xml_file_path': args[0]}
 
 
@@ -73,11 +82,38 @@ def main(argv):
     argv: The program argument vector (excluding the script name)
   """
   options = LoadOptionsFromFlags(argv)
-  xml_file = open(options['xml_file_path'], 'r')  
+  xml_file = open(options['xml_file_path'], 'r')
 
-  print xml_validation.RunValidation(
+  if options['verbose']:
+    print '==== Checking XML file against DSPL schema....'
+
+  result = xml_validation.RunValidation(
       xml_file,
       verbose=options['verbose'])
+
+  print result
+
+  if 'validates successfully' not in result:
+    # Stop if XML validation not successful
+    sys.exit(2)
+
+  if options['full_check']:
+    if options['verbose']:
+      print '\n==== Parsing DSPL dataset....'
+
+    dataset = dspl_model_loader.LoadDSPLFromFiles(options['xml_file_path'])
+
+    if options['verbose']:
+      print 'Parsing completed.'
+
+      print '\n==== Checking DSPL model....'
+
+    dspl_validator = dspl_validation.DSPLDatasetValidator(dataset)
+
+    print dspl_validator.RunValidation(options['verbose'])
+
+    if options['verbose']:
+      print '\nDone.'
 
   xml_file.close()
 

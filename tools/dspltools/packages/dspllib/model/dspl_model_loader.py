@@ -231,10 +231,18 @@ def ElementToTable(table_element, csv_path):
   dspl_columns = []
 
   for column_element in column_elements:
+    column_value_element = column_element.find(_DSPL_SCHEMA_PREFIX + 'value')
+
+    if column_value_element is not None:
+      constant_value = column_value_element.text
+    else:
+      constant_value = ''
+
     dspl_column = dspl_model.TableColumn(
         column_id=column_element.get('id'),
         data_type=column_element.get('type'),
-        data_format=column_element.get('format', default=''))
+        data_format=column_element.get('format', default=''),
+        constant_value=constant_value)
 
     dspl_columns.append(dspl_column)
 
@@ -339,7 +347,7 @@ def LoadDSPLFromFiles(xml_file_path):
   Returns:
     dspl_model.DataSet object
   """
-  xml_file = codecs.open(xml_file_path, encoding='utf-8', mode='r')
+  xml_file = open(xml_file_path, 'r')
 
   [xml_model, namespaces] = _NSParser(xml_file)
   xml_file.close()

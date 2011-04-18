@@ -114,7 +114,9 @@ TEST_DSPL_XML = """
   <tables>
     <table id="table">
       <column id="col1" type="string"/>
-      <column id="col2" type="integer"/>
+      <column id="col2" type="integer">
+        <value>1234</value>
+      </column>
       <data>
         <file encoding="utf-8" format="csv">mydata.csv</file>
       </data>
@@ -207,8 +209,8 @@ class DSPLModelTests(unittest.TestCase):
     self.dspl_dataset.AddTable(
         dspl_model.Table(
             table_id='table',
-            columns=[dspl_model.TableColumn('col1', 'string'),
-                     dspl_model.TableColumn('col2', 'integer')],
+            columns=[dspl_model.TableColumn('col1', 'string', '', ''),
+                     dspl_model.TableColumn('col2', 'integer', '', '1234')],
             file_name='mydata.csv',
             verbose=False))
 

@@ -452,17 +452,40 @@ class Slice(object):
 class TableColumn(object):
   """A column in a DSPL table."""
 
-  def __init__(self, column_id='', data_type='', data_format=''):
+  def __init__(self, column_id='', data_type='', data_format='',
+               constant_value=''):
     """Create a new TableColumn object.
 
     Args:
       column_id: String ID for the column
       data_type: One of {'boolean', 'date', 'float', 'integer', 'string'}
       data_format: Formatting string for this column
+      constant_value: A constant value for this column
     """
     self.column_id = column_id
     self.data_type = data_type
     self.data_format = data_format
+    self.constant_value = constant_value
+
+  def ToXMLElement(self):
+    """Convert object to its ElementTree XML representation.
+
+    Returns:
+      An ElementTree Element.
+    """
+    column_element = xml.etree.ElementTree.Element('column')
+    column_element.set('id', self.column_id)
+    column_element.set('type', self.data_type)
+
+    if self.data_format:
+      column_element.set('format', self.data_format)
+
+    if self.constant_value:
+      column_value_element = xml.etree.ElementTree.Element('value')
+      column_value_element.text = self.constant_value
+      column_element.append(column_value_element)
+
+    return column_element
 
 
 class Table(object):
@@ -510,14 +533,7 @@ class Table(object):
     table_element.set('id', self.table_id)
 
     for column in self.columns:
-      column_element = xml.etree.ElementTree.Element('column')
-      column_element.set('id', column.column_id)
-      column_element.set('type', column.data_type)
-
-      if column.data_format:
-        column_element.set('format', column.data_format)
-
-      table_element.append(column_element)
+      table_element.append(column.ToXMLElement())
 
     table_data = xml.etree.ElementTree.Element('data')
     table_data_file = xml.etree.ElementTree.Element('file')
