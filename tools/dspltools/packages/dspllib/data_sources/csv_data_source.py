@@ -96,7 +96,7 @@ def _HeaderToColumn(header_string):
         [key, value] = key_value_pair.split('=')
       except ValueError:
         raise data_source.DataSourceError(
-            'Formatting error for header string: %s' % header_string)      
+            'Formatting error for header string: %s' % header_string)
 
       # Map the key to the appropriate field of the DataSourceColumn object
       if key == 'type':
@@ -217,7 +217,7 @@ class CSVDataSource(data_source.DataSource):
       # Check data type
       if not column.data_type:
         column.data_type = (
-            data_source.GuessDataType(second_row_values[c]))
+            data_source.GuessDataType(second_row_values[c], column.column_id))
 
         if self.verbose:
           print 'Guessing that column %s is of type %s' % (

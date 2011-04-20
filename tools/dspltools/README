@@ -1,1 +1,27 @@
+Documentation
+=============
 See http://code.google.com/apis/publicdata/dspltools.html for documentation.
+
+
+Release Notes
+=============
+*** v0.1 ***
+Release date: April 11, 2011
+
+Description:
+DSPL Tools released!
+
+
+*** v0.2 ***
+Release date: April 18, 2011
+
+Description:
+Enhanced DSPL Check by adding significant functionality beyond XML schema
+validation, including the checking of internal dataset references and CSV
+file structure.
+
+
+*** v0.2.1 ***
+Release date: April 21, 2011
+
+Description: Use column ID to distinguish between years and integers in dsplgen.

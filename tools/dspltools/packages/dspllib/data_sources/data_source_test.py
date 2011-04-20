@@ -98,6 +98,7 @@ class DataGuessingTest(unittest.TestCase):
 
   def testGuessType(self):
     self.assertEqual(data_source.GuessDataType('312332'), 'integer')
+    self.assertEqual(data_source.GuessDataType('1999', 'year'), 'date')
     self.assertEqual(data_source.GuessDataType('3123.32'), 'float')
     self.assertEqual(data_source.GuessDataType('-3399332'), 'integer')
     self.assertEqual(data_source.GuessDataType('-3.0'), 'float')

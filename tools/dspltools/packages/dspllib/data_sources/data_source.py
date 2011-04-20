@@ -52,17 +52,17 @@ class DataSourceWarning(Warning):
   pass
 
 
-def GuessDataType(value):
-  """Guess the DSPL data type of the argument string.
+def GuessDataType(value, column_id=None):
+  """Guess the DSPL data type of a string value.
 
   Defaults to 'string' if value is not an obvious integer, float, or date.
   Also, does not try to detect boolean values, which are unlikely to be used
   in DSPL tables.
 
-  TODO(yolken): Make this guessing more sophisticated.
-
   Args:
     value: A string to be evaluated.
+    column_id: (Optional) Name of the column containing data; used to resolve
+               ambiguities, e.g. between years and integers.
 
   Returns:
     One of {'date', 'integer', 'float', 'string'}
@@ -70,7 +70,10 @@ def GuessDataType(value):
   stripped_value = value.strip().replace('"', '')
 
   if re.search('^-?[0-9]+$', stripped_value):
-    return 'integer'
+    if column_id == 'year':
+      return 'date'
+    else:
+      return 'integer'
   elif re.search('^-?[0-9]+\.[0-9]+$', stripped_value):
     return 'float'
   elif re.search('^[0-9]+(/|-)[0-9]+((/|-)[0-9]+){0,1}$', stripped_value):
@@ -80,7 +83,7 @@ def GuessDataType(value):
 
 
 def GuessDateFormat(value):
-  """Guess the Joda datetime format for the given date string.
+  """Guess the Joda datetime format for a string value.
 
   Supports dates like '1980', '02/1980', '1980/02, '05/02/1980', and
   '1980/05/02', separated by either slashes or hyphens. Other

@@ -35,7 +35,7 @@ from distutils.core import setup
 
 
 setup(name='dspltools',
-      version='0.2',
+      version='0.2.1',
       description='Suite of command-line tools for generating DSPL datasets',
       author='Benjamin Yolken',
       author_email='yolken@google.com',
