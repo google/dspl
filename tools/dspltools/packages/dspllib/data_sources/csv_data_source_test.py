@@ -42,12 +42,13 @@ import data_source
 
 
 _TEST_CSV_CONTENT = (
-"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;rollup=true],metric1[extends=quantity:ratio;slice_role=metric],metric2[aggregation=avg],metric3[aggregation=count]
-1980-01-01,red,california,89,321,71.21
-1981-01-01,red,california,99,231,391.2
-1982-01-01,blue,maine's,293,32,2.31
-1983-01-01,blue,california,293,12,10.3
-1984-01-01,red,maine's,932,48,10.78""")
+"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;parent=category3],category3,metric1[extends=quantity:ratio;slice_role=metric],metric2[aggregation=avg],metric3[aggregation=count]
+1980-01-01,red,california,west,89,321,71.21
+1981-01-01,red,california,west,99,231,391.2
+1982-01-01,blue,maine's,east,293,32,2.31
+1983-01-01,blue,california,west,293,12,10.3
+1984-01-01,red,maine's,east,932,48,10.78
+1984-01-01,red,oregon,west,32,33,-14.34""")
 
 
 class CSVDataSourceTests(unittest.TestCase):
@@ -67,46 +68,65 @@ class CSVDataSourceTests(unittest.TestCase):
 
     self.assertEqual(
         [c.column_id for c in column_bundle.GetColumnIterator()],
-        ['date', 'category1', 'category2', 'metric1', 'metric2', 'metric3'])
+        ['date', 'category1', 'category2', 'category3',
+         'metric1', 'metric2', 'metric3'])
     self.assertEqual(
         [c.data_type for c in column_bundle.GetColumnIterator()],
-        ['date', 'string', 'string', 'integer', 'integer', 'float'])
+        ['date', 'string', 'string', 'string', 'integer', 'integer', 'float'])
     self.assertEqual(
         [c.data_format for c in column_bundle.GetColumnIterator()],
-        ['yyyy-MM-dd', '', '', '', '', ''])
+        ['yyyy-MM-dd', '', '', '', '', '', ''])
     self.assertEqual(
         [c.concept_ref for c in column_bundle.GetColumnIterator()],
-        ['time:day', '', 'geo:us_state', '', '', ''])
+        ['time:day', '', 'geo:us_state', '', '', '', ''])
     self.assertEqual(
         [c.concept_extension for c in column_bundle.GetColumnIterator()],
-        ['', '', '', 'quantity:ratio', '', ''])
+        ['', '', '', '', 'quantity:ratio', '', ''])
     self.assertEqual(
         [c.slice_role for c in column_bundle.GetColumnIterator()],
-        ['dimension', 'dimension', 'dimension', 'metric', 'metric',
+        ['dimension', 'dimension', 'dimension', 'dimension', 'metric', 'metric',
          'metric'])
     self.assertEqual(
         [c.rollup for c in column_bundle.GetColumnIterator()],
-        [False, False, True, False, False, False])
+        [False, False, False, True, False, False, False])
+    self.assertEqual(
+        [c.parent_ref for c in column_bundle.GetColumnIterator()],
+        ['', '', 'category3', '', '', '', ''])
 
   def testEntityTableGeneration(self):
     """Test that single-concept tables are generated correctly."""
     table_data = self.csv_data_source.GetTableData(
-        data_source.QueryParameters(['category2']))
+        data_source.QueryParameters(
+            data_source.QueryParameters.CONCEPT_QUERY, ['category2']))
 
     # Make sure quotes are properly escaped
     self.assertEqual(table_data.rows,
-                     [['california'], ['maine\'s']])
+                     [['california'], ['maine\'s'], ['oregon']])
+
+  def testMultiEntityTableGeneration(self):
+    """Test that multi-concept tables are generated correctly."""
+    table_data = self.csv_data_source.GetTableData(
+        data_source.QueryParameters(
+            data_source.QueryParameters.CONCEPT_QUERY,
+            ['category2', 'category3']))
+
+    # Make sure quotes are properly escaped
+    self.assertEqual(table_data.rows,
+                     [['california', 'west'], ['maine\'s', 'east'],
+                      ['oregon', 'west']])
 
   def testSliceTableGeneration(self):
     """Test that slice tables are generated correctly."""
     table_data = self.csv_data_source.GetTableData(
         data_source.QueryParameters(
+            data_source.QueryParameters.SLICE_QUERY,
             ['category2', 'metric1', 'metric2', 'metric3']))
 
     self.assertEqual(
         table_data.rows,
         [['california', 89 + 99 + 293, (321.0 + 231.0 + 12.0) / 3.0, 3],
-         ['maine\'s', 293 + 932, (32.0 + 48.0) / 2.0, 2]])
+         ['maine\'s', 293 + 932, (32.0 + 48.0) / 2.0, 2],
+         ['oregon', 32, 33, 1]])
 
 
 class CSVDataSourceErrorTests(unittest.TestCase):
@@ -170,7 +190,8 @@ class CSVDataSourceErrorTests(unittest.TestCase):
 
   def testBadDataRow(self):
     """Test that row with wrong number of entries causes error."""
-    csv_file = StringIO.StringIO('date,metric\n01/01/1990,23232,31')
+    csv_file = StringIO.StringIO(
+        'date,column\n01/01/1990,abcd,1234')
 
     self.assertRaises(
         data_source.DataSourceError, csv_data_source.CSVDataSource,
@@ -178,6 +199,28 @@ class CSVDataSourceErrorTests(unittest.TestCase):
 
     csv_file.close()
 
+  def testBadParentReference(self):
+    """Test that illegal parent reference causes error."""
+    csv_file = StringIO.StringIO(
+        'date,column[parent=unknown_parent]\n01/01/1990,abcd')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
+
+  def testMultipleParents(self):
+    """Test that having multiple parent instances causes error."""
+    csv_file = StringIO.StringIO(
+        'date,column1[parent=column2],column2,column3\n'
+        '1/1/01,val1,parent1,323\n1/1/02,val1,parent2,123')
+
+    self.assertRaises(
+        data_source.DataSourceError, csv_data_source.CSVDataSource,
+        csv_file, False)
+
+    csv_file.close()
 
 if __name__ == '__main__':
   unittest.main()

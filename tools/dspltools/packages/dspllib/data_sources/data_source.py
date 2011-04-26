@@ -209,7 +209,7 @@ class DataSourceColumn(object):
 
   def __init__(
       self, column_id, data_type='', data_format='', concept_ref='',
-      concept_extension='', slice_role='', rollup=False,
+      concept_extension='', parent_ref='', slice_role='', rollup=False,
       internal_parameters=None):
     """Create a DataSourceColumn object.
 
@@ -224,9 +224,10 @@ class DataSourceColumn(object):
       concept_extension: String ID of a canonical concept that the concept
                          for this column will extend; mutually exclusive with
                          concept_ref
+      parent_ref: String ID of column that is the parent of this one
       slice_role: One of {'dimension', 'metric'}
       rollup: Whether this column should be aggregated away when generating
-                slices
+              slices
       internal_parameters: An object (e.g. dictionary or string) that can be
                            used by the data source for storing other, private
                            parameters
@@ -236,6 +237,7 @@ class DataSourceColumn(object):
     self.data_format = data_format
     self.concept_ref = concept_ref
     self.concept_extension = concept_extension
+    self.parent_ref = parent_ref
     self.slice_role = slice_role
     self.rollup = rollup
     self.internal_parameters = internal_parameters
@@ -244,16 +246,23 @@ class DataSourceColumn(object):
 class QueryParameters(object):
   """Object for passing query parameters to data source."""
 
-  def __init__(self, column_ids=()):
+  # Query types
+  CONCEPT_QUERY = 0
+  SLICE_QUERY = 1
+
+  def __init__(self, query_type, column_ids=()):
     """Create a new QueryParameters object.
 
-    Just supports standard slice queries for now, i.e. getting the table
-    for a combination of dimensions and metrics. May be extended in the future
-    to support more query customization.
+    Supports two types of queries: (1) concept queries, which get the distinct
+    value for one or more (dimension) concepts, and (2) slice queries, which get
+    metric values for some combination of dimensions.
 
     Args:
+      query_type: The type for this query; must be a value from the class
+                  enum defined above
       column_ids: Sequence of string column IDs
     """
+    self.query_type = query_type
     self.column_ids = tuple(column_ids)
 
 

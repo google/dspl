@@ -1,6 +1,6 @@
 Documentation
 =============
-See http://code.google.com/apis/publicdata/dspltools.html for documentation.
+See http://code.google.com/apis/publicdata/docs/dspltools.html for documentation.
 
 
 Release Notes
@@ -16,6 +16,7 @@ DSPL Tools released!
 Release date: April 18, 2011
 
 Description:
+------------
 Enhanced DSPL Check by adding significant functionality beyond XML schema
 validation, including the checking of internal dataset references and CSV
 file structure.
@@ -24,4 +25,17 @@ file structure.
 *** v0.2.1 ***
 Release date: April 21, 2011
 
-Description: Use column ID to distinguish between years and integers in dsplgen.
+Description:
+------------
+Use column ID to distinguish between years and integers in dsplgen.
+
+
+*** v.0.3 ***
+Release date: April 26, 2011
+
+Description:
+------------
+Extended DSPL Check to validate dataset CSV data (sorting, instance IDs)
+and slice / table links. 
+
+Added concept hierarchy support to DSPL Gen.

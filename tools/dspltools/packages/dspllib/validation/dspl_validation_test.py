@@ -174,6 +174,86 @@ class DSPLValidationTests(unittest.TestCase):
         dspl_validation.DSPLValidationIssue.MISSING_INFO,
         'countries_slice_table')
 
+  def testBadConceptTableColumnIDs(self):
+    self.dataset.GetTable('countries_table').columns[0].column_id = (
+        'non_matching_id')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_table')
+
+  def testPoorlyFormedConceptCSV(self):
+    self.dataset.GetTable('countries_table').table_data.append(['bad_row'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_table')
+
+  def testRepeatedConceptID(self):
+    self.dataset.GetTable('countries_table').table_data.append(
+        ['AL', 'Albania', '41.153332', '20.168331'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.REPEATED_INFO,
+        'countries_table')
+
+  def testBadSliceTableDimensionID(self):
+    self.dataset.GetTable('countries_slice_table').columns[0].column_id = (
+        'non_matching_id')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testBadSliceTableMetricID(self):
+    self.dataset.GetTable('countries_slice_table').columns[2].column_id = (
+        'non_matching_id')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testPoorlyFormedSliceCSV(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['US', '1965', '110188299', '1234'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testRepeatedTableDimensions(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['US', '1963', '110188299'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.REPEATED_INFO,
+        'countries_slice_table')
+
+  def testBadSliceConceptReferences(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['unrecognized_value', '1963', '110188299'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testBadSortOrder(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['AF', '1975', '110188299'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.OTHER,
+        'countries_slice_table')
+
   def testResultsString(self):
     self.dataset.GetConcept('country').table_ref = ''
     self.dataset.GetSlice('countries_slice').table_ref = 'nonexistent_table'
@@ -199,6 +279,9 @@ class DSPLValidationTests(unittest.TestCase):
 
     if 'tables' in check_stages:
       dspl_validator.CheckTables()
+
+    if 'data' in check_stages:
+      dspl_validator.CheckData()
 
     all_issues = dspl_validator.GetIssues()
 

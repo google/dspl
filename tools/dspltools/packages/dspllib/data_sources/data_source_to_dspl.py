@@ -55,11 +55,16 @@ def _CalculateSlices(column_bundle):
   binary_elements = []
   non_binary_elements = []
 
+  child_parent_dict = {}
+
   for column in column_bundle.GetColumnIterator():
     if column.rollup:
       binary_elements.append(column)
     else:
       non_binary_elements.append(column)
+
+    if column.parent_ref:
+      child_parent_dict[column] = column_bundle.GetColumnByID(column.parent_ref)
 
   # Expand out slices using powerset operator
   for selection in _Powerset(binary_elements):
@@ -67,7 +72,21 @@ def _CalculateSlices(column_bundle):
 
     all_slices.append([s for s in transformed_slice])
 
-  return all_slices
+  # Prune slices that contain both a concept and its parent
+  slices_to_evaluate = []
+
+  for data_slice in all_slices:
+    keep_slice = True
+
+    for (key, value) in child_parent_dict.items():
+      if key in data_slice and value in data_slice:
+        keep_slice = False
+        break
+
+    if keep_slice:
+      slices_to_evaluate.append(data_slice)
+
+  return slices_to_evaluate
 
 
 def _Powerset(input_list):
@@ -91,7 +110,8 @@ def _Powerset(input_list):
           in range(len(input_list) + 1)))
 
 
-def _CreateConceptTable(column, instance_data, verbose=True):
+def _CreateConceptTable(
+    column, instance_data, parent_column=None, verbose=True):
   """Create a DSPL table object that enumerates the instances of a concept.
 
   If the concept extends 'entity:entity' or 'geo:location', extra columns
@@ -104,25 +124,30 @@ def _CreateConceptTable(column, instance_data, verbose=True):
   Args:
     column: A DataSourceColumn object corresponding to a dataset dimension
     instance_data: A TableRows object containing a list of concept instances
+    parent_column: A DataSourceColumn object corresponding to the parent
+                   of this concept
     verbose: Print out status messages to stdout
 
   Returns:
     A DSPL Table object
   """
+  dspl_columns = [dspl_model.TableColumn(column_id=column.column_id,
+                                         data_type=column.data_type)]
+
+  if parent_column:
+    dspl_columns += [dspl_model.TableColumn(column_id=parent_column.column_id,
+                                            data_type=parent_column.data_type)]
+
   if column.concept_extension == 'entity:entity':
     # Add a 'name' column and populate it with the instance IDs
-    dspl_columns = [
-        dspl_model.TableColumn(column_id=column.column_id,
-                               data_type=column.data_type),
+    dspl_columns += [
         dspl_model.TableColumn(column_id='name', data_type='string')]
 
     dspl_table_data = instance_data.MergeValues(instance_data).rows
   elif column.concept_extension == 'geo:location':
     # Add 'name', 'latitude', and 'longitude' columns; populate the first with
     # the instance IDs, the others with blank values
-    dspl_columns = [
-        dspl_model.TableColumn(column_id=column.column_id,
-                               data_type=column.data_type),
+    dspl_columns += [
         dspl_model.TableColumn(column_id='name', data_type='string'),
         dspl_model.TableColumn(column_id='latitude', data_type='float'),
         dspl_model.TableColumn(column_id='longitude', data_type='float')]
@@ -130,8 +155,6 @@ def _CreateConceptTable(column, instance_data, verbose=True):
     dspl_table_data = (instance_data.MergeValues(instance_data)
                        .MergeConstant('').MergeConstant('').rows)
   else:
-    dspl_columns = [dspl_model.TableColumn(column_id=column.column_id,
-                                           data_type=column.data_type)]
     dspl_table_data = instance_data.rows
 
   # Create table, including header row in table data
@@ -232,7 +255,63 @@ def PopulateDataset(data_source_obj, verbose):
           namespace_url=(
               'http://www.google.com/publicdata/dataset/google/unit')))
 
-  # Iterate through slices, getting concept definitions along the way
+  # Store concept ID to column ID mappings for imported dimension concepts
+  dimension_map = {}
+
+  # Generate concept metadata
+  for column in column_bundle.GetColumnIterator():
+    if column.slice_role == 'metric':
+      metric_concept = dspl_model.Concept(
+          concept_id=column.column_id,
+          concept_extension_reference=column.concept_extension,
+          data_type=column.data_type)
+      dataset.AddConcept(metric_concept)
+    else:
+      # Add dimension concept
+      if column.concept_ref:
+        # Dimension concept is imported; no need to enumerate instances
+        dimension_concept = dspl_model.Concept(
+            concept_id=column.column_id,
+            concept_reference=column.concept_ref,
+            data_type=column.data_type)
+
+        dimension_map[column.concept_ref] = column.column_id
+      else:
+        # Dimension defined inside the dataset; need to enumerate instances
+        if verbose:
+          print ('Enumerating instances of \'%s\' concept' %
+                 (column.column_id))
+
+        if column.parent_ref:
+          parent_column = column_bundle.GetColumnByID(column.parent_ref)
+          query_column_ids = [column.column_id, column.parent_ref]
+        else:
+          parent_column = None
+          query_column_ids = [column.column_id]
+
+        concept_table_rows = data_source_obj.GetTableData(
+            data_source.QueryParameters(
+                query_type=data_source.QueryParameters.CONCEPT_QUERY,
+                column_ids=query_column_ids))
+
+        dataset.AddTable(
+            _CreateConceptTable(
+                column, concept_table_rows, parent_column, verbose))
+
+        dimension_concept = dspl_model.Concept(
+            concept_id=column.column_id,
+            concept_extension_reference=column.concept_extension,
+            data_type=column.data_type,
+            table_ref='%s_table' % (column.column_id))
+
+        if column.parent_ref:
+          # Add in parent reference property
+          dimension_concept.properties.append(
+              dspl_model.Property(column.parent_ref, True))
+
+      dataset.AddConcept(dimension_concept)
+
+  # Generate slice metadata
   for i, slice_column_set in enumerate(_CalculateSlices(column_bundle)):
     if verbose:
       print 'Evaluating slice: %s' % ([c.column_id for c in slice_column_set])
@@ -241,50 +320,10 @@ def PopulateDataset(data_source_obj, verbose):
     metric_ids = []
 
     for column in slice_column_set:
-      if column.slice_role == 'metric':
-        # Add metric concept, if not already defined
-        metric_concept = dataset.GetConcept(column.column_id)
-        metric_ids.append(column.column_id)
-
-        if not metric_concept:
-          metric_concept = dspl_model.Concept(
-              concept_id=column.column_id,
-              concept_extension_reference=column.concept_extension,
-              data_type=column.data_type)
-          dataset.AddConcept(metric_concept)
-      else:
-        # Add dimension concept, if not already defined
-        dimension_concept = dataset.GetConcept(column.column_id)
+      if column.slice_role == 'dimension':
         dimension_ids.append(column.column_id)
-
-        if not dimension_concept:
-          if column.concept_ref:
-            # Dimension concept is imported; no need to enumerate instances
-            dimension_concept = dspl_model.Concept(
-                concept_id=column.column_id,
-                concept_reference=column.concept_ref,
-                data_type=column.data_type)
-          else:
-            # Dimension defined inside the dataset; need to enumerate instances
-            if verbose:
-              print ('Enumerating instances of \'%s\' concept' %
-                     (column.column_id))
-
-            concept_table_rows = data_source_obj.GetTableData(
-                data_source.QueryParameters(
-                    column_ids=[column.column_id]))
-
-            dataset.AddTable(
-                _CreateConceptTable(
-                    column, concept_table_rows, verbose))
-
-            dimension_concept = dspl_model.Concept(
-                concept_id=column.column_id,
-                concept_extension_reference=column.concept_extension,
-                data_type=column.data_type,
-                table_ref='%s_table' % (column.column_id))
-
-          dataset.AddConcept(dimension_concept)
+      else:
+        metric_ids.append(column.column_id)
 
     # Execute slice query
     if verbose:
@@ -292,6 +331,7 @@ def PopulateDataset(data_source_obj, verbose):
 
     slice_table_rows = data_source_obj.GetTableData(
         data_source.QueryParameters(
+            query_type=data_source.QueryParameters.SLICE_QUERY,
             column_ids=[c.column_id for c in slice_column_set]))
 
     # Add slice and table metadata to dataset model
@@ -308,6 +348,7 @@ def PopulateDataset(data_source_obj, verbose):
         slice_id='slice_%d' % (i),
         dimension_refs=dimension_ids,
         metric_refs=metric_ids,
+        dimension_map=dimension_map,
         table_ref='slice_%d_table' % i)
 
     dataset.AddSlice(new_slice)

@@ -138,10 +138,72 @@ def ElementToConcept(concept_element):
   concept_table_element = concept_element.find(
       _DSPL_SCHEMA_PREFIX + 'table')
 
+  dspl_concept.attributes = ElementsToAttributes(concept_element)
+  dspl_concept.properties = ElementsToProperties(concept_element)
+
   if concept_table_element is not None:
     dspl_concept.table_ref = concept_table_element.get('ref')
 
   return dspl_concept
+
+
+def ElementsToAttributes(concept_element):
+  """Process the attributes in an an ElementTree concept element.
+
+  Args:
+    concept_element: An ElementTree concept element
+
+  Returns:
+    A list of dspl_model.Attribute instances, populated with the data from the
+    argument concept element.
+  """
+  attribute_elements = concept_element.findall(
+      _DSPL_SCHEMA_PREFIX + 'attribute')
+
+  dspl_attributes = []
+
+  for attribute_element in attribute_elements:
+    attribute_concept = attribute_element.get('concept')
+
+    # For now, only handle attributes with a concept reference
+    if attribute_concept:
+      dspl_attributes.append(
+          dspl_model.Attribute(attribute_concept, _GetValue(attribute_element)))
+
+  return dspl_attributes
+
+
+def ElementsToProperties(concept_element):
+  """Process the properties in an an ElementTree concept element.
+
+  Args:
+    concept_element: An ElementTree concept element
+
+  Returns:
+    A list of dspl_model.Property instances, populated with the data from the
+    argument concept element.
+  """
+  property_elements = concept_element.findall(
+      _DSPL_SCHEMA_PREFIX + 'property')
+
+  dspl_properties = []
+
+  for property_element in property_elements:
+    property_concept = property_element.get('concept')
+
+    # For now, only handle properties with a concept reference
+    if property_concept:
+      property_parent = property_element.get('isParent')
+
+      if property_parent == 'true':
+        is_parent = True
+      else:
+        is_parent = False
+
+      dspl_properties.append(
+          dspl_model.Property(property_concept, is_parent))
+
+  return dspl_properties
 
 
 def ElementToSlice(slice_element, dspl_dataset):
@@ -207,6 +269,34 @@ def ElementToSlice(slice_element, dspl_dataset):
 
   if slice_table_element is not None:
     dspl_slice.table_ref = slice_table_element.get('ref')
+
+    # Parse mapDimension and mapMetric elements
+    dimension_map_elements = slice_table_element.findall(
+        _DSPL_SCHEMA_PREFIX + 'mapDimension')
+
+    for dimension_map_element in dimension_map_elements:
+      dspl_slice.dimension_map[dimension_map_element.get('concept')] = (
+          dimension_map_element.get('toColumn'))
+
+    metric_map_elements = slice_table_element.findall(
+        _DSPL_SCHEMA_PREFIX + 'mapMetric')
+
+    for metric_map_element in metric_map_elements:
+      dspl_slice.metric_map[metric_map_element.get('concept')] = (
+          metric_map_element.get('toColumn'))
+
+  # Add 'implicit' dimension and/or metric maps for external concepts
+  for dimension_id in dspl_slice.dimension_refs:
+    if (':' in dimension_id) and (dimension_id not in dspl_slice.dimension_map):
+      dimension_name = dimension_id.split(':')[1]
+
+      dspl_slice.dimension_map[dimension_id] = dimension_name
+
+  for metric_id in dspl_slice.metric_refs:
+    if (':' in metric_id) and (metric_id not in dspl_slice.metric_map):
+      metric_name = metric_id.split(':')[1]
+
+      dspl_slice.metric_map[metric_id] = metric_name
 
   return dspl_slice
 

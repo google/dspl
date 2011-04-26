@@ -39,7 +39,6 @@ import shutil
 import tempfile
 import unittest
 
-import dspl_model
 import dspl_model_loader
 import dspl_model_test
 
@@ -103,6 +102,21 @@ class DSPLModelLoaderTests(unittest.TestCase):
     self.assertEqual(dspl_dataset.concepts[0].concept_description,
                      'Concept 1 Description')
     self.assertEqual(dspl_dataset.concepts[0].data_type, 'string')
+    self.assertEqual(len(dspl_dataset.concepts[0].attributes), 1)
+    self.assertEqual(
+        dspl_dataset.concepts[0].attributes[0].concept_ref, 'attribute_concept')
+    self.assertEqual(
+        dspl_dataset.concepts[0].attributes[0].value, 'attribute_value')
+    self.assertEqual(len(dspl_dataset.concepts[0].properties), 2)
+    self.assertEqual(
+        dspl_dataset.concepts[0].properties[0].concept_ref, 'property_concept')
+    self.assertEqual(
+        dspl_dataset.concepts[0].properties[0].is_parent, False)
+    self.assertEqual(
+        dspl_dataset.concepts[0].properties[1].concept_ref,
+        'another_property_concept')
+    self.assertEqual(
+        dspl_dataset.concepts[0].properties[1].is_parent, True)
     self.assertEqual(dspl_dataset.concepts[0].table_ref, 'table2')
 
     self.assertEqual(dspl_dataset.concepts[1].concept_id, 'concept2')
@@ -110,6 +124,8 @@ class DSPLModelLoaderTests(unittest.TestCase):
     self.assertEqual(dspl_dataset.concepts[1].concept_description,
                      'Concept 2 Description')
     self.assertEqual(dspl_dataset.concepts[1].data_type, 'integer')
+    self.assertEqual(len(dspl_dataset.concepts[1].attributes), 0)
+    self.assertEqual(len(dspl_dataset.concepts[1].properties), 0)
 
     self.assertEqual(dspl_dataset.concepts[2].concept_id, 'geo:country')
     self.assertEqual(dspl_dataset.concepts[2].concept_reference, 'geo:country')
@@ -122,6 +138,13 @@ class DSPLModelLoaderTests(unittest.TestCase):
                      ['concept1', 'geo:country'])
     self.assertEqual(dspl_dataset.slices[0].metric_refs, ['concept2'])
     self.assertEqual(dspl_dataset.slices[0].table_ref, 'table3')
+    self.assertEqual(
+        sorted(dspl_dataset.slices[0].dimension_map.items()),
+        sorted([('concept1', 'concept_column1'),
+                ('geo:country', 'concept_column3')]))
+    self.assertEqual(
+        dspl_dataset.slices[0].metric_map.items(),
+        [('concept2', 'concept_column2')])
 
     # Test tables
     self.assertEqual(len(dspl_dataset.tables), 1)

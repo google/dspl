@@ -84,6 +84,11 @@ TEST_DSPL_XML = """
         </description>
       </info>
       <type ref="string"/>
+      <attribute concept="attribute_concept">
+        <value>attribute_value</value>
+      </attribute>
+      <property concept="property_concept"/>
+      <property concept="another_property_concept" isParent="true"/>
       <table ref="table2"/>
     </concept>
 
@@ -106,7 +111,9 @@ TEST_DSPL_XML = """
       <dimension concept="geo:country"/>
       <metric concept="concept2"/>
       <table ref="table3">
-        <mapDimension concept="geo:country" toColumn="concept3"/>
+        <mapDimension concept="concept1" toColumn="concept_column1"/>
+        <mapDimension concept="geo:country" toColumn="concept_column3"/>
+        <mapMetric concept="concept2" toColumn="concept_column2"/>
       </table>
     </slice>
   </slices>
@@ -182,7 +189,14 @@ class DSPLModelTests(unittest.TestCase):
             concept_description='Concept 1 Description',
             table_ref='table2',
             concept_extension_reference='entity:entity',
-            data_type='string'))
+            data_type='string',
+            attributes=[
+                dspl_model.Attribute(concept_ref='attribute_concept',
+                                     value='attribute_value')],
+            properties=[
+                dspl_model.Property(concept_ref='property_concept'),
+                dspl_model.Property(concept_ref='another_property_concept',
+                                    is_parent=True)]))
 
     self.dspl_dataset.AddConcept(
         dspl_model.Concept(
@@ -193,17 +207,18 @@ class DSPLModelTests(unittest.TestCase):
 
     self.dspl_dataset.AddConcept(
         dspl_model.Concept(
-            concept_id='concept3',
-            concept_name='Concept 3',
-            concept_description='Concept 3 Description',
+            concept_id='geo:country',
             concept_reference='geo:country',
             data_type='string'))
 
     self.dspl_dataset.AddSlice(
         dspl_model.Slice(
             slice_id='data_slice',
-            dimension_refs=['concept1', 'concept3'],
+            dimension_refs=['concept1', 'geo:country'],
             metric_refs=['concept2'],
+            dimension_map={'concept1': 'concept_column1',
+                           'geo:country': 'concept_column3'},
+            metric_map={'concept2': 'concept_column2'},
             table_ref='table3'))
 
     self.dspl_dataset.AddTable(

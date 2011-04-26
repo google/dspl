@@ -51,7 +51,7 @@ class _MockDataSource(data_source.DataSource):
         'col1', data_type='string', slice_role='dimension',
         concept_extension='entity:entity', rollup=True)
     column2 = data_source.DataSourceColumn(
-        'col2', data_type='string', slice_role='dimension')
+        'col2', data_type='string', slice_role='dimension', parent_ref='col6')
     column3 = data_source.DataSourceColumn(
         'col3', data_type='date', concept_ref='time:year', data_format='yyyy',
         slice_role='dimension')
@@ -59,15 +59,22 @@ class _MockDataSource(data_source.DataSource):
         'col4', data_type='float', slice_role='metric')
     column5 = data_source.DataSourceColumn(
         'col5', data_type='integer', slice_role='metric')
+    column6 = data_source.DataSourceColumn(
+        'col6', data_type='string', slice_role='dimension', rollup=True)
 
     return data_source.DataSourceColumnBundle(
-        columns=[column1, column2, column3, column4, column5])
+        columns=[column1, column2, column3, column4, column5, column6])
 
   def GetTableData(self, query_parameters):
     if query_parameters.column_ids == ('col1',):
       return data_source.TableData(rows=[['blue'], ['green'], ['red']])
     elif query_parameters.column_ids == ('col2',):
-      return data_source.TableData(rows=[['california'], ['maine']])
+      return data_source.TableData(rows=[['california'], ['maine'], ['oregon']])
+    elif query_parameters.column_ids == ('col6',):
+      return data_source.TableData(rows=[['east'], ['west']])
+    elif query_parameters.column_ids == ('col2', 'col6'):
+      return data_source.TableData(rows=[['california', 'west'],
+                                         ['maine', 'east'], ['oregon', 'west']])
     else:
       data_columns = []
 
@@ -75,13 +82,15 @@ class _MockDataSource(data_source.DataSource):
         if column_id == 'col1':
           data_columns.append(['blue', 'blue', 'green', 'red'])
         elif column_id == 'col2':
-          data_columns.append(['california', 'california', 'maine', 'maine'])
+          data_columns.append(['california', 'california', 'maine', 'oregon'])
         elif column_id == 'col3':
           data_columns.append(['1989', '1990', '1991', '1992'])
         elif column_id == 'col4':
           data_columns.append(['1.2', '1.3', '1.4', '1.5'])
         elif column_id == 'col5':
           data_columns.append(['4', '5', '6', '7'])
+        elif column_id == 'col6':
+          data_columns.append(['west', 'west', 'east', 'west'])
 
       # Transpose rows and columns so that table is properly set up
       return data_source.TableData([list(r) for r in zip(*data_columns)])
@@ -102,9 +111,11 @@ class CalculateSlicesTests(unittest.TestCase):
         'col1', rollup=True, concept_extension='entity:entity')
     column2 = data_source.DataSourceColumn('col2', rollup=False)
     column3 = data_source.DataSourceColumn('col3', rollup=True)
+    column4 = data_source.DataSourceColumn(
+        'col4', rollup=True, parent_ref='col3')
 
     column_bundle = data_source.DataSourceColumnBundle(
-        columns=[column1, column2, column3])
+        columns=[column1, column2, column3, column4])
 
     slice_column_sets = data_source_to_dspl._CalculateSlices(column_bundle)
 
@@ -118,8 +129,10 @@ class CalculateSlicesTests(unittest.TestCase):
     # dependent
     self.assertEqual(
         sorted([sorted(s) for s in slice_column_ids]),
-        sorted([sorted(s) for s in [['col1', 'col2', 'col3'], ['col1', 'col2'],
-                                    ['col2', 'col3'], ['col2']]]))
+        sorted([sorted(s) for s in [['col1', 'col2', 'col3'],
+                                    ['col1', 'col2', 'col4'],
+                                    ['col1', 'col2'], ['col2', 'col3'],
+                                    ['col2', 'col4'], ['col2']]]))
 
 
 class PopulateDatasetTest(unittest.TestCase):
@@ -153,23 +166,23 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self.assertEqual(
         [c.concept_id for c in sorted_concepts],
-        ['col1', 'col2', 'col3', 'col4', 'col5'])
+        ['col1', 'col2', 'col3', 'col4', 'col5', 'col6'])
 
     self.assertEqual(
         [c.data_type for c in sorted_concepts],
-        ['string', 'string', 'date', 'float', 'integer'])
+        ['string', 'string', 'date', 'float', 'integer', 'string'])
 
     self.assertEqual(
         [c.table_ref for c in sorted_concepts],
-        ['col1_table', 'col2_table', '', '', ''])
+        ['col1_table', 'col2_table', '', '', '', 'col6_table'])
 
     self.assertEqual(
         [c.concept_extension_reference for c in sorted_concepts],
-        ['entity:entity', '', '', '', ''])
+        ['entity:entity', '', '', '', '', ''])
 
     self.assertEqual(
         [c.concept_reference for c in sorted_concepts],
-        ['', '', 'time:year', '', ''])
+        ['', '', 'time:year', '', '', ''])
 
   def testDatasetSlices(self):
     """Test that the dataset slices are properly created."""
@@ -195,6 +208,12 @@ class PopulateDatasetTest(unittest.TestCase):
          sorted(self.dataset.slices[1].metric_refs)],
         [['col4', 'col5'], ['col4', 'col5']])
 
+    # Test that dimension maps are set up appropriately
+    self.assertEqual(self.dataset.slices[0].dimension_map,
+                     {'time:year': 'col3'})
+    self.assertEqual(self.dataset.slices[1].dimension_map,
+                     {'time:year': 'col3'})
+
   def testDatasetTables(self):
     """Test that the dataset tables are properly created."""
     # Sort tables so that test results aren't dependent on order
@@ -202,23 +221,25 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self.assertEqual(
         [t.table_id for t in sorted_tables],
-        ['col1_table', 'col2_table', 'slice_0_table', 'slice_1_table'])
+        ['col1_table', 'col2_table', 'col6_table',
+         'slice_0_table', 'slice_1_table'])
 
     self.assertEqual(
         [t.file_name for t in sorted_tables],
-        ['col1_table.csv', 'col2_table.csv', 'slice_0_table.csv',
-         'slice_1_table.csv'])
+        ['col1_table.csv', 'col2_table.csv', 'col6_table.csv',
+         'slice_0_table.csv', 'slice_1_table.csv'])
 
     # Map tables to what concepts they have in them
     col1_table = sorted_tables[0]
     col2_table = sorted_tables[1]
+    col6_table = sorted_tables[2]
 
-    if len(sorted_tables[2].columns) == 5:
-      col1_to_col5_table = sorted_tables[2]
-      col2_to_col5_table = sorted_tables[3]
-    else:
+    if len(sorted_tables[3].columns) == 5:
       col1_to_col5_table = sorted_tables[3]
-      col2_to_col5_table = sorted_tables[2]
+      col2_to_col5_table = sorted_tables[4]
+    else:
+      col1_to_col5_table = sorted_tables[4]
+      col2_to_col5_table = sorted_tables[3]
 
     # Do in-depth tests of each table
     self._TableColumnTestHelper(
@@ -231,10 +252,18 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self._TableColumnTestHelper(
         col2_table,
-        expected_ids=['col2'],
+        expected_ids=['col2', 'col6'],
+        expected_types=['string', 'string'],
+        expected_formats=['', ''],
+        expected_data={'col2': ['col2', 'california', 'maine', 'oregon'],
+                       'col6': ['col6', 'west', 'east', 'west']})
+
+    self._TableColumnTestHelper(
+        col6_table,
+        expected_ids=['col6'],
         expected_types=['string'],
         expected_formats=[''],
-        expected_data={'col2': ['col2', 'california', 'maine']})
+        expected_data={'col6': ['col6', 'east', 'west']})
 
     self._TableColumnTestHelper(
         col1_to_col5_table,
@@ -243,7 +272,7 @@ class PopulateDatasetTest(unittest.TestCase):
         expected_formats=['', '', 'yyyy', '', ''],
         expected_data={'col1': ['col1', 'blue', 'blue', 'green', 'red'],
                        'col2': ['col2', 'california', 'california', 'maine',
-                                'maine'],
+                                'oregon'],
                        'col3': ['col3', '1989', '1990', '1991', '1992'],
                        'col4': ['col4', '1.2', '1.3', '1.4', '1.5'],
                        'col5': ['col5', '4', '5', '6', '7']})
@@ -254,7 +283,7 @@ class PopulateDatasetTest(unittest.TestCase):
         expected_types=['string', 'date', 'float', 'integer'],
         expected_formats=['', 'yyyy', '', ''],
         expected_data={'col2': ['col2', 'california', 'california', 'maine',
-                                'maine'],
+                                'oregon'],
                        'col3': ['col3', '1989', '1990', '1991', '1992'],
                        'col4': ['col4', '1.2', '1.3', '1.4', '1.5'],
                        'col5': ['col5', '4', '5', '6', '7']})

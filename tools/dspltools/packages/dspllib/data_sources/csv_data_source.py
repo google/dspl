@@ -112,6 +112,8 @@ def _HeaderToColumn(header_string):
         column.concept_ref = value
       elif key == 'extends':
         column.concept_extension = value
+      elif key == 'parent':
+        column.parent_ref = value
       elif key == 'slice_role':
         role_value = value.lower()
 
@@ -199,6 +201,12 @@ class CSVDataSource(data_source.DataSource):
     second_row_values = header_csv_reader.next()
     csv_file.seek(0)
 
+    # Check that second row is properly formatted
+    if len(header_row_values) != len(second_row_values):
+      raise data_source.DataSourceError(
+          'Number of columns in row 2 (%d) does not match number '
+          'expected (%d)' %  (len(second_row_values), len(header_row_values)))
+
     self.column_bundle = data_source.DataSourceColumnBundle()
 
     for header_element in header_row_values:
@@ -207,6 +215,8 @@ class CSVDataSource(data_source.DataSource):
     num_columns = self.column_bundle.GetNumColumns()
     num_date_columns = 0
     has_metric_column = False
+    column_ids = [column.column_id for column in
+                  self.column_bundle.GetColumnIterator()]
 
     # Iterate through columns, populating and refining DataSourceColumn
     # parameters as necessary
@@ -244,6 +254,22 @@ class CSVDataSource(data_source.DataSource):
           if self.verbose:
             print 'Guessing that column %s should be aggregated by %s' % (
                 column.column_id, column.internal_parameters['aggregation'])
+
+      # Check parent
+      if column.parent_ref:
+        if column.parent_ref not in column_ids:
+          raise data_source.DataSourceError(
+              'Column %s references a parent not defined in this dataset: %s' %
+              (column.column_id, column.parent_ref))
+
+        parent_column = self.column_bundle.GetColumnByID(column.parent_ref)
+
+        if not parent_column.rollup:
+          parent_column.rollup = True
+
+          if self.verbose:
+            print ('Making column %s rollup since it is a parent to column %s'
+                   % (parent_column.column_id, column.column_id))
 
       # Check date format and concept
       if column.data_type == 'date':
@@ -344,9 +370,45 @@ class CSVDataSource(data_source.DataSource):
 
     cursor.close()
 
+    if self.verbose:
+      print 'Checking concept hierarchies'
+
+    self._CheckHierarchies()
+
   def GetColumnBundle(self):
     """Get ColumnBundle object for this data source."""
     return self.column_bundle
+
+  def _CheckHierarchies(self):
+    """Make sure that each concept instance has no more than one parent."""
+    cursor = self.sqlite_connection.cursor()
+
+    for column in self.column_bundle.GetColumnIterator():
+      if column.parent_ref:
+        query_str = (
+            'SELECT %s, COUNT(*) FROM (SELECT DISTINCT %s, %s '
+            'FROM csv_table) GROUP BY %s' %
+            (column.column_id, column.column_id, column.parent_ref,
+             column.column_id))
+
+        try:
+          cursor.execute(query_str)
+        except sqlite3.OperationalError as e:
+          raise data_source.DataSourceError(
+              'Error executing query: %s\n%s' % (query_str, str(e)))
+
+        error_values = []
+
+        for row in cursor:
+          if int(row[1]) > 1:
+            error_values.append(row[0])
+
+        if error_values:
+          raise data_source.DataSourceError(
+              'Instances of column %s have multiple parent values: %s' %
+              (column.column_id, error_values))
+
+    cursor.close()
 
   def GetTableData(self, query_parameters):
     """Calculate and return the requested table data.
@@ -362,12 +424,13 @@ class CSVDataSource(data_source.DataSource):
     Raises:
       DataSourceError: If query against sqlite instance fails
     """
-    if len(query_parameters.column_ids) == 1:
+    if query_parameters.query_type == data_source.QueryParameters.CONCEPT_QUERY:
       # This request is for a concept definition table
       query_str = (
           'SELECT DISTINCT %s FROM csv_table ORDER BY %s' %
-          (query_parameters.column_ids[0], query_parameters.column_ids[0]))
-    else:
+          (','.join(query_parameters.column_ids),
+           ','.join(query_parameters.column_ids)))
+    elif query_parameters.query_type == data_source.QueryParameters.SLICE_QUERY:
       # This request is for a slice table
       sql_names = []
       dimension_sql_names = []
@@ -402,6 +465,9 @@ class CSVDataSource(data_source.DataSource):
           (','.join(sql_names),
            ','.join(dimension_sql_names),
            ','.join(order_sql_names)))
+    else:
+      raise data_source.DataSourceError(
+          'Unknown query type: %s' % query_parameters.query_type)
 
     if self.verbose:
       print 'Executing query:\n%s\n' % (query_str)

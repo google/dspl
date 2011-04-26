@@ -43,13 +43,14 @@ class DSPLValidationIssue(object):
   CONCEPT = 1
   SLICE = 2
   TABLE = 3
-  CSV = 4
+  DATA = 4
 
   # Issue types
   MISSING_INFO = 100
-  BAD_REFERENCE = 101
-  INCONSISTENCY = 102
-  OTHER = 103
+  REPEATED_INFO = 101
+  BAD_REFERENCE = 102
+  INCONSISTENCY = 103
+  OTHER = 104
 
   def __init__(self, issue_scope, issue_type, base_entity_id, message):
     """Create a new DSPLValidationIssue object.
@@ -92,6 +93,21 @@ class DSPLDatasetValidator(object):
   def GetIssues(self):
     """Return list of stored issues."""
     return self.issues
+
+  def SortIssues(self):
+    """Sort the issues in the same order as they appear in the dataset."""
+    entity_ids = [None]
+
+    for concept in self.dspl_dataset.concepts:
+      entity_ids.append(concept.concept_id)
+
+    for data_slice in self.dspl_dataset.slices:
+      entity_ids.append(data_slice.slice_id)
+
+    for table in self.dspl_dataset.tables:
+      entity_ids.append(table.table_id)
+
+    self.issues.sort(key=lambda r: entity_ids.index(r.base_entity_id))
 
   def CheckConcepts(self):
     """Check for issues related to the concepts in this dataset."""
@@ -263,6 +279,228 @@ class DSPLDatasetValidator(object):
                     'Table \'%s\', column %s is missing date format' %
                     (table.table_id, table_column.column_id)))
 
+  def _GetConceptInstances(self, concept):
+    """Get all instances of a concept from its definition table.
+
+    Args:
+      concept: A dspl_model.Concept
+
+    Returns:
+      A dictionary containing one entry for each instance value if the concept's
+      table is well-defined; otherwise, None.
+    """
+    concept_instances = {}
+
+    concept_table = self.dspl_dataset.GetTable(concept.table_ref)
+
+    if concept_table is not None:
+      column_ids = [column.column_id for column in concept_table.columns]
+
+      # Check that concept ID is a column in its definition table
+      if concept.concept_id not in column_ids:
+        self.AddIssue(
+            DSPLValidationIssue(
+                DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                concept_table.table_id,
+                'Table \'%s\' doesn\'t have column matching concept ID: %s; '
+                'aborting check of this table and its data' %
+                (concept_table.table_id, concept.concept_id)))
+        return None
+      else:
+        col_index = column_ids.index(concept.concept_id)
+
+      for r, row in enumerate(concept_table.table_data):
+        if r == 0:
+          header_row_length = len(row)
+        else:
+          # Check that each row has the same number of columns as the header
+          if len(row) != header_row_length:
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                    concept_table.table_id,
+                    'CSV for table \'%s\' has unexpected number of columns '
+                    'in row %d; aborting check of this table and its data' %
+                    (concept_table.table_id, r)))
+            return None
+
+          # Check for repeated instances
+          if row[col_index] in concept_instances:
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.DATA, DSPLValidationIssue.REPEATED_INFO,
+                    concept_table.table_id,
+                    'CSV for table \'%s\' has repeated concept ID: %s' %
+                    (concept_table.table_id, row[col_index])))
+          else:
+            concept_instances[row[col_index]] = True
+
+      return concept_instances
+    return None
+
+  def _CheckSliceData(self, data_slice, concept_data):
+    """Check the data associated with a single slice.
+
+    Args:
+      data_slice: A dspl_model.Slice
+      concept_data: A dictionary of dictionaries containing the data values
+                    for each internally defined concept
+    """
+    slice_table = self.dspl_dataset.GetTable(data_slice.table_ref)
+
+    if slice_table is not None:
+      slice_table_columns = [column.column_id for column in slice_table.columns]
+
+      dimension_column_map = {}
+      time_dimension_column = -1
+
+      # Evaluate the dimensions
+      for dimension_id in data_slice.dimension_refs:
+        if dimension_id in data_slice.dimension_map:
+          slice_table_column_id = data_slice.dimension_map[dimension_id]
+        else:
+          slice_table_column_id = dimension_id
+
+        # Check that there is a column in the slice table corresponding to this
+        # dimension
+        if slice_table_column_id not in slice_table_columns:
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  slice_table.table_id,
+                  'Table \'%s\' does not have column matching concept \'%s\'; '
+                  'aborting check of this table and its data' %
+                  (slice_table.table_id, slice_table_column_id)))
+          return None
+
+        dimension_column_map[dimension_id] = slice_table_columns.index(
+            slice_table_column_id)
+
+        dimension_concept = self.dspl_dataset.GetConcept(dimension_id)
+
+        # Detect whether this dimension is time-related
+        if dimension_concept is not None:
+          if 'time' in dimension_concept.concept_reference:
+            if dimension_id in dimension_column_map:
+              time_dimension_column = slice_table_columns.index(
+                  data_slice.dimension_map[dimension_id])
+
+      # Evaluate the metrics
+      for metric_id in data_slice.metric_refs:
+        if metric_id in data_slice.metric_map:
+          slice_table_column_id = data_slice.metric_map[metric_id]
+        else:
+          slice_table_column_id = metric_id
+
+        # Check that there is a column in the slice table corresponding to this
+        # metric
+        if slice_table_column_id not in slice_table_columns:
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  slice_table.table_id,
+                  'Table \'%s\' does not have column matching concept \'%s\'' %
+                  (slice_table.table_id, slice_table_column_id)))
+          # As opposed to dimension case, it's safe to continue here
+
+      observed_dimension_ids = {}
+      non_time_observed_dimension_ids = {}
+
+      non_time_prev_dimension_ids = ''
+      bad_sorting = False
+
+      # Evaluate each data row
+      for r, row in enumerate(slice_table.table_data):
+        if r == 0:
+          header_row_length = len(row)
+        else:
+          # Check that row has the same number of columns as its header
+          if len(row) != header_row_length:
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                    slice_table.table_id,
+                    'CSV for table \'%s\' has unexpected number of columns '
+                    'in row %d; aborting check of this table and its data' %
+                    (slice_table.table_id, r + 1)))
+            return None
+
+          curr_dimension_ids = ','.join(
+              [row[c] for c in dimension_column_map.values()])
+
+          non_time_curr_dimension_ids = ','.join(
+              [row[c] for c in dimension_column_map.values() if
+               c != time_dimension_column])
+
+          # Check that dimension keys are unique
+          if curr_dimension_ids in observed_dimension_ids:
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.DATA,
+                    DSPLValidationIssue.REPEATED_INFO,
+                    slice_table.table_id,
+                    'CSV for table \'%s\' has repeated set of keys: \'%s\'' %
+                    (slice_table.table_id, curr_dimension_ids)))
+          else:
+            observed_dimension_ids[curr_dimension_ids] = True
+
+          # Check non-time dimensions for uniqueness and consistency
+          if non_time_curr_dimension_ids != non_time_prev_dimension_ids:
+            non_time_prev_dimension_ids = non_time_curr_dimension_ids
+
+            if non_time_curr_dimension_ids in non_time_observed_dimension_ids:
+              bad_sorting = True
+            else:
+              # We've never seen this combination before
+              non_time_observed_dimension_ids[non_time_curr_dimension_ids] = (
+                  True)
+
+              # Check that dimension values are valid
+              for (dimension_id, column_id) in dimension_column_map.items():
+                if dimension_id in concept_data:
+                  row_value = row[column_id]
+
+                  if (concept_data[dimension_id] and
+                      (row_value not in concept_data[dimension_id])):
+                    self.AddIssue(
+                        DSPLValidationIssue(
+                            DSPLValidationIssue.DATA,
+                            DSPLValidationIssue.INCONSISTENCY,
+                            slice_table.table_id,
+                            'CSV for table \'%s\' has unrecognized value for '
+                            'concept \'%s\' on line %d: \'%s\'' %
+                            (slice_table.table_id, dimension_id, r + 1,
+                             row_value)))
+
+      if bad_sorting:
+        self.AddIssue(
+            DSPLValidationIssue(
+                DSPLValidationIssue.DATA,
+                DSPLValidationIssue.OTHER,
+                slice_table.table_id,
+                'CSV for table \'%s\' is not properly sorted' %
+                (slice_table.table_id)))
+
+  def CheckData(self):
+    """Check table data for sorting and consistency with concept definitions."""
+    concept_data = {}
+
+    # Retrieve and check dimension concept data
+    for data_slice in self.dspl_dataset.slices:
+      for dimension_id in data_slice.dimension_refs:
+        concept = self.dspl_dataset.GetConcept(dimension_id)
+
+        if concept is not None:
+          if not concept.concept_reference:
+            if concept.concept_id not in concept_data:
+              concept_instances = self._GetConceptInstances(concept)
+
+              concept_data[concept.concept_id] = concept_instances
+
+    # Check slice data, where possible
+    for data_slice in self.dspl_dataset.slices:
+      self._CheckSliceData(data_slice, concept_data)
+
   def RunValidation(self, verbose=True):
     """Run through all of the validation methods and return a summary string.
 
@@ -275,6 +513,9 @@ class DSPLDatasetValidator(object):
     self.CheckConcepts()
     self.CheckSlices()
     self.CheckTables()
+    self.CheckData()
+
+    self.SortIssues()
 
     result_lines = []
 
@@ -323,6 +564,17 @@ class DSPLDatasetValidator(object):
         result_lines.extend(['\nTable Issues\n', underline_chars])
 
       for issue in table_issues:
+        result_lines.extend([prefix_chars, str(issue), '\n'])
+
+    # Data issues
+    data_issues = [issue for issue in self.issues if
+                   issue.issue_scope == DSPLValidationIssue.DATA]
+
+    if data_issues:
+      if verbose:
+        result_lines.extend(['\nData Issues\n', underline_chars])
+
+      for issue in data_issues:
         result_lines.extend([prefix_chars, str(issue), '\n'])
 
     if not result_lines:

@@ -305,7 +305,7 @@ class Concept(object):
 
   def __init__(self, concept_id='', concept_name='', concept_description='',
                data_type='', table_ref='', concept_reference='',
-               concept_extension_reference=''):
+               concept_extension_reference='', attributes=(), properties=()):
     """Create a new Concept object.
 
     Args:
@@ -318,6 +318,8 @@ class Concept(object):
                          represents; including a value here means that the
                          metadata will not be materialized to XML
       concept_extension_reference: ID string for the concept this one extends
+      attributes: A list of Attribute instances associated with this concept
+      properties: A list of Property instances associated with this concept
     """
     self.concept_id = concept_id
     self.concept_name = concept_name
@@ -326,6 +328,8 @@ class Concept(object):
     self.table_ref = table_ref
     self.concept_reference = concept_reference
     self.concept_extension_reference = concept_extension_reference
+    self.attributes = list(attributes)
+    self.properties = list(properties)
 
   def ToXMLElement(self):
     """Convert object to its ElementTree XML representation.
@@ -361,6 +365,12 @@ class Concept(object):
     concept_type.set('ref', self.data_type)
     concept_element.append(concept_type)
 
+    for concept_attribute in self.attributes:
+      concept_element.append(concept_attribute.toXMLElement())
+
+    for concept_property in self.properties:
+      concept_element.append(concept_property.toXMLElement())
+
     if self.table_ref:
       concept_table = xml.etree.ElementTree.Element('table')
       concept_table.set('ref', self.table_ref)
@@ -369,28 +379,101 @@ class Concept(object):
     return concept_element
 
   def ReferenceName(self):
+    """Return the name to be used when referencing this concept."""
     if self.concept_reference:
       return self.concept_reference
     else:
       return self.concept_id
 
 
+class Attribute(object):
+  """Representation of a simple DSPL concept attribute.
+
+  For now, this representation is limited to attributes with just a concept
+  reference and value.
+  """
+
+  def __init__(self, concept_ref='', value=''):
+    """Create a new Attribute instance.
+
+    Args:
+      concept_ref: String reference to concept
+      value: String value for this attribute
+    """
+    self.concept_ref = concept_ref
+    self.value = value
+
+  def toXMLElement(self):
+    """Convert object to its ElementTree XML representation.
+
+    Returns:
+      An ElementTree Element.
+    """
+    attribute_element = xml.etree.ElementTree.Element('attribute')
+    attribute_element.set('concept', self.concept_ref)
+
+    if self.value:
+      value_element = xml.etree.ElementTree.Element('value')
+      value_element.text = self.value
+
+      attribute_element.append(value_element)
+
+    return attribute_element
+
+
+class Property(object):
+  """Representation of a simple DSPL concept property.
+
+  For now, this representation is limited to properties with just a concept
+  reference and (optional) isParent attribute.
+  """
+
+  def __init__(self, concept_ref='', is_parent=False):
+    """Create a new Property instance.
+
+    Args:
+      concept_ref: String reference to concept
+      is_parent: Boolean representing whether the previous is this concept's
+                 parent
+    """
+    self.concept_ref = concept_ref
+    self.is_parent = is_parent
+
+  def toXMLElement(self):
+    """Convert object to its ElementTree XML representation.
+
+    Returns:
+      An ElementTree Element.
+    """
+    property_element = xml.etree.ElementTree.Element('property')
+    property_element.set('concept', self.concept_ref)
+
+    if self.is_parent:
+      property_element.set('isParent', 'true')
+
+    return property_element
+
+
 class Slice(object):
   """Representation of a DSPL slice."""
 
   def __init__(self, slice_id='', dimension_refs=(), metric_refs=(),
-               table_ref=''):
+               dimension_map=dict(), metric_map=dict(), table_ref=''):
     """Create a new Slice object.
 
     Args:
       slice_id: ID string for this slice
       dimension_refs: Sequence of concept ids (immutable after initialization)
       metric_refs: Sequence of concept ids (immutable after initialization)
+      dimension_map: Map of dimension IDs to column IDs (if not the same)
+      metric_map: Map of metric IDs to column IDs (if not the same)
       table_ref: String ID of this slice's table
     """
     self.slice_id = slice_id
     self.dimension_refs = tuple(dimension_refs)
     self.metric_refs = tuple(metric_refs)
+    self.dimension_map = dimension_map
+    self.metric_map = metric_map
     self.table_ref = table_ref
 
   def ToXMLElement(self, dataset):
@@ -415,11 +498,13 @@ class Slice(object):
       new_dimension.set('concept', dimension.ReferenceName())
       slice_element.append(new_dimension)
 
-      if dimension.concept_reference:
+      # Handle dimension->column mappings
+      if dimension.concept_id in self.dimension_map:
         dimension_mapping_element = (
             xml.etree.ElementTree.Element('mapDimension'))
-        dimension_mapping_element.set('concept', dimension.concept_reference)
-        dimension_mapping_element.set('toColumn', dimension.concept_id)
+        dimension_mapping_element.set('concept', dimension.concept_id)
+        dimension_mapping_element.set('toColumn',
+                                      self.dimension_map[dimension.concept_id])
         dimension_mapping_elements.append(dimension_mapping_element)
 
     for metric_ref in self.metric_refs:
@@ -429,11 +514,13 @@ class Slice(object):
       new_metric.set('concept', metric.ReferenceName())
       slice_element.append(new_metric)
 
-      if metric.concept_reference:
+      # Handle metric->column metrics
+      if metric.concept_id in self.metric_map:
         metric_mapping_element = (
             xml.etree.ElementTree.Element('mapMetric'))
-        metric_mapping_element.set('concept', metric.concept_reference)
-        metric_mapping_element.set('toColumn', metric.concept_id)
+        metric_mapping_element.set('concept', metric.concept_id)
+        metric_mapping_element.set('toColumn',
+                                   self.metric_map[metric.concept_id])
         metric_mapping_elements.append(metric_mapping_element)
 
     if self.table_ref:
@@ -503,9 +590,9 @@ class Table(object):
       verbose: Print out status messages to stdout
     """
     self.table_id = table_id
-    self.columns = columns
+    self.columns = list(columns)
     self.file_name = file_name
-    self.table_data = table_data
+    self.table_data = list(table_data)
     self.verbose = verbose
 
   def MaterializeData(self, output_path):
