@@ -100,58 +100,6 @@
       </property>
       <table ref="countries_table"/>
     </concept>
-    <!-- This US state concept is defined for educational purposes only. A US state
-      concept exists in the Google geo US dataset. See:
-      
-      http://code.google.com/apis/publicdata/docs/canonical/geo.us.html --> 
-    <concept id="state" extends="geo:location">
-     <info>
-        <name>
-          <value>State</value>
-        </name>
-        <description>
-          <value>US states</value>
-        </description> 
-      </info>
-      <type ref="string"/>
-      <property concept="country" isParent="true"/>
-      <table ref="states_table"/>
-    </concept>
-
-    <concept id="gender" extends="entity:entity">
-      <info>
-          <name>
-          <value>Gender</value>
-        </name>
-        <description>
-          <value>Gender, Male or Female</value>
-        </description>
-        <pluralName><value>Genders</value></pluralName>
-        <totalName><value>Both genders</value></totalName>
-      </info>
-      <type ref="string"/>
-      <table ref="genders_table"/>
-    </concept>
-
-    <concept id="unemployment_rate" extends="quantity:rate">
-      <info>
-        <name>
-          <value>unemployment rate</value>
-        </name>
-        <description>
-          <value>The percent of the labor force that is unemployed, not seasonally
-            adjusted.</value>
-        </description>
-        <url><value>http://www.bls.gov/cps/cps_htgm.htm</value></url>
-      </info>
-      <topic ref="social_indicators"/>
-      <type ref="float"/>
-      <attribute id="is_percentage">
-        <type ref="boolean"/>
-        <value>true</value>
-      </attribute>
-    </concept>
-
   </concepts>
 
   <slices>
@@ -161,23 +109,6 @@
       <metric concept="population"/>
       <table ref="countries_slice_table"/>
     </slice>
-
-    <slice id="states_slice">
-      <dimension concept="state"/>
-      <dimension concept="time:year"/>
-      <metric concept="population"/>
-      <metric concept="unemployment_rate"/>
-      <table ref="states_slice_table"/>
-    </slice>
-
-    <slice id="countries_gender_slice">
-      <dimension concept="country"/>
-      <dimension concept="gender"/>
-      <dimension concept="time:year"/>
-      <metric concept="population"/>
-      <table ref="countries_gender_slice_table"/>
-    </slice>
-
   </slices>
 
   <tables>
@@ -197,47 +128,6 @@
       <column id="population" type="integer"/>
       <data>
         <file format="csv" encoding="utf-8">country_slice.csv</file>
-      </data>
-    </table>
-
-    <table id="states_table">
-      <column id="state" type="string"/>
-      <column id="name" type="string"/>
-      <column id="country" type="string">
-        <value>US</value>
-      </column>
-      <column id="latitude" type="float"/>
-      <column id="longitude" type="float"/>
-      <data>
-        <file format="csv" encoding="utf-8">states.csv</file>
-      </data>
-    </table>
-
-    <table id="states_slice_table">
-      <column id="state" type="string"/>
-      <column id="year" type="date" format="yyyy"/>
-      <column id="population" type="integer"/>
-      <column id="unemployment_rate" type="float"/>
-      <data>
-        <file format="csv" encoding="utf-8">state_slice.csv</file>
-      </data>
-    </table>
-
-    <table id="genders_table">
-      <column id="gender" type="string"/>
-      <column id="name" type="string"/>
-      <data>
-        <file format="csv" encoding="utf-8">genders.csv</file>
-      </data>
-    </table>
-
-    <table id="countries_gender_slice_table">
-      <column id="country" type="string"/>
-      <column id="gender" type="string"/>
-      <column id="year" type="date" format="yyyy"/>
-      <column id="population" type="integer"/>
-      <data>
-        <file format="csv" encoding="utf-8">gender_country_slice.csv</file>
       </data>
     </table>
   </tables>

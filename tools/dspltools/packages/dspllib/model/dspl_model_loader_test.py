@@ -34,6 +34,7 @@
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
+import os
 import os.path
 import shutil
 import tempfile
@@ -51,7 +52,7 @@ val3,3""")
 
 
 class DSPLModelLoaderTests(unittest.TestCase):
-  """Test cases for dspl_model_loader module."""
+  """Basic test cases for dspl_model_loader module."""
 
   def setUp(self):
     self.input_dir = tempfile.mkdtemp()
@@ -162,6 +163,15 @@ class DSPLModelLoaderTests(unittest.TestCase):
     expected_table_data = [r.split(',') for r in expected_table_rows]
 
     self.assertEqual(dspl_dataset.tables[0].table_data, expected_table_data)
+
+  def testBadFileReference(self):
+    """Test case in which CSV file does not exist."""
+    os.remove(os.path.join(self.input_dir, 'mydata.csv'))
+
+    self.assertRaises(
+        dspl_model_loader.DSPLModelLoaderError,
+        dspl_model_loader.LoadDSPLFromFiles,
+        self.xml_file_path)
 
 
 if __name__ == '__main__':

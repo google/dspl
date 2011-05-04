@@ -87,8 +87,14 @@ def main(argv):
 
   # Connect to data source
   if options['data_type'] == 'csv':
+    try:
+      csv_file = open(options['data_source'], 'r')
+    except IOError as io_error:
+      print 'Error opening CSV file\n\n%s' % io_error
+      sys.exit(2)
+
     data_source_obj = csv_data_source.CSVDataSource(
-        open(options['data_source'], 'r'), options['verbose'])
+        csv_file, options['verbose'])
   else:
     print 'Error: Unknown data type: %s' % (options['data_type'])
     sys.exit(2)

@@ -166,15 +166,15 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self.assertEqual(
         [c.concept_id for c in sorted_concepts],
-        ['col1', 'col2', 'col3', 'col4', 'col5', 'col6'])
+        ['col1', 'col2', 'col4', 'col5', 'col6', 'time:year'])
 
     self.assertEqual(
         [c.data_type for c in sorted_concepts],
-        ['string', 'string', 'date', 'float', 'integer', 'string'])
+        ['string', 'string', 'float', 'integer', 'string', 'date'])
 
     self.assertEqual(
         [c.table_ref for c in sorted_concepts],
-        ['col1_table', 'col2_table', '', '', '', 'col6_table'])
+        ['col1_table', 'col2_table', '', '', 'col6_table', ''])
 
     self.assertEqual(
         [c.concept_extension_reference for c in sorted_concepts],
@@ -182,7 +182,7 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self.assertEqual(
         [c.concept_reference for c in sorted_concepts],
-        ['', '', 'time:year', '', '', ''])
+        ['', '', '', '', '', 'time:year'])
 
   def testDatasetSlices(self):
     """Test that the dataset slices are properly created."""
@@ -195,12 +195,16 @@ class PopulateDatasetTest(unittest.TestCase):
         [s.table_ref for s in self.dataset.slices],
         ['slice_0_table', 'slice_1_table'])
 
+    self.assertEqual(
+        [s.dimension_map for s in self.dataset.slices],
+        [{'time:year': 'col3'}, {'time:year': 'col3'}])
+
     # Test dimensions in an order-independent way
     self.assertEqual(
         sorted([
             sorted(self.dataset.slices[0].dimension_refs),
             sorted(self.dataset.slices[1].dimension_refs)]),
-        [['col1', 'col2', 'col3'], ['col2', 'col3']])
+        [['col1', 'col2', 'time:year'], ['col2', 'time:year']])
 
     # Test metrics in an order-independent way
     self.assertEqual(

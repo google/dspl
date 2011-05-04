@@ -58,6 +58,18 @@ class DSPLValidationTests(unittest.TestCase):
     all_issues = dspl_validator.GetIssues()
     self.assertEqual(len(all_issues), 0)
 
+  def testTableColumnInvariance(self):
+    """Test that checking is invariant to ordering of columns in CSVs."""
+    # Re-sort table columns in decending order by ID
+    for table in self.dataset.tables:
+      table.columns.sort(key=lambda c: c.column_id, reverse=True)
+
+    dspl_validator = dspl_validation.DSPLDatasetValidator(self.dataset)
+    dspl_validator.RunValidation()
+
+    all_issues = dspl_validator.GetIssues()
+    self.assertEqual(len(all_issues), 0)
+
   def testMissingConcepts(self):
     self.dataset.concepts = []
 
@@ -183,6 +195,61 @@ class DSPLValidationTests(unittest.TestCase):
         dspl_validation.DSPLValidationIssue.INCONSISTENCY,
         'countries_table')
 
+  def testBadYearFormat(self):
+    self.dataset.GetTable('countries_slice_table').columns[1].data_format = (
+        'XXXX')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testBadMonthFormat(self):
+    self.dataset.GetConcept('time:year').concept_reference = 'time:month'
+    self.dataset.GetTable('countries_slice_table').columns[1].data_format = (
+        'yyyy-mm')
+    self.dataset.GetTable('states_slice_table').columns[1].data_format = (
+        'yyyy-MM')
+    self.dataset.GetTable(
+        'countries_gender_slice_table').columns[2].data_format = ('yyyy-MM')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testBadDayFormat(self):
+    self.dataset.GetConcept('time:year').concept_reference = 'time:day'
+    self.dataset.GetTable('countries_slice_table').columns[1].data_format = (
+        'yyyy-mm')
+    self.dataset.GetTable('states_slice_table').columns[1].data_format = (
+        'yyyy-MM-dd')
+    self.dataset.GetTable(
+        'countries_gender_slice_table').columns[2].data_format = ('dd/MM/yyyy')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testInconsistentDimensionColumnType(self):
+    self.dataset.GetTable('countries_slice_table').columns[0].data_type = (
+        'date')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
+  def testInconsistentMetricColumnType(self):
+    self.dataset.GetTable('countries_slice_table').columns[2].data_type = (
+        'float')
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.TABLE,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
+
   def testPoorlyFormedConceptCSV(self):
     self.dataset.GetTable('countries_table').table_data.append(['bad_row'])
 
@@ -199,6 +266,24 @@ class DSPLValidationTests(unittest.TestCase):
         ['data'], dspl_validation.DSPLValidationIssue.DATA,
         dspl_validation.DSPLValidationIssue.REPEATED_INFO,
         'countries_table')
+
+  def testPoorlyFormattedConceptTableElement(self):
+    self.dataset.GetTable('countries_table').table_data.append(
+        ['AX', 'Random country', 'x41.153332', '20.168331'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_table')
+
+  def testPoorlyFormattedSliceTableElement(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['US', '1965', '110,188,299'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.INCONSISTENCY,
+        'countries_slice_table')
 
   def testBadSliceTableDimensionID(self):
     self.dataset.GetTable('countries_slice_table').columns[0].column_id = (

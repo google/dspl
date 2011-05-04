@@ -9,6 +9,7 @@ Release Notes
 Release date: April 11, 2011
 
 Description:
+------------
 DSPL Tools released!
 
 
@@ -30,7 +31,7 @@ Description:
 Use column ID to distinguish between years and integers in dsplgen.
 
 
-*** v.0.3 ***
+*** v0.3 ***
 Release date: April 26, 2011
 
 Description:
@@ -39,3 +40,20 @@ Extended DSPL Check to validate dataset CSV data (sorting, instance IDs)
 and slice / table links. 
 
 Added concept hierarchy support to DSPL Gen.
+
+
+*** v0.3.5 ***
+Release date: May 4, 2011
+
+Description:
+------------
+Extended DSPL Check to support checking of:
+  - Table column / concept type consistency
+  - Date formats
+  - Formatting of float and integer CSV values
+  - Datasets where CSV columns are in different order than columns in table
+    metadata
+
+Improved error messages when files can't be found or opened.
+
+Fixed bug in DSPL Gen naming of external concepts.

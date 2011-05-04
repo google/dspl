@@ -35,7 +35,7 @@ from distutils.core import setup
 
 
 setup(name='dspltools',
-      version='0.3',
+      version='0.3.5',
       description='Suite of command-line tools for generating DSPL datasets',
       author='Benjamin Yolken',
       author_email='yolken@google.com',
@@ -50,4 +50,5 @@ setup(name='dspltools',
                                            'test_dataset/*.csv',
                                            'test_dataset/*.xml'],
                     'minixsv': ['*.xsd', 'minixsv']},
-      scripts=['scripts/dsplcheck.py', 'scripts/dsplgen.py'],)
+      scripts=['scripts/dsplcheck.py', 'scripts/dsplgen.py',
+               'scripts/run_all_tests.py'],)

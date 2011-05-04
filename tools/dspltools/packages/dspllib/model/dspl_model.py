@@ -378,13 +378,6 @@ class Concept(object):
 
     return concept_element
 
-  def ReferenceName(self):
-    """Return the name to be used when referencing this concept."""
-    if self.concept_reference:
-      return self.concept_reference
-    else:
-      return self.concept_id
-
 
 class Attribute(object):
   """Representation of a simple DSPL concept attribute.
@@ -495,7 +488,7 @@ class Slice(object):
       dimension = dataset.GetConcept(dimension_ref)
 
       new_dimension = xml.etree.ElementTree.Element('dimension')
-      new_dimension.set('concept', dimension.ReferenceName())
+      new_dimension.set('concept', dimension.concept_id)
       slice_element.append(new_dimension)
 
       # Handle dimension->column mappings
@@ -511,7 +504,7 @@ class Slice(object):
       metric = dataset.GetConcept(metric_ref)
 
       new_metric = xml.etree.ElementTree.Element('metric')
-      new_metric.set('concept', metric.ReferenceName())
+      new_metric.set('concept', metric.concept_id)
       slice_element.append(new_metric)
 
       # Handle metric->column metrics

@@ -37,6 +37,8 @@ __author__ = 'Benjamin Yolken <yolken@google.com>'
 import os
 import os.path
 import shutil
+import StringIO
+import sys
 import tempfile
 import unittest
 
@@ -82,6 +84,21 @@ class DSPLGenTests(unittest.TestCase):
         os.path.isfile(os.path.join(self.output_dir, 'slice_0_table.csv')))
     self.assertTrue(
         os.path.isfile(os.path.join(self.output_dir, 'slice_1_table.csv')))
+
+  def testCSVNotFound(self):
+    """Test case in which CSV can't be opened."""
+    dsplgen.main(['-o', self.output_dir, '-q', self.input_file_path])
+
+    saved_stdout = sys.stdout
+    redirected_output = StringIO.StringIO()
+    sys.stdout = redirected_output
+
+    self.assertRaises(SystemExit,
+                      dsplgen.main, ['-q', 'non_existent_input_file.csv'])
+    self.assertTrue('Error opening CSV file' in redirected_output.getvalue())
+
+    redirected_output.close()
+    sys.stdout = saved_stdout
 
 
 if __name__ == '__main__':

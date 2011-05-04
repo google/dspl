@@ -82,7 +82,12 @@ def main(argv):
     argv: The program argument vector (excluding the script name)
   """
   options = LoadOptionsFromFlags(argv)
-  xml_file = open(options['xml_file_path'], 'r')
+
+  try:
+    xml_file = open(options['xml_file_path'], 'r')
+  except IOError as io_error:
+    print 'Error opening XML file\n\n%s' % io_error
+    sys.exit(2)
 
   if options['verbose']:
     print '==== Checking XML file against DSPL schema....'
@@ -101,7 +106,11 @@ def main(argv):
     if options['verbose']:
       print '\n==== Parsing DSPL dataset....'
 
-    dataset = dspl_model_loader.LoadDSPLFromFiles(options['xml_file_path'])
+    try:
+      dataset = dspl_model_loader.LoadDSPLFromFiles(options['xml_file_path'])
+    except dspl_model_loader.DSPLModelLoaderError as loader_error:
+      print 'Error while trying to parse DSPL dataset\n\n%s' % loader_error
+      sys.exit(2)
 
     if options['verbose']:
       print 'Parsing completed.'

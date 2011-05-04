@@ -34,6 +34,8 @@
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
+import re
+
 
 class DSPLValidationIssue(object):
   """Object that records a single potential import issue in a dataset."""
@@ -259,18 +261,18 @@ class DSPLDatasetValidator(object):
                 table.table_id))
       else:
         # Check that header strings match column IDs
-        for t, table_column in enumerate(non_constant_columns):
-          if table_column.column_id != table_header_row[t]:
+        for table_column in non_constant_columns:
+          if table_column.column_id not in table_header_row:
             self.AddIssue(
                 DSPLValidationIssue(
                     DSPLValidationIssue.TABLE,
                     DSPLValidationIssue.INCONSISTENCY, table.table_id,
-                    'Table \'%s\', column \'%s\' does not match the '
-                    'corresponding column in its CSV: \'%s\'' %
+                    'Table \'%s\', column \'%s\' cannot be found in the '
+                    'header of the corresponding CSV: \'%s\'' %
                     (table.table_id, table_column.column_id,
-                     table_header_row[t])))
+                     table_header_row)))
 
-          # Check date formats
+          # Check date format existence
           if table_column.data_type == 'date' and not table_column.data_format:
             self.AddIssue(
                 DSPLValidationIssue(
@@ -307,11 +309,32 @@ class DSPLDatasetValidator(object):
                 (concept_table.table_id, concept.concept_id)))
         return None
       else:
-        col_index = column_ids.index(concept.concept_id)
+        concept_col_index = column_ids.index(concept.concept_id)
 
       for r, row in enumerate(concept_table.table_data):
         if r == 0:
           header_row_length = len(row)
+          column_to_csv_index = {}
+
+          # Match table columns to CSV columns
+          for column in concept_table.columns:
+            if not column.constant_value:
+              if column.column_id in row:
+                column_to_csv_index[column] = row.index(column.column_id)
+              else:
+                self.AddIssue(
+                    DSPLValidationIssue(
+                        DSPLValidationIssue.DATA,
+                        DSPLValidationIssue.INCONSISTENCY,
+                        concept_table.table_id,
+                        'CSV for table \'%s\' is missing header element for '
+                        'column \'%s\'; aborting check of this table and '
+                        'its data' %
+                        (concept_table.table_id, column.column_id)))
+                return None
+
+          concept_csv_index = column_to_csv_index[
+              concept_table.columns[concept_col_index]]
         else:
           # Check that each row has the same number of columns as the header
           if len(row) != header_row_length:
@@ -324,19 +347,102 @@ class DSPLDatasetValidator(object):
                     (concept_table.table_id, r)))
             return None
 
+          # Check that row elements are properly formatted
+          for (column, csv_index) in column_to_csv_index.items():
+            self._CheckCSVValueFormat(
+                column, r + 1, row[csv_index], concept_table)
+
           # Check for repeated instances
-          if row[col_index] in concept_instances:
+          if row[concept_csv_index] in concept_instances:
             self.AddIssue(
                 DSPLValidationIssue(
                     DSPLValidationIssue.DATA, DSPLValidationIssue.REPEATED_INFO,
                     concept_table.table_id,
                     'CSV for table \'%s\' has repeated concept ID: %s' %
-                    (concept_table.table_id, row[col_index])))
+                    (concept_table.table_id, row[concept_csv_index])))
           else:
-            concept_instances[row[col_index]] = True
+            concept_instances[row[concept_csv_index]] = True
 
       return concept_instances
     return None
+
+  def _CheckDateColumn(self, dimension_concept, slice_table, date_column):
+    """Do some basic checking of the date column of a slice table.
+
+    TODO: Make this checking more sophisticated.
+
+    Args:
+      dimension_concept: Instance of dspl_model.Concept
+      slice_table: A dspl_model.Table for slice containing previous concept
+      date_column: A date-typed dspl_model.TableColumn in the latter table
+    """
+    column_format = date_column.data_format
+
+    if column_format:
+      if dimension_concept.concept_reference == 'time:year':
+        if 'y' not in column_format:
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  slice_table.table_id,
+                  'Table \'%s\', column \'%s\' corresponds to \'time:year\' '
+                  'but the format (\'%s\') does not look like a standard Joda '
+                  'DateTime year format (e.g., \'yyyy\')' %
+                  (slice_table.table_id, date_column.column_id, column_format)))
+      elif dimension_concept.concept_reference == 'time:month':
+        if ('y' not in column_format) or ('M' not in column_format):
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  slice_table.table_id,
+                  'Table \'%s\', column \'%s\' corresponds to \'time:month\' '
+                  'but the format (\'%s\') does not look like a standard Joda '
+                  'DateTime month format (e.g., \'MM-yyyy\')' %
+                  (slice_table.table_id, date_column.column_id, column_format)))
+      elif dimension_concept.concept_reference == 'time:day':
+        if (('y' not in column_format) or ('M' not in column_format) or
+            ('d' not in column_format)):
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  slice_table.table_id,
+                  'Table \'%s\', column \'%s\' corresponds to \'time:day\' '
+                  'but the format (\'%s\') does not look like a correct Joda '
+                  'DateTime day format (e.g., \'dd-MM-yyyy\')' %
+                  (slice_table.table_id, date_column.column_id, column_format)))
+
+  def _CheckCSVValueFormat(self, column, row, value, table):
+    """Check that a CSV value is formatted appropriately.
+
+    Note that this checking is very basic as only integer and float values are
+    checked; strings and dates are assumed to be validly formatted.
+
+    TODO: Make this checking more sophisticated.
+
+    Args:
+      column: A dspl_model.TableColumn
+      row: Integer row in the table CSV
+      value: The string value from the corresponding row and column in the CSV
+      table: The dspl_model.Table containing the column
+    """
+    if column.data_type == 'integer':
+      if not re.match('^[-]{0,1}[0-9]+$', value):
+        self.AddIssue(
+            DSPLValidationIssue(
+                DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                table.table_id,
+                'CSV for table \'%s\' has badly formatted integer on line %d: '
+                '\'%s\'' %
+                (table.table_id, row, value)))
+    elif column.data_type == 'float':
+      if not re.match('^[-]{0,1}[0-9]*(\.[0-9]+){0,1}$', value):
+        self.AddIssue(
+            DSPLValidationIssue(
+                DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                table.table_id,
+                'CSV for table \'%s\' has badly formatted float on line %d: '
+                '\'%s\'' %
+                (table.table_id, row, value)))
 
   def _CheckSliceData(self, data_slice, concept_data):
     """Check the data associated with a single slice.
@@ -352,7 +458,7 @@ class DSPLDatasetValidator(object):
       slice_table_columns = [column.column_id for column in slice_table.columns]
 
       dimension_column_map = {}
-      time_dimension_column = -1
+      time_dimension_column = None
 
       # Evaluate the dimensions
       for dimension_id in data_slice.dimension_refs:
@@ -373,17 +479,38 @@ class DSPLDatasetValidator(object):
                   (slice_table.table_id, slice_table_column_id)))
           return None
 
-        dimension_column_map[dimension_id] = slice_table_columns.index(
-            slice_table_column_id)
-
+        dimension_column = (
+            slice_table.columns[
+                slice_table_columns.index(slice_table_column_id)])
         dimension_concept = self.dspl_dataset.GetConcept(dimension_id)
 
-        # Detect whether this dimension is time-related
+        if not dimension_column.constant_value:
+          dimension_column_map[dimension_id] = dimension_column
+
         if dimension_concept is not None:
-          if 'time' in dimension_concept.concept_reference:
+          # Detect whether this dimension is time-related
+          if 'time:' in dimension_concept.concept_reference:
             if dimension_id in dimension_column_map:
-              time_dimension_column = slice_table_columns.index(
-                  data_slice.dimension_map[dimension_id])
+              time_dimension_column = dimension_column
+              self._CheckDateColumn(
+                  dimension_concept, slice_table, time_dimension_column)
+
+          # Compare dimension type to column type
+          if (dimension_concept.data_type and
+              (dimension_concept.data_type !=
+               dimension_column.data_type)):
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.TABLE,
+                    DSPLValidationIssue.INCONSISTENCY,
+                    slice_table.table_id,
+                    'Table \'%s\' column \'%s\' has type (%s) inconsistent '
+                    'with that of the matching dimension (%s)' %
+                    (slice_table.table_id, slice_table_column_id,
+                     dimension_column.data_type,
+                     dimension_concept.data_type)))
+
+      metric_column_map = {}
 
       # Evaluate the metrics
       for metric_id in data_slice.metric_refs:
@@ -399,9 +526,34 @@ class DSPLDatasetValidator(object):
               DSPLValidationIssue(
                   DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
                   slice_table.table_id,
-                  'Table \'%s\' does not have column matching concept \'%s\'' %
+                  'Table \'%s\' does not have column matching concept \'%s\'; '
+                  'aborting check of this table and its data' %
                   (slice_table.table_id, slice_table_column_id)))
-          # As opposed to dimension case, it's safe to continue here
+          return None
+        else:
+          metric_concept = self.dspl_dataset.GetConcept(metric_id)
+          metric_column = (
+              slice_table.columns[
+                  slice_table_columns.index(slice_table_column_id)])
+
+          if not metric_column.constant_value:
+            metric_column_map[metric_id] = metric_column
+
+          if metric_concept is not None:
+            # Compare metric type to column type
+            if (metric_concept.data_type and
+                (metric_concept.data_type !=
+                 metric_column.data_type)):
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.TABLE,
+                      DSPLValidationIssue.INCONSISTENCY,
+                      slice_table.table_id,
+                      'Table \'%s\' column \'%s\' has type (%s) inconsistent '
+                      'with that of the matching metric (%s)' %
+                      (slice_table.table_id, slice_table_column_id,
+                       metric_column.data_type,
+                       metric_concept.data_type)))
 
       observed_dimension_ids = {}
       non_time_observed_dimension_ids = {}
@@ -413,6 +565,24 @@ class DSPLDatasetValidator(object):
       for r, row in enumerate(slice_table.table_data):
         if r == 0:
           header_row_length = len(row)
+          column_to_csv_index = {}
+
+          # Match table columns to CSV columns
+          for column in slice_table.columns:
+            if not column.constant_value:
+              if column.column_id in row:
+                column_to_csv_index[column] = row.index(column.column_id)
+              else:
+                self.AddIssue(
+                    DSPLValidationIssue(
+                        DSPLValidationIssue.DATA,
+                        DSPLValidationIssue.INCONSISTENCY,
+                        slice_table.table_id,
+                        'CSV for table \'%s\' is missing header element for '
+                        'column \'%s\'; aborting check of this table and '
+                        'its data' %
+                        (slice_table.table_id, column.column_id)))
+                return None
         else:
           # Check that row has the same number of columns as its header
           if len(row) != header_row_length:
@@ -425,12 +595,19 @@ class DSPLDatasetValidator(object):
                     (slice_table.table_id, r + 1)))
             return None
 
+          # Check that row elements are properly formatted
+          for (column, csv_index) in column_to_csv_index.items():
+            self._CheckCSVValueFormat(
+                column, r + 1, row[csv_index], slice_table)
+
           curr_dimension_ids = ','.join(
-              [row[c] for c in dimension_column_map.values()])
+              [row[column_to_csv_index[col]]
+               for col in dimension_column_map.values()])
 
           non_time_curr_dimension_ids = ','.join(
-              [row[c] for c in dimension_column_map.values() if
-               c != time_dimension_column])
+              [row[column_to_csv_index[col]]
+               for col in dimension_column_map.values()
+               if col != time_dimension_column])
 
           # Check that dimension keys are unique
           if curr_dimension_ids in observed_dimension_ids:
@@ -456,9 +633,9 @@ class DSPLDatasetValidator(object):
                   True)
 
               # Check that dimension values are valid
-              for (dimension_id, column_id) in dimension_column_map.items():
+              for (dimension_id, column) in dimension_column_map.items():
                 if dimension_id in concept_data:
-                  row_value = row[column_id]
+                  row_value = row[column_to_csv_index[column]]
 
                   if (concept_data[dimension_id] and
                       (row_value not in concept_data[dimension_id])):

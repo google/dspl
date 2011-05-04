@@ -267,11 +267,11 @@ def PopulateDataset(data_source_obj, verbose):
           data_type=column.data_type)
       dataset.AddConcept(metric_concept)
     else:
-      # Add dimension concept
+      # Column corresponds to a dimension concept
       if column.concept_ref:
         # Dimension concept is imported; no need to enumerate instances
         dimension_concept = dspl_model.Concept(
-            concept_id=column.column_id,
+            concept_id=column.concept_ref,
             concept_reference=column.concept_ref,
             data_type=column.data_type)
 
@@ -321,9 +321,15 @@ def PopulateDataset(data_source_obj, verbose):
 
     for column in slice_column_set:
       if column.slice_role == 'dimension':
-        dimension_ids.append(column.column_id)
+        if column.concept_ref:
+          dimension_ids.append(column.concept_ref)
+        else:
+          dimension_ids.append(column.column_id)
       else:
-        metric_ids.append(column.column_id)
+        if column.concept_ref:
+          metric_ids.append(column.concept_ref)
+        else:
+          metric_ids.append(column.column_id)
 
     # Execute slice query
     if verbose:

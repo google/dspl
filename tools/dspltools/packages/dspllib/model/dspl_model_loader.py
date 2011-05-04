@@ -44,6 +44,11 @@ import dspl_model
 _DSPL_SCHEMA_PREFIX = '{http://schemas.google.com/dspl/2010}'
 
 
+class DSPLModelLoaderError(Exception):
+  """Base class for exceptions in the dspl_model_loader module."""
+  pass
+
+
 def _NSParser(input_file):
   """A special ElementTree parser that gets all the imported namespaces.
 
@@ -95,8 +100,14 @@ def _ReadCSVData(csv_data_file):
 
   Returns:
     List of lists, representing rows and row elements of CSV
+
+  Raises:
+    DSPLModelLoaderError: If file can't be read
   """
-  csv_reader = csv.reader(open(csv_data_file, 'r'))
+  try:
+    csv_reader = csv.reader(open(csv_data_file, 'r'))
+  except IOError as io_error:
+    raise DSPLModelLoaderError(str(io_error))
 
   data_rows = []
 
