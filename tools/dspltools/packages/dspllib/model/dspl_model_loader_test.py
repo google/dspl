@@ -173,6 +173,16 @@ class DSPLModelLoaderTests(unittest.TestCase):
         dspl_model_loader.LoadDSPLFromFiles,
         self.xml_file_path)
 
+  def testPartialFileLoading(self):
+    """Test case in which load_all_data is set to False."""
+    dspl_dataset = dspl_model_loader.LoadDSPLFromFiles(
+        self.xml_file_path, load_all_data=False)
+
+    expected_table_rows = _SLICE_CSV_DATA.splitlines()[0:2]
+    expected_table_data = [r.split(',') for r in expected_table_rows]
+
+    self.assertEqual(dspl_dataset.tables[0].table_data, expected_table_data)
+
 
 if __name__ == '__main__':
   unittest.main()

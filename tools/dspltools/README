@@ -57,3 +57,14 @@ Extended DSPL Check to support checking of:
 Improved error messages when files can't be found or opened.
 
 Fixed bug in DSPL Gen naming of external concepts.
+
+
+*** v0.3.6 ***
+Release date: May 6, 2011
+
+Description:
+------------
+Added 'checking_level' option to DSPL Check.
+
+CSV files are now loaded in 'universal newline mode' to reduce risk of parsing
+problems.

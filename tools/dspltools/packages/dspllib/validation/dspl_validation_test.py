@@ -339,6 +339,19 @@ class DSPLValidationTests(unittest.TestCase):
         dspl_validation.DSPLValidationIssue.OTHER,
         'countries_slice_table')
 
+  def testPartialDataCheck(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['AF', '1975', 'xxxx110188299'])
+    self.dataset.GetTable('countries_table').table_data.append(
+        ['AL', 'Albania', 'xxx41.153332', '20.168331'])
+
+    dspl_validator = dspl_validation.DSPLDatasetValidator(
+        self.dataset, full_data_check=False)
+    dspl_validator.RunValidation()
+
+    all_issues = dspl_validator.GetIssues()
+    self.assertEqual(len(all_issues), 0)
+
   def testResultsString(self):
     self.dataset.GetConcept('country').table_ref = ''
     self.dataset.GetSlice('countries_slice').table_ref = 'nonexistent_table'

@@ -115,7 +115,8 @@ class DSPLCheckTests(unittest.TestCase):
     """Test basic case of dataset that validates and parses correctly."""
     self._StdoutTestHelper(
         dsplcheck.main, [self.valid_dspl_file_path],
-        'validates successfully.*Parsing completed.*Done')
+        'validates successfully.*Parsing completed.*'
+        'Checking DSPL model and data.*Completed')
 
   def testBadXMLFilePath(self):
     """Test case where bad XML file path is passed in."""
@@ -128,6 +129,18 @@ class DSPLCheckTests(unittest.TestCase):
     self._StdoutTestHelper(
         dsplcheck.main, [self.bad_csv_dspl_file_path],
         'Error while trying to parse', expect_exit=True)
+
+  def testSchemaOnlyOption(self):
+    """Test that 'schema only' checking level option works correctly."""
+    self._StdoutTestHelper(
+        dsplcheck.main, [self.valid_dspl_file_path, '-l', 'schema_only'],
+        'validates successfully\W*Completed')
+
+  def testSchemaAndModelOption(self):
+    """Test that 'schema and model' checking level option works correctly."""
+    self._StdoutTestHelper(
+        dsplcheck.main, [self.valid_dspl_file_path, '-l', 'schema_and_model'],
+        'Checking DSPL model(?! and data)')
 
   def _StdoutTestHelper(self, function, args,
                         expected_output, expect_exit=False):

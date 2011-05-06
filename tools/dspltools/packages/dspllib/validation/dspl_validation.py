@@ -75,13 +75,17 @@ class DSPLValidationIssue(object):
 class DSPLDatasetValidator(object):
   """Object for validating a DSPL dataset model."""
 
-  def __init__(self, dspl_dataset):
+  def __init__(self, dspl_dataset, full_data_check=True):
     """Create a new DSPLDatasetValidator object.
 
     Args:
       dspl_dataset: An instance of dspllib.model.dspl_model.DataSet
+      full_data_check: Boolean indicating whether validator should look through
+                       CSV data
     """
     self.dspl_dataset = dspl_dataset
+    self.full_data_check = full_data_check
+
     self.issues = []
 
   def AddIssue(self, new_issue):
@@ -311,59 +315,60 @@ class DSPLDatasetValidator(object):
       else:
         concept_col_index = column_ids.index(concept.concept_id)
 
-      for r, row in enumerate(concept_table.table_data):
-        if r == 0:
-          header_row_length = len(row)
-          column_to_csv_index = {}
+      if self.full_data_check:
+        for r, row in enumerate(concept_table.table_data):
+          if r == 0:
+            header_row_length = len(row)
+            column_to_csv_index = {}
 
-          # Match table columns to CSV columns
-          for column in concept_table.columns:
-            if not column.constant_value:
-              if column.column_id in row:
-                column_to_csv_index[column] = row.index(column.column_id)
-              else:
-                self.AddIssue(
-                    DSPLValidationIssue(
-                        DSPLValidationIssue.DATA,
-                        DSPLValidationIssue.INCONSISTENCY,
-                        concept_table.table_id,
-                        'CSV for table \'%s\' is missing header element for '
-                        'column \'%s\'; aborting check of this table and '
-                        'its data' %
-                        (concept_table.table_id, column.column_id)))
-                return None
+            # Match table columns to CSV columns
+            for column in concept_table.columns:
+              if not column.constant_value:
+                if column.column_id in row:
+                  column_to_csv_index[column] = row.index(column.column_id)
+                else:
+                  self.AddIssue(
+                      DSPLValidationIssue(
+                          DSPLValidationIssue.DATA,
+                          DSPLValidationIssue.INCONSISTENCY,
+                          concept_table.table_id,
+                          'CSV for table \'%s\' is missing header element for '
+                          'column \'%s\'; aborting check of this table and '
+                          'its data' %
+                          (concept_table.table_id, column.column_id)))
+                  return None
 
-          concept_csv_index = column_to_csv_index[
-              concept_table.columns[concept_col_index]]
-        else:
-          # Check that each row has the same number of columns as the header
-          if len(row) != header_row_length:
-            self.AddIssue(
-                DSPLValidationIssue(
-                    DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
-                    concept_table.table_id,
-                    'CSV for table \'%s\' has unexpected number of columns '
-                    'in row %d; aborting check of this table and its data' %
-                    (concept_table.table_id, r)))
-            return None
-
-          # Check that row elements are properly formatted
-          for (column, csv_index) in column_to_csv_index.items():
-            self._CheckCSVValueFormat(
-                column, r + 1, row[csv_index], concept_table)
-
-          # Check for repeated instances
-          if row[concept_csv_index] in concept_instances:
-            self.AddIssue(
-                DSPLValidationIssue(
-                    DSPLValidationIssue.DATA, DSPLValidationIssue.REPEATED_INFO,
-                    concept_table.table_id,
-                    'CSV for table \'%s\' has repeated concept ID: %s' %
-                    (concept_table.table_id, row[concept_csv_index])))
+            concept_csv_index = column_to_csv_index[
+                concept_table.columns[concept_col_index]]
           else:
-            concept_instances[row[concept_csv_index]] = True
+            # Check that each row has the same number of columns as the header
+            if len(row) != header_row_length:
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                      concept_table.table_id,
+                      'CSV for table \'%s\' has unexpected number of columns '
+                      'in row %d; aborting check of this table and its data' %
+                      (concept_table.table_id, r)))
+              return None
 
-      return concept_instances
+            # Check that row elements are properly formatted
+            for (column, csv_index) in column_to_csv_index.items():
+              self._CheckCSVValueFormat(
+                  column, r + 1, row[csv_index], concept_table)
+
+            # Check for repeated instances
+            if row[concept_csv_index] in concept_instances:
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.DATA, DSPLValidationIssue.REPEATED_INFO,
+                      concept_table.table_id,
+                      'CSV for table \'%s\' has repeated concept ID: %s' %
+                      (concept_table.table_id, row[concept_csv_index])))
+            else:
+              concept_instances[row[concept_csv_index]] = True
+
+        return concept_instances
     return None
 
   def _CheckDateColumn(self, dimension_concept, slice_table, date_column):
@@ -477,7 +482,7 @@ class DSPLDatasetValidator(object):
                   'Table \'%s\' does not have column matching concept \'%s\'; '
                   'aborting check of this table and its data' %
                   (slice_table.table_id, slice_table_column_id)))
-          return None
+          return
 
         dimension_column = (
             slice_table.columns[
@@ -529,7 +534,7 @@ class DSPLDatasetValidator(object):
                   'Table \'%s\' does not have column matching concept \'%s\'; '
                   'aborting check of this table and its data' %
                   (slice_table.table_id, slice_table_column_id)))
-          return None
+          return
         else:
           metric_concept = self.dspl_dataset.GetConcept(metric_id)
           metric_column = (
@@ -554,6 +559,9 @@ class DSPLDatasetValidator(object):
                       (slice_table.table_id, slice_table_column_id,
                        metric_column.data_type,
                        metric_concept.data_type)))
+
+      if not self.full_data_check:
+        return
 
       observed_dimension_ids = {}
       non_time_observed_dimension_ids = {}
@@ -582,7 +590,7 @@ class DSPLDatasetValidator(object):
                         'column \'%s\'; aborting check of this table and '
                         'its data' %
                         (slice_table.table_id, column.column_id)))
-                return None
+                return
         else:
           # Check that row has the same number of columns as its header
           if len(row) != header_row_length:
@@ -593,7 +601,7 @@ class DSPLDatasetValidator(object):
                     'CSV for table \'%s\' has unexpected number of columns '
                     'in row %d; aborting check of this table and its data' %
                     (slice_table.table_id, r + 1)))
-            return None
+            return
 
           # Check that row elements are properly formatted
           for (column, csv_index) in column_to_csv_index.items():

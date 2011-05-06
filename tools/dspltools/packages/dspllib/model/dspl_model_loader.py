@@ -34,7 +34,6 @@
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
-import codecs
 import csv
 import os.path
 import xml.etree.ElementTree
@@ -92,11 +91,13 @@ def _GetValue(parent_element):
   return ''
 
 
-def _ReadCSVData(csv_data_file):
+def _ReadCSVData(csv_file_path, load_all_data):
   """Read the data contained in a CSV file.
 
   Args:
-    csv_data_file: File object containing CSV data
+    csv_file_path: Path to a CSV file containing data
+    load_all_data: Boolean indicating whether all CSV data should be loaded;
+                   if False, only the first two rows are read
 
   Returns:
     List of lists, representing rows and row elements of CSV
@@ -105,14 +106,26 @@ def _ReadCSVData(csv_data_file):
     DSPLModelLoaderError: If file can't be read
   """
   try:
-    csv_reader = csv.reader(open(csv_data_file, 'r'))
+    csv_file = open(csv_file_path, 'rU')
   except IOError as io_error:
     raise DSPLModelLoaderError(str(io_error))
 
+  csv_reader = csv.reader(csv_file)
+
   data_rows = []
 
-  for row in csv_reader:
-    data_rows.append(row)
+  if load_all_data:
+    for row in csv_reader:
+      data_rows.append(row)
+  else:
+    # Read the first two rows only
+    for r, row in enumerate(csv_reader):
+      if r > 1:
+        break
+
+      data_rows.append(row)
+
+  csv_file.close()
 
   return data_rows
 
@@ -312,7 +325,7 @@ def ElementToSlice(slice_element, dspl_dataset):
   return dspl_slice
 
 
-def ElementToTable(table_element, csv_path):
+def ElementToTable(table_element, csv_path, load_all_data):
   """Convert an ElementTree table element into a Table object.
 
   Args:
@@ -320,6 +333,7 @@ def ElementToTable(table_element, csv_path):
                    section in an XML file
     csv_path: Path to directory where CSV file associated with this table can
               be found
+    load_all_data: Boolean indicating whether all CSV data should be loaded
 
   Returns:
     dspl_model.Table object
@@ -355,19 +369,19 @@ def ElementToTable(table_element, csv_path):
     file_element = data_element.find(_DSPL_SCHEMA_PREFIX + 'file')
 
     if file_element is not None:
-      dspl_table.file_name = file_element.text
+      dspl_table.file_name = file_element.text.strip()
 
   if dspl_table.file_name:
     csv_file_path = os.path.join(
         csv_path,
         dspl_table.file_name)
 
-    dspl_table.table_data = _ReadCSVData(csv_file_path)
+    dspl_table.table_data = _ReadCSVData(csv_file_path, load_all_data)
 
   return dspl_table
 
 
-def ElementTreeToDataset(element_tree, namespaces, csv_path):
+def ElementTreeToDataset(element_tree, namespaces, csv_path, load_all_data):
   """Convert an ElementTree tree model into a DataSet object.
 
   Args:
@@ -375,6 +389,7 @@ def ElementTreeToDataset(element_tree, namespaces, csv_path):
                   DSPL XML file
     namespaces: A list of (namespace_id, namespace_url) tuples
     csv_path: Directory where CSV files associated with dataset can be found
+    load_all_data: Boolean indicating whether all CSV data should be loaded
 
   Returns:
     dspl_model.DataSet object
@@ -434,16 +449,18 @@ def ElementTreeToDataset(element_tree, namespaces, csv_path):
     table_elements = tables_element.findall(_DSPL_SCHEMA_PREFIX + 'table')
 
     for table_element in table_elements:
-      dspl_dataset.AddTable(ElementToTable(table_element, csv_path))
+      dspl_dataset.AddTable(
+          ElementToTable(table_element, csv_path, load_all_data))
 
   return dspl_dataset
 
 
-def LoadDSPLFromFiles(xml_file_path):
+def LoadDSPLFromFiles(xml_file_path, load_all_data=True):
   """Create a fully populated DSPL DataSet given the argument XML path.
 
   Args:
     xml_file_path: Path to a DSPL XML file
+    load_all_data: Boolean indicating whether all CSV data should be loaded
 
   Returns:
     dspl_model.DataSet object
@@ -454,4 +471,4 @@ def LoadDSPLFromFiles(xml_file_path):
   xml_file.close()
 
   return ElementTreeToDataset(
-      xml_model, namespaces, os.path.split(xml_file_path)[0])
+      xml_model, namespaces, os.path.split(xml_file_path)[0], load_all_data)

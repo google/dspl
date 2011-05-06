@@ -36,6 +36,7 @@ __author__ = 'Benjamin Yolken <yolken@google.com>'
 
 import optparse
 import sys
+import time
 
 from dspllib.model import dspl_model_loader
 from dspllib.validation import dspl_validation
@@ -60,10 +61,10 @@ def LoadOptionsFromFlags(argv):
                     action='store_false', dest='verbose',
                     help='Quiet mode')
 
-  parser.set_defaults(full_check=True)
-  parser.add_option('-x', '--xml_only',
-                    action='store_false', dest='full_check',
-                    help='Schema validation only (no model checking)')
+  parser.add_option(
+      '-l', '--checking_level', dest='checking_level', type='choice',
+      choices=['schema_only', 'schema_and_model', 'full'], default='full',
+      help='Level of checking to do (default: full)')
 
   (options, args) = parser.parse_args(args=argv)
 
@@ -71,7 +72,7 @@ def LoadOptionsFromFlags(argv):
     parser.error('An XML file is required')
 
   return {'verbose': options.verbose,
-          'full_check': options.full_check,
+          'checking_level': options.checking_level,
           'xml_file_path': args[0]}
 
 
@@ -81,6 +82,7 @@ def main(argv):
   Args:
     argv: The program argument vector (excluding the script name)
   """
+  start_time = time.time()
   options = LoadOptionsFromFlags(argv)
 
   try:
@@ -102,12 +104,18 @@ def main(argv):
     # Stop if XML validation not successful
     sys.exit(2)
 
-  if options['full_check']:
+  if options['checking_level'] != 'schema_only':
     if options['verbose']:
       print '\n==== Parsing DSPL dataset....'
 
+    if options['checking_level'] == 'full':
+      full_data_check = True
+    else:
+      full_data_check = False
+
     try:
-      dataset = dspl_model_loader.LoadDSPLFromFiles(options['xml_file_path'])
+      dataset = dspl_model_loader.LoadDSPLFromFiles(
+          options['xml_file_path'], load_all_data=full_data_check)
     except dspl_model_loader.DSPLModelLoaderError as loader_error:
       print 'Error while trying to parse DSPL dataset\n\n%s' % loader_error
       sys.exit(2)
@@ -115,14 +123,18 @@ def main(argv):
     if options['verbose']:
       print 'Parsing completed.'
 
-      print '\n==== Checking DSPL model....'
+      if full_data_check:
+        print '\n==== Checking DSPL model and data....'
+      else:
+        print '\n==== Checking DSPL model....'
 
-    dspl_validator = dspl_validation.DSPLDatasetValidator(dataset)
+    dspl_validator = dspl_validation.DSPLDatasetValidator(
+        dataset, full_data_check=full_data_check)
 
     print dspl_validator.RunValidation(options['verbose'])
 
-    if options['verbose']:
-      print '\nDone.'
+  if options['verbose']:
+    print '\nCompleted in %0.2f seconds' % (time.time() - start_time)
 
   xml_file.close()
 
