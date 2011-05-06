@@ -68,3 +68,13 @@ Added 'checking_level' option to DSPL Check.
 
 CSV files are now loaded in 'universal newline mode' to reduce risk of parsing
 problems.
+
+
+*** v0.3.7 ***
+Release date: May 6, 2011
+
+Description:
+------------
+Added zipped dataset checking to DSPL Check.
+
+Strip whitespace from CSV values (to mimic behaviour of PDE importer).

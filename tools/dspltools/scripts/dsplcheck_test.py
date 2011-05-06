@@ -35,11 +35,14 @@
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
 import os
+import os.path
 import re
+import shutil
 import StringIO
 import sys
 import tempfile
 import unittest
+import zipfile
 
 import dsplcheck
 
@@ -93,23 +96,17 @@ class DSPLCheckTests(unittest.TestCase):
   """Test case for dsplcheck module."""
 
   def setUp(self):
-    valid_dspl_file_params = tempfile.mkstemp()
+    self.input_dir = tempfile.mkdtemp()
+    self.valid_dspl_file_path = (
+        os.path.join(self.input_dir, 'valid_dataset.xml'))
 
-    self.valid_dspl_file = os.fdopen(valid_dspl_file_params[0], 'w')
-    self.valid_dspl_file_path = valid_dspl_file_params[1]
+    self.valid_dspl_file = open(
+        self.valid_dspl_file_path, 'w')
     self.valid_dspl_file.write(_DSPL_CONTENT)
     self.valid_dspl_file.close()
 
-    bad_csv_dspl_file_params = tempfile.mkstemp()
-
-    self.bad_csv_dspl_file = os.fdopen(bad_csv_dspl_file_params[0], 'w')
-    self.bad_csv_dspl_file_path = bad_csv_dspl_file_params[1]
-    self.bad_csv_dspl_file.write(_DSPL_CONTENT_BAD_CSV_PATH)
-    self.bad_csv_dspl_file.close()
-
   def tearDown(self):
-    os.remove(self.valid_dspl_file_path)
-    os.remove(self.bad_csv_dspl_file_path)
+    shutil.rmtree(self.input_dir)
 
   def testValidDataset(self):
     """Test basic case of dataset that validates and parses correctly."""
@@ -126,8 +123,15 @@ class DSPLCheckTests(unittest.TestCase):
 
   def testBadCSVFilePath(self):
     """Test case where DSPL file has bad CSV reference."""
+    bad_csv_dspl_file_path = (
+        os.path.join(self.input_dir, 'invalid_csv_dataset.xml'))
+
+    bad_csv_dspl_file = open(bad_csv_dspl_file_path, 'w')
+    bad_csv_dspl_file.write(_DSPL_CONTENT_BAD_CSV_PATH)
+    bad_csv_dspl_file.close()
+
     self._StdoutTestHelper(
-        dsplcheck.main, [self.bad_csv_dspl_file_path],
+        dsplcheck.main, [bad_csv_dspl_file_path],
         'Error while trying to parse', expect_exit=True)
 
   def testSchemaOnlyOption(self):
@@ -141,6 +145,44 @@ class DSPLCheckTests(unittest.TestCase):
     self._StdoutTestHelper(
         dsplcheck.main, [self.valid_dspl_file_path, '-l', 'schema_and_model'],
         'Checking DSPL model(?! and data)')
+
+  def testZipInput(self):
+    """Test that module properly handles zipped input."""
+    zip_path = os.path.join(self.input_dir, 'dataset.zip')
+
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    zip_file.write(self.valid_dspl_file_path)
+    zip_file.close()
+
+    self._StdoutTestHelper(
+        dsplcheck.main, [zip_path],
+        'validates successfully.*Parsing completed.*'
+        'Checking DSPL model and data.*Completed')
+
+  def testZipMissingXML(self):
+    """Test that zip file without an XML file produces error."""
+    zip_path = os.path.join(self.input_dir, 'dataset.zip')
+
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    zip_file.writestr('test.txt', 'Text')
+    zip_file.close()
+
+    self._StdoutTestHelper(
+        dsplcheck.main, [zip_path],
+        'does not have any XML', expect_exit=True)
+
+  def testZipMultipleXMLFiles(self):
+    """Test that zip file with multiple XML files produces error."""
+    zip_path = os.path.join(self.input_dir, 'dataset.zip')
+
+    zip_file = zipfile.ZipFile(zip_path, 'w')
+    zip_file.writestr('test.xml', 'Text')
+    zip_file.writestr('test2.xml', 'Text')
+    zip_file.close()
+
+    self._StdoutTestHelper(
+        dsplcheck.main, [zip_path],
+        'multiple XML files', expect_exit=True)
 
   def _StdoutTestHelper(self, function, args,
                         expected_output, expect_exit=False):

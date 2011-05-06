@@ -91,13 +91,15 @@ def _GetValue(parent_element):
   return ''
 
 
-def _ReadCSVData(csv_file_path, load_all_data):
+def _ReadCSVData(csv_file_path, load_all_data, strip_whitespace=True):
   """Read the data contained in a CSV file.
 
   Args:
     csv_file_path: Path to a CSV file containing data
     load_all_data: Boolean indicating whether all CSV data should be loaded;
                    if False, only the first two rows are read
+    strip_whitespace: Boolean indicating whether to strip whitespace around
+                      each value
 
   Returns:
     List of lists, representing rows and row elements of CSV
@@ -116,14 +118,24 @@ def _ReadCSVData(csv_file_path, load_all_data):
 
   if load_all_data:
     for row in csv_reader:
-      data_rows.append(row)
+      if strip_whitespace:
+        cleaned_row = [r.strip() for r in row]
+      else:
+        cleaned_row = row
+
+      data_rows.append(cleaned_row)
   else:
     # Read the first two rows only
     for r, row in enumerate(csv_reader):
       if r > 1:
         break
 
-      data_rows.append(row)
+      if strip_whitespace:
+        cleaned_row = [r.strip() for r in row]
+      else:
+        cleaned_row = row
+
+      data_rows.append(cleaned_row)
 
   csv_file.close()
 

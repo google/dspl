@@ -267,6 +267,15 @@ class DSPLValidationTests(unittest.TestCase):
         dspl_validation.DSPLValidationIssue.REPEATED_INFO,
         'countries_table')
 
+  def testBlankConceptID(self):
+    self.dataset.GetTable('countries_table').table_data.append(
+        ['', 'Unknown country', '41.153332', '20.168331'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.MISSING_INFO,
+        'countries_table')
+
   def testPoorlyFormattedConceptTableElement(self):
     self.dataset.GetTable('countries_table').table_data.append(
         ['AX', 'Random country', 'x41.153332', '20.168331'])
@@ -320,6 +329,24 @@ class DSPLValidationTests(unittest.TestCase):
         ['data'], dspl_validation.DSPLValidationIssue.DATA,
         dspl_validation.DSPLValidationIssue.REPEATED_INFO,
         'countries_slice_table')
+
+  def testBlankDimensionKeys(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['US', '', '110188299'])
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.MISSING_INFO,
+        'countries_slice_table')
+
+  def testBlankMetricValues(self):
+    self.dataset.GetTable('countries_slice_table').table_data.append(
+        ['US', '1966', ''])
+
+    dspl_validator = dspl_validation.DSPLDatasetValidator(self.dataset)
+    dspl_validator.CheckData()
+    all_issues = dspl_validator.GetIssues()
+    self.assertEqual(len(all_issues), 0)
 
   def testBadSliceConceptReferences(self):
     self.dataset.GetTable('countries_slice_table').table_data.append(

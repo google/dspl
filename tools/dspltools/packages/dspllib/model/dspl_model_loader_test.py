@@ -47,7 +47,7 @@ import dspl_model_test
 _SLICE_CSV_DATA = (
 """col1,col2
 val1,1
-val2,2
+val2 , 2 
 val3,3""")
 
 
@@ -160,7 +160,13 @@ class DSPLModelLoaderTests(unittest.TestCase):
     self.assertEqual(dspl_dataset.tables[0].columns[1].data_type, 'integer')
 
     expected_table_rows = _SLICE_CSV_DATA.splitlines()
-    expected_table_data = [r.split(',') for r in expected_table_rows]
+    expected_table_data = []
+
+    for row in expected_table_rows:
+      split_row = row.split(',')
+      cleaned_row = [r.strip() for r in split_row]
+      
+      expected_table_data.append(cleaned_row)
 
     self.assertEqual(dspl_dataset.tables[0].table_data, expected_table_data)
 

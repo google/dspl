@@ -332,10 +332,11 @@ class DSPLDatasetValidator(object):
                           DSPLValidationIssue.DATA,
                           DSPLValidationIssue.INCONSISTENCY,
                           concept_table.table_id,
-                          'CSV for table \'%s\' is missing header element for '
-                          'column \'%s\'; aborting check of this table and '
-                          'its data' %
-                          (concept_table.table_id, column.column_id)))
+                          'File %s (for table \'%s\') is missing header '
+                          'element for column \'%s\'; aborting check of this '
+                          'table and its data' %
+                          (concept_table.file_name, concept_table.table_id,
+                           column.column_id)))
                   return None
 
             concept_csv_index = column_to_csv_index[
@@ -345,11 +346,13 @@ class DSPLDatasetValidator(object):
             if len(row) != header_row_length:
               self.AddIssue(
                   DSPLValidationIssue(
-                      DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                      DSPLValidationIssue.DATA,
+                      DSPLValidationIssue.INCONSISTENCY,
                       concept_table.table_id,
-                      'CSV for table \'%s\' has unexpected number of columns '
-                      'in row %d; aborting check of this table and its data' %
-                      (concept_table.table_id, r)))
+                      'File %s (for table \'%s\') has unexpected number of '
+                      'columns in row %d; aborting check of this table and its '
+                      'data' % (concept_table.file_name,
+                                concept_table.table_id, r)))
               return None
 
             # Check that row elements are properly formatted
@@ -357,16 +360,31 @@ class DSPLDatasetValidator(object):
               self._CheckCSVValueFormat(
                   column, r + 1, row[csv_index], concept_table)
 
-            # Check for repeated instances
-            if row[concept_csv_index] in concept_instances:
+            # Check for blank and repeated instances
+            concept_instance = row[concept_csv_index]
+
+            if not concept_instance:
               self.AddIssue(
                   DSPLValidationIssue(
-                      DSPLValidationIssue.DATA, DSPLValidationIssue.REPEATED_INFO,
+                      DSPLValidationIssue.DATA,
+                      DSPLValidationIssue.MISSING_INFO,
                       concept_table.table_id,
-                      'CSV for table \'%s\' has repeated concept ID: %s' %
-                      (concept_table.table_id, row[concept_csv_index])))
+                      'File %s (for table \'%s\') has blank concept ID on line '
+                      '%d' %
+                      (concept_table.file_name, concept_table.table_id,
+                       r + 1)))
+            elif concept_instance in concept_instances:
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.DATA,
+                      DSPLValidationIssue.REPEATED_INFO,
+                      concept_table.table_id,
+                      'File %s (for table \'%s\') has repeated concept ID '
+                      'on line %d: \'%s\'' %
+                      (concept_table.file_name, concept_table.table_id,
+                       r + 1, concept_instance)))
             else:
-              concept_instances[row[concept_csv_index]] = True
+              concept_instances[concept_instance] = True
 
         return concept_instances
     return None
@@ -430,24 +448,25 @@ class DSPLDatasetValidator(object):
       value: The string value from the corresponding row and column in the CSV
       table: The dspl_model.Table containing the column
     """
-    if column.data_type == 'integer':
-      if not re.match('^[-]{0,1}[0-9]+$', value):
-        self.AddIssue(
-            DSPLValidationIssue(
-                DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
-                table.table_id,
-                'CSV for table \'%s\' has badly formatted integer on line %d: '
-                '\'%s\'' %
-                (table.table_id, row, value)))
-    elif column.data_type == 'float':
-      if not re.match('^[-]{0,1}[0-9]*(\.[0-9]+){0,1}$', value):
-        self.AddIssue(
-            DSPLValidationIssue(
-                DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
-                table.table_id,
-                'CSV for table \'%s\' has badly formatted float on line %d: '
-                '\'%s\'' %
-                (table.table_id, row, value)))
+    if value:
+      if column.data_type == 'integer':
+        if not re.match('^[-]{0,1}[0-9]+$', value):
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                  table.table_id,
+                  'File %s (for table \'%s\') has badly formatted integer on '
+                  'line %d: \'%s\'' %
+                  (table.file_name, table.table_id, row, value)))
+      elif column.data_type == 'float':
+        if not re.match('^[-]{0,1}[0-9]*(\.[0-9]+){0,1}$', value):
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
+                  table.table_id,
+                  'File %s (for table \'%s\') has badly formatted float on '
+                  'line %d: \'%s\'' %
+                  (table.file_name, table.table_id, row, value)))
 
   def _CheckSliceData(self, data_slice, concept_data):
     """Check the data associated with a single slice.
@@ -586,10 +605,11 @@ class DSPLDatasetValidator(object):
                         DSPLValidationIssue.DATA,
                         DSPLValidationIssue.INCONSISTENCY,
                         slice_table.table_id,
-                        'CSV for table \'%s\' is missing header element for '
-                        'column \'%s\'; aborting check of this table and '
+                        'File %s (for table \'%s\') is missing header element '
+                        'for column \'%s\'; aborting check of this table and '
                         'its data' %
-                        (slice_table.table_id, column.column_id)))
+                        (slice_table.file_name, slice_table.table_id,
+                         column.column_id)))
                 return
         else:
           # Check that row has the same number of columns as its header
@@ -598,9 +618,10 @@ class DSPLDatasetValidator(object):
                 DSPLValidationIssue(
                     DSPLValidationIssue.DATA, DSPLValidationIssue.INCONSISTENCY,
                     slice_table.table_id,
-                    'CSV for table \'%s\' has unexpected number of columns '
-                    'in row %d; aborting check of this table and its data' %
-                    (slice_table.table_id, r + 1)))
+                    'File %s (for table \'%s\') has unexpected number of '
+                    'columns in row %d; aborting check of this table and its '
+                    'data' % (slice_table.file_name,
+                              slice_table.table_id, r + 1)))
             return
 
           # Check that row elements are properly formatted
@@ -608,24 +629,39 @@ class DSPLDatasetValidator(object):
             self._CheckCSVValueFormat(
                 column, r + 1, row[csv_index], slice_table)
 
-          curr_dimension_ids = ','.join(
-              [row[column_to_csv_index[col]]
-               for col in dimension_column_map.values()])
+          curr_dimension_ids_list = [
+              row[column_to_csv_index[col]]
+              for col in dimension_column_map.values()]
+          curr_dimension_ids = ','.join(curr_dimension_ids_list)
 
-          non_time_curr_dimension_ids = ','.join(
-              [row[column_to_csv_index[col]]
-               for col in dimension_column_map.values()
-               if col != time_dimension_column])
+          non_time_curr_dimension_ids_list = [
+              row[column_to_csv_index[col]]
+              for col in dimension_column_map.values()
+              if col != time_dimension_column]
+          non_time_curr_dimension_ids = (
+              ','.join(non_time_curr_dimension_ids_list))
 
-          # Check that dimension keys are unique
-          if curr_dimension_ids in observed_dimension_ids:
+          # Check that dimension keys are non-blank and unique
+          if '' in curr_dimension_ids_list:
+            self.AddIssue(
+                DSPLValidationIssue(
+                    DSPLValidationIssue.DATA,
+                    DSPLValidationIssue.MISSING_INFO,
+                    slice_table.table_id,
+                    'File %s (for table \'%s\') has empty dimension value(s) '
+                    'on row %d: \'%s\'' %
+                    (slice_table.file_name, slice_table.table_id,
+                     r + 1, curr_dimension_ids)))
+          elif curr_dimension_ids in observed_dimension_ids:
             self.AddIssue(
                 DSPLValidationIssue(
                     DSPLValidationIssue.DATA,
                     DSPLValidationIssue.REPEATED_INFO,
                     slice_table.table_id,
-                    'CSV for table \'%s\' has repeated set of keys: \'%s\'' %
-                    (slice_table.table_id, curr_dimension_ids)))
+                    'File %s (for table \'%s\') has repeated set of keys '
+                    'on row %d: \'%s\'' %
+                    (slice_table.file_name, slice_table.table_id,
+                     r + 1, curr_dimension_ids)))
           else:
             observed_dimension_ids[curr_dimension_ids] = True
 
@@ -652,10 +688,10 @@ class DSPLDatasetValidator(object):
                             DSPLValidationIssue.DATA,
                             DSPLValidationIssue.INCONSISTENCY,
                             slice_table.table_id,
-                            'CSV for table \'%s\' has unrecognized value for '
-                            'concept \'%s\' on line %d: \'%s\'' %
-                            (slice_table.table_id, dimension_id, r + 1,
-                             row_value)))
+                            'File %s (for table \'%s\') has unrecognized value '
+                            'for concept \'%s\' on line %d: \'%s\'' %
+                            (slice_table.file_name, slice_table.table_id,
+                             dimension_id, r + 1, row_value)))
 
       if bad_sorting:
         self.AddIssue(
@@ -663,8 +699,8 @@ class DSPLDatasetValidator(object):
                 DSPLValidationIssue.DATA,
                 DSPLValidationIssue.OTHER,
                 slice_table.table_id,
-                'CSV for table \'%s\' is not properly sorted' %
-                (slice_table.table_id)))
+                'File %s (for table \'%s\') is not properly sorted' %
+                (slice_table.file_name, slice_table.table_id)))
 
   def CheckData(self):
     """Check table data for sorting and consistency with concept definitions."""
