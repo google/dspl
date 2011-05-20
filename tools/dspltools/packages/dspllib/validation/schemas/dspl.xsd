@@ -3,8 +3,8 @@
            targetNamespace="http://schemas.google.com/dspl/2010"
            xmlns="http://schemas.google.com/dspl/2010"
            elementFormDefault="qualified">
-  <xs:import namespace="http://www.w3.org/2001/XMLSchema"/>
-  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml.xsd"/>
+  <xs:import namespace="http://www.w3.org/2001/XMLSchema" schemaLocation="xml_2001.xsd"/>
+  <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="xml_1998.xsd"/>
 
   <xs:annotation>
     <xs:documentation>

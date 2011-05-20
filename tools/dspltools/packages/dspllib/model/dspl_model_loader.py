@@ -142,6 +142,40 @@ def _ReadCSVData(csv_file_path, load_all_data, strip_whitespace=True):
   return data_rows
 
 
+def ElementToTopic(topic_element):
+  """Convert an ElementTree topic element into a Topic object.
+
+  Note that, since topics can be nested, the returned topic element might have
+  multiple children topics.
+
+  Args:
+    topic_element: ElementTree element having data from <topic>...</topic>
+                   section in an XML file
+
+  Returns:
+    dspl_model.Topic object
+  """
+  dspl_topic = dspl_model.Topic()
+
+  dspl_topic.topic_id = topic_element.get('id')
+
+  topic_info_element = topic_element.find(_DSPL_SCHEMA_PREFIX + 'info')
+
+  if topic_info_element is not None:
+    dspl_topic.topic_name = _GetValue(
+        topic_info_element.find(_DSPL_SCHEMA_PREFIX + 'name'))
+
+  children_topic_elements = topic_element.findall(_DSPL_SCHEMA_PREFIX + 'topic')
+
+  if children_topic_elements is not None:
+    dspl_topic.children = []
+
+  for child_topic_element in children_topic_elements:
+    dspl_topic.children.append(ElementToTopic(child_topic_element))
+
+  return dspl_topic
+
+
 def ElementToConcept(concept_element):
   """Convert an ElementTree concept element into a Concept object.
 
@@ -165,6 +199,15 @@ def ElementToConcept(concept_element):
         concept_info_element.find(_DSPL_SCHEMA_PREFIX + 'name'))
     dspl_concept.concept_description = _GetValue(
         concept_info_element.find(_DSPL_SCHEMA_PREFIX + 'description'))
+
+  concept_topic_elements = concept_element.findall(
+      _DSPL_SCHEMA_PREFIX + 'topic')
+
+  if concept_topic_elements is not None:
+    dspl_concept.topic_references = []
+
+  for concept_topic_element in concept_topic_elements:
+    dspl_concept.topic_references.append(concept_topic_element.get('ref'))
 
   concept_type_element = concept_element.find(_DSPL_SCHEMA_PREFIX + 'type')
 
@@ -435,6 +478,15 @@ def ElementTreeToDataset(element_tree, namespaces, csv_path, load_all_data):
         provider_element.find(_DSPL_SCHEMA_PREFIX + 'name'))
     dspl_dataset.provider_url = (
         _GetValue(provider_element.find(_DSPL_SCHEMA_PREFIX + 'url')))
+
+  # Get topics
+  topics_element = element_tree.find(_DSPL_SCHEMA_PREFIX + 'topics')
+
+  if topics_element is not None:
+    topic_elements = topics_element.findall(_DSPL_SCHEMA_PREFIX + 'topic')
+
+    for topic_element in topic_elements:
+      dspl_dataset.AddTopic(ElementToTopic(topic_element))
 
   # Get concepts
   concepts_element = element_tree.find(_DSPL_SCHEMA_PREFIX + 'concepts')

@@ -93,6 +93,24 @@ class DSPLModelLoaderTests(unittest.TestCase):
     self.assertEqual(dspl_dataset.imports[1].namespace_url,
                      'http://imported_namespace2_url')
 
+    # Test topics
+    self.assertEqual(len(dspl_dataset.topics), 2)
+
+    self.assertEqual(dspl_dataset.topics[0].topic_id, 'topic1')
+    self.assertEqual(dspl_dataset.topics[0].topic_name, 'topic1_name')
+    self.assertEqual(len(dspl_dataset.topics[0].children), 2)
+
+    self.assertEqual(dspl_dataset.topics[0].children[0].topic_id, 'topic2')
+    self.assertEqual(
+        dspl_dataset.topics[0].children[0].topic_name, 'topic2_name')
+    self.assertEqual(dspl_dataset.topics[0].children[1].topic_id, 'topic3')
+    self.assertEqual(
+        dspl_dataset.topics[0].children[1].topic_name, 'topic3_name')
+
+    self.assertEqual(dspl_dataset.topics[1].topic_id, 'topic4')
+    self.assertEqual(dspl_dataset.topics[1].topic_name, 'topic4_name')
+    self.assertEqual(len(dspl_dataset.topics[1].children), 0)
+
     # Test concepts
     self.assertEqual(len(dspl_dataset.concepts), 3)
 
@@ -124,6 +142,8 @@ class DSPLModelLoaderTests(unittest.TestCase):
     self.assertEqual(dspl_dataset.concepts[1].concept_name, 'Concept 2')
     self.assertEqual(dspl_dataset.concepts[1].concept_description,
                      'Concept 2 Description')
+    self.assertEqual(dspl_dataset.concepts[1].topic_references,
+                     ['topic1', 'topic2'])
     self.assertEqual(dspl_dataset.concepts[1].data_type, 'integer')
     self.assertEqual(len(dspl_dataset.concepts[1].attributes), 0)
     self.assertEqual(len(dspl_dataset.concepts[1].properties), 0)
@@ -165,7 +185,7 @@ class DSPLModelLoaderTests(unittest.TestCase):
     for row in expected_table_rows:
       split_row = row.split(',')
       cleaned_row = [r.strip() for r in split_row]
-      
+
       expected_table_data.append(cleaned_row)
 
     self.assertEqual(dspl_dataset.tables[0].table_data, expected_table_data)

@@ -45,8 +45,8 @@ from minixsv import pyxsval
 # The number of lines of context to show around XML errors
 _CONTEXT_LINES = 3
 
-_DEFAULT_SCHEMA_PATH = os.path.join(
-    os.path.split(__file__)[0], 'schemas', 'dspl.xsd')
+_SCHEMA_PATH = os.path.join(os.path.split(__file__)[0], 'schemas')
+_DSPL_SCHEMA_FILE = 'dspl.xsd'
 
 
 def GetErrorContext(xml_string, error_line_number):
@@ -113,9 +113,18 @@ def RunValidation(xml_file, schema_file=None, verbose=True):
   if schema_file:
     schema_file_text = schema_file.read()
   else:
-    schema_file = open(_DEFAULT_SCHEMA_PATH, 'r')
+    schema_file = open(os.path.join(_SCHEMA_PATH, _DSPL_SCHEMA_FILE), 'r')
     schema_file_text = schema_file.read()
     schema_file.close()
+
+  # Insert proper paths into XSD schemaLocation tags
+  substitution_function = (
+      lambda m: 'schemaLocation="%s"' % os.path.join(_SCHEMA_PATH, m.group(1)))
+
+  schema_file_text = re.sub(
+      'schemaLocation="([a-zA-Z_0-9.]+)"',
+      substitution_function,
+      schema_file_text, 2)
 
   # Figure out which type of parsing exception this version of ElementTree
   # throws; code adapted from example in ElementTree documentation

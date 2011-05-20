@@ -123,6 +123,18 @@ class DSPLDatasetValidator(object):
           'No concepts found in dataset'))
 
     for concept in self.dspl_dataset.concepts:
+      # Check topic references
+      for topic_reference in concept.topic_references:
+        topic = self.dspl_dataset.GetTopic(topic_reference)
+
+        if not topic:
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.CONCEPT,
+                  DSPLValidationIssue.BAD_REFERENCE,
+                  concept.concept_id,
+                  'Concept \'%s\' refers to a non-existent topic: \'%s\'' %
+                  (concept.concept_id, topic_reference)))
       # Check table reference
       if concept.table_ref:
         table = self.dspl_dataset.GetTable(concept.table_ref)
@@ -138,6 +150,8 @@ class DSPLDatasetValidator(object):
       elif not concept.concept_reference:
         # Make sure this concept has a table reference if it is ever used as a
         # dimension
+        missing_def_table = False
+
         for data_slice in self.dspl_dataset.slices:
           for dimension_ref in data_slice.dimension_refs:
             if dimension_ref == concept.concept_id:
@@ -147,7 +161,12 @@ class DSPLDatasetValidator(object):
                       DSPLValidationIssue.MISSING_INFO, concept.concept_id,
                       'Concept \'%s\' does not have a definition table' %
                       concept.concept_id))
-              return
+              missing_def_table = True
+              break
+
+          if missing_def_table:
+            # Prevent duplicate messages if concept is used in multiple slices 
+            break
 
   def CheckSlices(self):
     """Check for issues related to the slices in this dataset."""

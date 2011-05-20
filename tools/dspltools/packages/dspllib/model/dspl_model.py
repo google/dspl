@@ -79,7 +79,7 @@ class DataSet(object):
   """Top-level representation of a DSPL dataset."""
 
   def __init__(self, namespace='', name='', description='', url='',
-               provider_name='', provider_url='', imports=(),
+               provider_name='', provider_url='', imports=(), topics=(),
                concepts=(), slices=(), tables=(), verbose=True):
     """Create a new DataSet object.
 
@@ -91,6 +91,7 @@ class DataSet(object):
       provider_name: Name of dataset provider
       provider_url: Provider URL
       imports: Sequence of Import objects
+      topics: Sequence of Topic objects
       concepts: Sequence of Concept objects
       slices: Sequence of Slice objects
       tables: Sequence of Table objects
@@ -104,6 +105,7 @@ class DataSet(object):
     self.provider_url = provider_url
 
     self.imports = list(imports)
+    self.topics = list(topics)
     self.concepts = list(concepts)
     self.slices = list(slices)
     self.tables = list(tables)
@@ -121,6 +123,27 @@ class DataSet(object):
         return import_obj
 
     return None
+
+  def AddTopic(self, topic_obj):
+    """Add a top-level topic to this dataset."""
+    self.topics.append(topic_obj)
+
+  def _TopicSearchHelper(self, topic_list, topic_id):
+    """Recursively search a list for the topic with the argument id."""
+    for topic_obj in topic_list:
+      if topic_obj.topic_id == topic_id:
+        return topic_obj
+      elif topic_obj.children:
+        children_result = self._TopicSearchHelper(topic_obj.children, topic_id)
+
+        if children_result:
+          return children_result
+
+    return None
+
+  def GetTopic(self, topic_id):
+    """Get the topic matching the argument topic id."""
+    return self._TopicSearchHelper(self.topics, topic_id)
 
   def AddConcept(self, concept):
     """Add a concept to this dataset."""
@@ -233,6 +256,15 @@ class DataSet(object):
 
     root_element.append(provider_info)
 
+    # Add topic info
+    if self.topics:
+      topic_elements = xml.etree.ElementTree.Element('topics')
+
+      for topic in self.topics:
+        topic_elements.append(topic.ToXMLElement())
+
+      root_element.append(topic_elements)
+
     # Add concept info
     concept_elements = xml.etree.ElementTree.Element('concepts')
 
@@ -300,12 +332,53 @@ class Import(object):
     return import_element
 
 
+class Topic(object):
+  """Representation of a DSPL topic."""
+
+  def __init__(self, topic_id='', topic_name='', children=()):
+    """Create a new Topic object.
+
+    Args:
+      topic_id: Identifier for this topic
+      topic_name: Name of this topic
+      children: Sequence of topics that are the children of this one
+    """
+    self.topic_id = topic_id
+    self.topic_name = topic_name
+    self.children = children
+
+  def ToXMLElement(self):
+    """Convert object to its ElementTree XML representation.
+
+    Returns:
+      An ElementTree Element.
+    """
+    topic_element = xml.etree.ElementTree.Element('topic')
+    topic_element.set('id', self.topic_id)
+
+    topic_info = xml.etree.ElementTree.Element('info')
+    topic_name = xml.etree.ElementTree.Element('name')
+
+    topic_name.append(
+        _ValueOrPlaceHolder(
+            self.topic_name,
+            'NAME for topic: %s' % self.topic_id))
+    topic_info.append(topic_name)
+    topic_element.append(topic_info)
+
+    for child_topic in self.children:
+      topic_element.append(child_topic.ToXMLElement())
+
+    return topic_element
+
+
 class Concept(object):
   """Representation of a DSPL concept."""
 
   def __init__(self, concept_id='', concept_name='', concept_description='',
                data_type='', table_ref='', concept_reference='',
-               concept_extension_reference='', attributes=(), properties=()):
+               concept_extension_reference='', topic_references=(),
+               attributes=(), properties=()):
     """Create a new Concept object.
 
     Args:
@@ -318,6 +391,7 @@ class Concept(object):
                          represents; including a value here means that the
                          metadata will not be materialized to XML
       concept_extension_reference: ID string for the concept this one extends
+      topic_references: List of string topic IDs for this concept
       attributes: A list of Attribute instances associated with this concept
       properties: A list of Property instances associated with this concept
     """
@@ -328,6 +402,7 @@ class Concept(object):
     self.table_ref = table_ref
     self.concept_reference = concept_reference
     self.concept_extension_reference = concept_extension_reference
+    self.topic_references = list(topic_references)
     self.attributes = list(attributes)
     self.properties = list(properties)
 
@@ -360,6 +435,12 @@ class Concept(object):
     concept_info.append(concept_description)
 
     concept_element.append(concept_info)
+
+    for topic_reference in self.topic_references:
+      topic_element = xml.etree.ElementTree.Element('topic')
+      topic_element.set('ref', topic_reference)
+
+      concept_element.append(topic_element)
 
     concept_type = xml.etree.ElementTree.Element('type')
     concept_type.set('ref', self.data_type)

@@ -73,6 +73,29 @@ TEST_DSPL_XML = """
     </url>
   </provider>
 
+  <topics>
+    <topic id="topic1">
+      <info>
+        <name><value>topic1_name</value></name>
+      </info>
+      <topic id="topic2">
+        <info>
+          <name><value>topic2_name</value></name>
+        </info>
+      </topic>
+      <topic id="topic3">
+        <info>
+          <name><value>topic3_name</value></name>
+        </info>
+      </topic>
+    </topic>
+    <topic id="topic4">
+      <info>
+        <name><value>topic4_name</value></name>
+      </info>
+    </topic>
+  </topics>
+
   <concepts>
     <concept id="concept1" extends="entity:entity">
       <info>
@@ -101,6 +124,8 @@ TEST_DSPL_XML = """
           <value xml:lang="en">Concept 2 Description</value>
         </description>
       </info>
+      <topic ref="topic1"/>
+      <topic ref="topic2"/>
       <type ref="integer"/>
     </concept>
   </concepts>
@@ -142,6 +167,11 @@ class DSPLModelTests(unittest.TestCase):
     """Test behavior of concept, slice, and table setters and getters."""
     self.dspl_dataset.AddImport(
         dspl_model.Import(namespace_id='import1', namespace_url='import1_url'))
+    self.dspl_dataset.AddTopic(
+        dspl_model.Topic(
+            topic_id='topic1',
+            children=[dspl_model.Topic(topic_id='topic2')]))
+    self.dspl_dataset.AddTopic(dspl_model.Topic(topic_id='topic3'))
     self.dspl_dataset.AddConcept(
         dspl_model.Concept(concept_id='concept1'))
     self.dspl_dataset.AddConcept(
@@ -153,6 +183,12 @@ class DSPLModelTests(unittest.TestCase):
 
     self.assertEqual(self.dspl_dataset.GetImport('import1').namespace_url,
                      'import1_url')
+    self.assertEqual(self.dspl_dataset.GetTopic('topic1').topic_id,
+                     'topic1')
+    self.assertEqual(self.dspl_dataset.GetTopic('topic2').topic_id,
+                     'topic2')
+    self.assertEqual(self.dspl_dataset.GetTopic('topic3').topic_id,
+                     'topic3')
     self.assertEqual(self.dspl_dataset.GetConcept('concept2').concept_id,
                      'concept2')
     self.assertEqual(self.dspl_dataset.GetSlice('slice1').slice_id,
@@ -182,6 +218,20 @@ class DSPLModelTests(unittest.TestCase):
             namespace_id='imported_namespace2',
             namespace_url='http://imported_namespace2_url'))
 
+    topic1 = dspl_model.Topic(
+        topic_id='topic1', topic_name='topic1_name')
+    topic2 = dspl_model.Topic(
+        topic_id='topic2', topic_name='topic2_name')
+    topic3 = dspl_model.Topic(
+        topic_id='topic3', topic_name='topic3_name')
+    topic4 = dspl_model.Topic(
+        topic_id='topic4', topic_name='topic4_name')
+
+    topic1.children = [topic2, topic3]
+
+    self.dspl_dataset.AddTopic(topic1)
+    self.dspl_dataset.AddTopic(topic4)
+
     self.dspl_dataset.AddConcept(
         dspl_model.Concept(
             concept_id='concept1',
@@ -203,7 +253,8 @@ class DSPLModelTests(unittest.TestCase):
             concept_id='concept2',
             concept_name='Concept 2',
             concept_description='Concept 2 Description',
-            data_type='integer'))
+            data_type='integer',
+            topic_references=['topic1', 'topic2']))
 
     self.dspl_dataset.AddConcept(
         dspl_model.Concept(

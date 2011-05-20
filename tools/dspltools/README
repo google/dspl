@@ -78,3 +78,14 @@ Description:
 Added zipped dataset checking to DSPL Check.
 
 Strip whitespace from CSV values (to mimic behaviour of PDE importer).
+
+
+*** v0.4 ***
+Release date: May 20, 2011
+
+Description:
+------------
+Added topic reference checking to DSPL Check.
+
+Changed schema validation process to use local XML schema files instead of
+calling out to W3C servers.

@@ -77,6 +77,13 @@ class DSPLValidationTests(unittest.TestCase):
         ['concepts'], dspl_validation.DSPLValidationIssue.GENERAL,
         dspl_validation.DSPLValidationIssue.MISSING_INFO, None)
 
+  def testBadConceptTopicRef(self):
+    self.dataset.GetConcept('country').topic_references = ['nonexistent_topic']
+
+    self._SingleIssueTestHelper(
+        ['concepts'], dspl_validation.DSPLValidationIssue.CONCEPT,
+        dspl_validation.DSPLValidationIssue.BAD_REFERENCE, 'country')
+
   def testBadConceptTableRef(self):
     self.dataset.GetConcept('country').table_ref = 'nonexistent_table'
 
