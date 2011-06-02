@@ -36,12 +36,14 @@ __author__ = 'Benjamin Yolken <yolken@google.com>'
 
 import os
 import os.path
+import re
 import shutil
 import StringIO
 import sys
 import tempfile
 import unittest
 
+import dsplcheck
 import dsplgen
 
 
@@ -58,23 +60,22 @@ class DSPLGenTests(unittest.TestCase):
   """Test cases for dsplgen module."""
 
   def setUp(self):
-    input_file_params = tempfile.mkstemp()
+    self.input_dir = tempfile.mkdtemp()
 
-    self.input_file = os.fdopen(input_file_params[0], 'w')
-    self.input_file_path = input_file_params[1]
-
-    self.input_file.write(_TEST_CSV_CONTENT)
-    self.input_file.close()
+    input_file = open(os.path.join(self.input_dir, 'input.csv'), 'w')
+    input_file.write(_TEST_CSV_CONTENT)
+    input_file.close()
 
     self.output_dir = tempfile.mkdtemp()
 
   def tearDown(self):
-    os.remove(self.input_file_path)
+    shutil.rmtree(self.input_dir)
     shutil.rmtree(self.output_dir)
 
   def testDSPLGenEndToEnd(self):
     """A simple end-to-end test of the dsplgen application."""
-    dsplgen.main(['-o', self.output_dir, '-q', self.input_file_path])
+    dsplgen.main(['-o', self.output_dir, '-q',
+                  os.path.join(self.input_dir, 'input.csv')])
 
     self.assertTrue(
         os.path.isfile(os.path.join(self.output_dir, 'dataset.xml')))
@@ -85,9 +86,28 @@ class DSPLGenTests(unittest.TestCase):
     self.assertTrue(
         os.path.isfile(os.path.join(self.output_dir, 'slice_1_table.csv')))
 
+    # Test that output validates against dsplcheck
+    saved_stdout = sys.stdout
+
+    redirected_output = StringIO.StringIO()
+    sys.stdout = redirected_output
+
+    dsplcheck.main([os.path.join(self.output_dir, 'dataset.xml')])
+
+    self.assertTrue(
+        re.search(
+            'validates successfully.*Parsing completed.*'
+            'No issues found.*Completed',
+            redirected_output.getvalue(), re.DOTALL))
+
+    redirected_output.close()
+
+    sys.stdout = saved_stdout
+
   def testCSVNotFound(self):
     """Test case in which CSV can't be opened."""
-    dsplgen.main(['-o', self.output_dir, '-q', self.input_file_path])
+    dsplgen.main(['-o', self.output_dir, '-q',
+                  os.path.join(self.input_dir, 'input.csv')])
 
     saved_stdout = sys.stdout
     redirected_output = StringIO.StringIO()

@@ -163,6 +163,14 @@ class DSPLValidationTests(unittest.TestCase):
         ['slices'], dspl_validation.DSPLValidationIssue.SLICE,
         dspl_validation.DSPLValidationIssue.BAD_REFERENCE, 'countries_slice')
 
+  def testTrivialSlices(self):
+    self.dataset.slices = [self.dataset.GetSlice('countries_slice')]
+    self.dataset.GetSlice('countries_slice').dimension_refs = ['time:year']
+
+    self._SingleIssueTestHelper(
+        ['slices'], dspl_validation.DSPLValidationIssue.GENERAL,
+        dspl_validation.DSPLValidationIssue.MISSING_INFO, None)
+
   def testMissingTables(self):
     self.dataset.tables = []
 
@@ -257,6 +265,14 @@ class DSPLValidationTests(unittest.TestCase):
         dspl_validation.DSPLValidationIssue.INCONSISTENCY,
         'countries_slice_table')
 
+  def testEmptyConceptTableCSV(self):
+    self.dataset.GetTable('countries_table').table_data = None
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.MISSING_INFO,
+        'countries_table')
+
   def testPoorlyFormedConceptCSV(self):
     self.dataset.GetTable('countries_table').table_data.append(['bad_row'])
 
@@ -291,6 +307,14 @@ class DSPLValidationTests(unittest.TestCase):
         ['data'], dspl_validation.DSPLValidationIssue.DATA,
         dspl_validation.DSPLValidationIssue.INCONSISTENCY,
         'countries_table')
+
+  def testEmptySliceTableCSV(self):
+    self.dataset.GetTable('countries_slice_table').table_data = None
+
+    self._SingleIssueTestHelper(
+        ['data'], dspl_validation.DSPLValidationIssue.DATA,
+        dspl_validation.DSPLValidationIssue.MISSING_INFO,
+        'countries_slice_table')
 
   def testPoorlyFormattedSliceTableElement(self):
     self.dataset.GetTable('countries_slice_table').table_data.append(

@@ -532,7 +532,7 @@ class Slice(object):
   """Representation of a DSPL slice."""
 
   def __init__(self, slice_id='', dimension_refs=(), metric_refs=(),
-               dimension_map=dict(), metric_map=dict(), table_ref=''):
+               dimension_map=(), metric_map=(), table_ref=''):
     """Create a new Slice object.
 
     Args:
@@ -546,8 +546,8 @@ class Slice(object):
     self.slice_id = slice_id
     self.dimension_refs = tuple(dimension_refs)
     self.metric_refs = tuple(metric_refs)
-    self.dimension_map = dimension_map
-    self.metric_map = metric_map
+    self.dimension_map = dict(dimension_map)
+    self.metric_map = dict(metric_map)
     self.table_ref = table_ref
 
   def ToXMLElement(self, dataset):

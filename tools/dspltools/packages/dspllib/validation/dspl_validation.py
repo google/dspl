@@ -176,6 +176,7 @@ class DSPLDatasetValidator(object):
               DSPLValidationIssue.GENERAL, DSPLValidationIssue.MISSING_INFO,
               None, 'No slices found in dataset'))
 
+    non_trivial_slice = False
     dimension_keys = {}
 
     for data_slice in self.dspl_dataset.slices:
@@ -220,9 +221,11 @@ class DSPLDatasetValidator(object):
                   data_slice.slice_id,
                   'Slice \'%s\' refers to nonexistent concept: \'%s\'' %
                   (data_slice.slice_id, dimension_id)))
+          non_trivial_slice = True
+        elif 'time:' in concept.concept_reference:
+          time_dimension = concept.concept_reference
         else:
-          if 'time:' in concept.concept_reference:
-            time_dimension = concept.concept_reference
+          non_trivial_slice = True
 
       if (not time_dimension) and data_slice.dimension_refs:
         self.AddIssue(
@@ -259,6 +262,13 @@ class DSPLDatasetValidator(object):
                   'Slice \'%s\' refers to non-existent table: \'%s\'' %
                   (data_slice.slice_id, data_slice.table_ref)))
 
+    if self.dspl_dataset.slices and not non_trivial_slice:
+      self.AddIssue(
+          DSPLValidationIssue(
+              DSPLValidationIssue.GENERAL, DSPLValidationIssue.MISSING_INFO,
+              None,
+              'Dataset does not have any slices with non-time dimensions'))
+
   def CheckTables(self):
     """Check for issues related to the tables in this dataset."""
     if not self.dspl_dataset.tables:
@@ -268,41 +278,44 @@ class DSPLDatasetValidator(object):
               None, 'No tables found in dataset'))
 
     for table in self.dspl_dataset.tables:
-      table_header_row = table.table_data[0]
+      if table.table_data:
+        table_header_row = table.table_data[0]
 
-      # Skip over columns that are in XML but not CSV
-      non_constant_columns = [column for column in table.columns if
-                              not column.constant_value]
+        # Skip over columns that are in XML but not CSV
+        non_constant_columns = [column for column in table.columns if
+                                not column.constant_value]
 
-      # Make sure header size is consistent with column metadata
-      if len(non_constant_columns) != len(table_header_row):
-        self.AddIssue(
-            DSPLValidationIssue(
-                DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
-                table.table_id,
-                'Table \'%s\' does not have same number of columns as its CSV' %
-                table.table_id))
-      else:
-        # Check that header strings match column IDs
-        for table_column in non_constant_columns:
-          if table_column.column_id not in table_header_row:
-            self.AddIssue(
-                DSPLValidationIssue(
-                    DSPLValidationIssue.TABLE,
-                    DSPLValidationIssue.INCONSISTENCY, table.table_id,
-                    'Table \'%s\', column \'%s\' cannot be found in the '
-                    'header of the corresponding CSV: \'%s\'' %
-                    (table.table_id, table_column.column_id,
-                     table_header_row)))
+        # Make sure header size is consistent with column metadata
+        if len(non_constant_columns) != len(table_header_row):
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
+                  table.table_id,
+                  'Table \'%s\' does not have same number of columns '
+                  'as its CSV' % table.table_id))
+        else:
+          # Check that header strings match column IDs
+          for table_column in non_constant_columns:
+            if table_column.column_id not in table_header_row:
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.TABLE,
+                      DSPLValidationIssue.INCONSISTENCY, table.table_id,
+                      'Table \'%s\', column \'%s\' cannot be found in the '
+                      'header of the corresponding CSV: \'%s\'' %
+                      (table.table_id, table_column.column_id,
+                       table_header_row)))
 
-          # Check date format existence
-          if table_column.data_type == 'date' and not table_column.data_format:
-            self.AddIssue(
-                DSPLValidationIssue(
-                    DSPLValidationIssue.TABLE, DSPLValidationIssue.MISSING_INFO,
-                    table.table_id,
-                    'Table \'%s\', column %s is missing date format' %
-                    (table.table_id, table_column.column_id)))
+            # Check date format existence
+            if (table_column.data_type == 'date' and
+                not table_column.data_format):
+              self.AddIssue(
+                  DSPLValidationIssue(
+                      DSPLValidationIssue.TABLE,
+                      DSPLValidationIssue.MISSING_INFO,
+                      table.table_id,
+                      'Table \'%s\', column %s is missing date format' %
+                      (table.table_id, table_column.column_id)))
 
   def _GetConceptInstances(self, concept):
     """Get all instances of a concept from its definition table.
@@ -335,6 +348,17 @@ class DSPLDatasetValidator(object):
         concept_col_index = column_ids.index(concept.concept_id)
 
       if self.full_data_check:
+        if not concept_table.table_data:
+          self.AddIssue(
+              DSPLValidationIssue(
+                  DSPLValidationIssue.DATA,
+                  DSPLValidationIssue.MISSING_INFO,
+                  concept_table.table_id,
+                  'File %s (for table \'%s\') is empty; aborting check of this '
+                  'table and its data' %
+                  (concept_table.file_name, concept_table.table_id)))
+          return None
+
         for r, row in enumerate(concept_table.table_data):
           if r == 0:
             header_row_length = len(row)
@@ -599,6 +623,17 @@ class DSPLDatasetValidator(object):
                        metric_concept.data_type)))
 
       if not self.full_data_check:
+        return
+
+      if not slice_table.table_data:
+        self.AddIssue(
+            DSPLValidationIssue(
+                DSPLValidationIssue.DATA,
+                DSPLValidationIssue.MISSING_INFO,
+                slice_table.table_id,
+                'File %s (for table \'%s\') is empty; aborting check of this '
+                'table and its data' %
+                (slice_table.file_name, slice_table.table_id)))
         return
 
       observed_dimension_ids = {}
