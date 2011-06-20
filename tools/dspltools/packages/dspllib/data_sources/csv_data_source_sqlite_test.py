@@ -29,26 +29,35 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Setup script for the DSPLtools suite."""
-
-from distutils.core import setup
+"""Tests of csv_data_source_sqlite module."""
 
 
-setup(name='dspltools',
-      version='0.4.2',
-      description='Suite of command-line tools for generating DSPL datasets',
-      author='Benjamin Yolken',
-      author_email='yolken@google.com',
-      url='http://code.google.com/apis/publicdata/docs/dspltools.html',
-      packages=['dspllib', 'dspllib.data_sources',
-                'dspllib.model', 'dspllib.validation', 'genxmlif',
-                'minixsv'],
-      package_dir={'dspllib': 'packages/dspllib',
-                   'genxmlif': 'packages/third_party/minixsv/genxmlif',
-                   'minixsv': 'packages/third_party/minixsv/minixsv'},
-      package_data={'dspllib.validation': ['schemas/*.xsd',
-                                           'test_dataset/*.csv',
-                                           'test_dataset/*.xml'],
-                    'minixsv': ['*.xsd', 'minixsv']},
-      scripts=['scripts/dsplcheck.py', 'scripts/dsplgen.py',
-               'scripts/run_all_tests.py'],)
+__author__ = 'Benjamin Yolken <yolken@google.com>'
+
+import unittest
+
+import csv_data_source_sqlite
+import csv_sources_test_suite
+
+
+class CSVDataSourceSqliteTests(csv_sources_test_suite.CSVSourcesTests):
+  """Tests of the CSVDataSourceSqlite object."""
+
+  def setUp(self):
+    self.data_source_class = csv_data_source_sqlite.CSVDataSourceSqlite
+
+    super(CSVDataSourceSqliteTests, self).setUp()
+
+
+class CSVDataSourceSqliteErrorTests(
+    csv_sources_test_suite.CSVSourcesErrorTests):
+  """Tests of the CSVDataSourceSqlite object under various error conditions."""
+
+  def setUp(self):
+    self.data_source_class = csv_data_source_sqlite.CSVDataSourceSqlite
+
+    super(CSVDataSourceSqliteErrorTests, self).setUp()
+
+
+if __name__ == '__main__':
+  unittest.main()

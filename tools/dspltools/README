@@ -99,3 +99,13 @@ Description:
 Added test for trivial slices to DSPL Check.
 
 Improved behavior of DSPL Check when empty tables are encountered.
+
+
+*** v0.4.2 ***
+Release date: June 20, 2011
+
+Description:
+------------
+Changed implementation of default csv_data_source to use in-memory Python
+objects instead of sqlite. The latter can still be used by setting the '-t'
+option of dsplgen to 'csv_sqlite'.

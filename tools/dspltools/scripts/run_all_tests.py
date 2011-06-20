@@ -40,6 +40,7 @@ _TEST_MODULE_NAMES = [
     'dsplcheck_test',
     'dsplgen_test',
     'dspllib.data_sources.csv_data_source_test',
+    'dspllib.data_sources.csv_data_source_sqlite_test',
     'dspllib.data_sources.data_source_test',
     'dspllib.data_sources.data_source_to_dspl_test',
     'dspllib.model.dspl_model_loader_test',

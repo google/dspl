@@ -39,6 +39,7 @@ import sys
 import time
 
 from dspllib.data_sources import csv_data_source
+from dspllib.data_sources import csv_data_source_sqlite
 from dspllib.data_sources import data_source_to_dspl
 
 
@@ -62,7 +63,7 @@ def LoadOptionsFromFlags(argv):
                     action='store_false', dest='verbose',
                     help='Quiet mode')
   parser.add_option('-t', '--data_type', dest='data_type', type='choice',
-                    choices=['csv'], default='csv',
+                    choices=['csv', 'csv_sqlite'], default='csv',
                     help='Type of data source to use (default: csv)')
 
   (options, args) = parser.parse_args(args=argv)
@@ -86,15 +87,19 @@ def main(argv):
   options = LoadOptionsFromFlags(argv)
 
   # Connect to data source
-  if options['data_type'] == 'csv':
+  if options['data_type'] in ['csv', 'csv_sqlite']:
     try:
       csv_file = open(options['data_source'], 'r')
     except IOError as io_error:
       print 'Error opening CSV file\n\n%s' % io_error
       sys.exit(2)
 
-    data_source_obj = csv_data_source.CSVDataSource(
-        csv_file, options['verbose'])
+    if options['data_type'] == 'csv':
+      data_source_obj = csv_data_source.CSVDataSource(
+          csv_file, options['verbose'])
+    else:
+      data_source_obj = csv_data_source_sqlite.CSVDataSourceSqlite(
+          csv_file, options['verbose'])
   else:
     print 'Error: Unknown data type: %s' % (options['data_type'])
     sys.exit(2)
