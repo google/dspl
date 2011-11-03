@@ -109,3 +109,13 @@ Description:
 Changed implementation of default csv_data_source to use in-memory Python
 objects instead of sqlite. The latter can still be used by setting the '-t'
 option of dsplgen to 'csv_sqlite'.
+
+
+*** v0.4.3 ***
+Release date: November 3, 2011
+
+Description:
+------------
+Fixed some bugs around multi-level concept hierarchies.
+
+Added total_val parameter to support pre-computed rollups in data.

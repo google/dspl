@@ -41,13 +41,15 @@ import data_source
 
 
 _TEST_CSV_CONTENT = (
-"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;parent=category3],category3,metric1[extends=quantity:ratio;slice_role=metric],metric2[aggregation=avg],metric3[aggregation=count]
+"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;parent=category3;total_val=total],category3,metric1[extends=quantity:ratio;slice_role=metric],metric2[aggregation=avg],metric3[aggregation=count]
 1980-01-01,red,california,west,89,321,71.21
 1981-01-01,red,california,west,99,231,391.2
 1982-01-01,blue,maine's,east,293,32,2.31
 1983-01-01,blue,california,west,293,12,10.3
 1984-01-01,red,maine's,east,932,48,10.78
-1984-01-01,red,oregon,west,32,33,-14.34""")
+1984-01-01,red,oregon,west,32,33,-14.34
+1985-01-01,red,total,east,21,98,87.0
+1986-01-01,red,total,west,33,90,-10.1""")
 
 
 class CSVSourcesTests(unittest.TestCase):
@@ -91,6 +93,9 @@ class CSVSourcesTests(unittest.TestCase):
     self.assertEqual(
         [c.parent_ref for c in column_bundle.GetColumnIterator()],
         ['', '', 'category3', '', '', '', ''])
+    self.assertEqual(
+        [c.total_val for c in column_bundle.GetColumnIterator()],
+        ['', '', 'total', '', '', '', ''])
 
   def testEntityTableGeneration(self):
     """Test that single-concept tables are generated correctly."""
@@ -126,6 +131,17 @@ class CSVSourcesTests(unittest.TestCase):
         [[3, 'california', 89 + 99 + 293, (321.0 + 231.0 + 12.0) / 3.0],
          [2, 'maine\'s', 293 + 932, (32.0 + 48.0) / 2.0],
          [1, 'oregon', 32, 33]])
+
+  def testTotalsSliceTableGeneration(self):
+    """Test that slice tables are generated correctly with total values."""
+    table_data = self.data_source_obj.GetTableData(
+        data_source.QueryParameters(
+            data_source.QueryParameters.SLICE_QUERY,
+            ['category1', 'metric1', 'metric2', 'metric3']))
+
+    self.assertEqual(
+        table_data.rows,
+        [['red', 21 + 33, (98.0 + 90.0) / 2.0, 2]])
 
 
 class CSVSourcesErrorTests(unittest.TestCase):

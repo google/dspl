@@ -198,11 +198,17 @@ class CSVDataSourceSqlite(data_source.DataSource):
 
     for column in self.column_bundle.GetColumnIterator():
       if column.parent_ref:
+        if column.total_val:
+          where_clause = (
+              'WHERE %s != "%s"' % (column.column_id, column.total_val))
+        else:
+          where_clause = ''
+
         query_str = (
             'SELECT %s, COUNT(*) FROM (SELECT DISTINCT %s, %s '
-            'FROM csv_table) GROUP BY %s' %
+            'FROM csv_table %s) GROUP BY %s' %
             (column.column_id, column.column_id, column.parent_ref,
-             column.column_id))
+             where_clause, column.column_id))
 
         try:
           cursor.execute(query_str)
@@ -239,14 +245,30 @@ class CSVDataSourceSqlite(data_source.DataSource):
     """
     if query_parameters.query_type == data_source.QueryParameters.CONCEPT_QUERY:
       # This request is for a concept definition table
+
+      # Filter out total values
+      where_statements = []
+
+      for column_id in query_parameters.column_ids:
+        column = self.column_bundle.GetColumnByID(column_id)
+
+        if column.total_val:
+          where_statements.append('%s != "%s"' % (column.column_id,
+                                                  column.total_val))
+      if where_statements:
+        where_clause = 'WHERE ' + ','.join(where_statements)
+      else:
+        where_clause = ''
+
       query_str = (
-          'SELECT DISTINCT %s FROM csv_table ORDER BY %s' %
-          (','.join(query_parameters.column_ids),
+          'SELECT DISTINCT %s FROM csv_table %s ORDER BY %s' %
+          (','.join(query_parameters.column_ids), where_clause,
            ','.join(query_parameters.column_ids)))
     elif query_parameters.query_type == data_source.QueryParameters.SLICE_QUERY:
       # This request is for a slice table
       sql_names = []
       dimension_sql_names = []
+      where_statements = []
 
       time_dimension_id = ''
 
@@ -255,6 +277,10 @@ class CSVDataSourceSqlite(data_source.DataSource):
       # dimensions, with time last.
       for column_id in query_parameters.column_ids:
         column = self.column_bundle.GetColumnByID(column_id)
+
+        if column.total_val:
+          where_statements.append('%s != "%s"' % (column.column_id,
+                                                  column.total_val))
 
         if column.slice_role == 'dimension':
           sql_names.append(column_id)
@@ -273,9 +299,22 @@ class CSVDataSourceSqlite(data_source.DataSource):
       if time_dimension_id:
         order_sql_names.append(time_dimension_id)
 
+      # Handle total values in non-selected columns
+      for column in self.column_bundle.GetColumnIterator():
+        if column.column_id not in query_parameters.column_ids:
+          if column.total_val:
+            where_statements.append(
+                '%s = "%s"' % (column.column_id, column.total_val))
+
+      if where_statements:
+        where_clause = 'WHERE ' + ','.join(where_statements)
+      else:
+        where_clause = ''
+
       query_str = (
-          'SELECT %s FROM csv_table GROUP BY %s ORDER BY %s' %
+          'SELECT %s FROM csv_table %s GROUP BY %s ORDER BY %s' %
           (','.join(sql_names),
+           where_clause,
            ','.join(dimension_sql_names),
            ','.join(order_sql_names)))
     else:

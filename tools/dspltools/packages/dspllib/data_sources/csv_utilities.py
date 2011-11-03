@@ -113,6 +113,8 @@ def _HeaderToColumn(header_string):
           raise data_source.DataSourceError(
               'Unrecognized boolean value in column %s: %s' %
               (column.column_id, value))
+      elif key == 'total_val':
+        column.total_val = value
       elif key == 'dropif':
         column.internal_parameters['dropif_val'] = value
       elif key == 'zeroif':

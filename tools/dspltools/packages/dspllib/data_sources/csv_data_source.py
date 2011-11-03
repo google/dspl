@@ -91,11 +91,13 @@ class DataContainer(object):
     """
     self.rows.append(row)
 
-  def DistinctValues(self, column_names):
+  def DistinctValues(self, column_names, omit_values=dict()):
     """Get the distinct combination of values for one or more columns.
 
     Args:
       column_names: List of columns to include
+      omit_values: Dictionary of column->value mappings; rows where
+                   the column has one of the given values are omitted
 
     Returns:
       A list of lists, one for each set of unique values of the input columns
@@ -105,28 +107,57 @@ class DataContainer(object):
     for row in self.rows:
       curr_values = []
 
+      keep_row = True
+
       for column_name in column_names:
+        curr_value = row[self.column_position_map[column_name]]
+
+        # Drop rows with values in the omitted list
+        if column_name in omit_values:
+          if curr_value in omit_values[column_name]:
+            keep_row = False
+            break
+
         curr_values.append(row[self.column_position_map[column_name]])
 
-      observed_values[tuple(curr_values)] = True
+      if keep_row:
+        observed_values[tuple(curr_values)] = True
 
     return sorted([list(key) for key in observed_values.keys()])
 
-  def CombinationCount(self, child_column, parent_column):
+  def CombinationCount(self, child_column, parent_column, omit_values=dict()):
     """Get the number of unique parent values associated with each child.
 
     Args:
       child_column: String representing child column
       parent_column: String representing parent column
+      omit_values: Dictionary of column->value mappings; rows where
+                   the column has one of the given values are omitted
 
     Returns:
       A list of lists. Each of the latter contains two elements: (1) the string
       value of the child concept, and (2) the number of distinct parent values
       associated with the child value in the table.
     """
+    # Filter rows out based on omit_values parameter
+    filtered_rows = []
+
+    for row in self.rows:
+      drop_row = False
+
+      for column_id in omit_values.keys():
+        column_position = self.column_position_map[column_id]
+
+        if row[column_position] in omit_values[column_id]:
+          drop_row = True
+          break
+
+      if not drop_row:
+        filtered_rows.append(row)
+
     group_key_function = lambda r: r[self.column_position_map[child_column]]
 
-    input_data = sorted(self.rows, key=group_key_function)
+    input_data = sorted(filtered_rows, key=group_key_function)
 
     result_rows = []
 
@@ -148,12 +179,18 @@ class DataContainer(object):
     return result_rows
 
   def GroupedValues(self, column_names, group_by_columns, order_by_columns,
-                    column_aggregation_map):
+                    column_aggregation_map,
+                    keep_values=dict(), omit_values=dict()):
     """Get aggregated values grouped and sorted according to arguments.
 
-    Roughly equivalent to running: SELECT [column_names] FROM [table] GROUP BY
-    [group_by_columns] ORDER BY [order_by_columns], including the aggregations
-    from the column_aggregation_map as necessary.
+    Roughly equivalent to running: 
+
+    SELECT [column_names] FROM [table]
+    WHERE [keep_value(key) = keep_value(value),
+           omit_values(key) != omit_values(value)]
+    GROUP BY [group_by_columns] ORDER BY [order_by_columns]
+
+    including the aggregations from the column_aggregation_map as necessary.
 
     Args:
       column_names: List of strings representing columns to include in query
@@ -161,16 +198,45 @@ class DataContainer(object):
       order_by_columns: Subset of column_names to be used for sorting
       column_aggregation_map: Mapping from column names to aggregator functions;
                               used to aggregate values in each group
+      keep_values: Dictionary of column->value mappings; any rows containing
+                   other values of these columns will be dropped
+      omit_values: Dictionary of column->value mappings; rows containing these
+                   values will be dropped
 
     Returns:
       List of lists containing results of running the query
     """
+    # Drop or keep rows based on contents of keep_values and/or omit_values
+    # parameters
+    filtered_rows = []
+
+    if keep_values or omit_values:
+      for row in self.rows:
+        keep_row_hit = False
+        omit_row_hit = False
+
+        for column_id in keep_values.keys():
+          column_position = self.column_position_map[column_id]
+
+          if row[column_position] in keep_values[column_id]:
+            keep_row_hit = True
+        for column_id in omit_values.keys():
+          column_position = self.column_position_map[column_id]
+
+          if row[column_position] in omit_values[column_id]:
+            omit_row_hit = True
+
+        if (not omit_row_hit) and (not keep_values or keep_row_hit):
+          filtered_rows.append(row)
+    else:
+      filtered_rows = self.rows
+
     group_key_function = lambda r: tuple(
         [r[self.column_position_map[col]] for col in group_by_columns])
     sort_key_function = lambda r: tuple(
         [r[column_names.index(col)] for col in order_by_columns])
 
-    input_data = sorted(self.rows, key=group_key_function)
+    input_data = sorted(filtered_rows, key=group_key_function)
 
     result_rows = []
 
@@ -277,9 +343,19 @@ class CSVDataSource(data_source.DataSource):
   def _CheckHierarchies(self):
     """Make sure that each concept instance has no more than one parent."""
     for column in self.column_bundle.GetColumnIterator():
+      total_vals = {}
+
       if column.parent_ref:
+        # Do not count total values as instances
+        if column.total_val:
+          total_vals[column.column_id] = column.total_val
+
+        if self.column_bundle.GetColumnByID(column.parent_ref).total_val:
+          total_vals[column.parent_ref] = (
+              self.column_bundle.GetColumnByID(column.parent_ref).total_val)
+
         combination_count = self.data_container.CombinationCount(
-            column.column_id, column.parent_ref)
+            column.column_id, column.parent_ref, total_vals)
         error_values = []
 
         for row in combination_count:
@@ -307,8 +383,17 @@ class CSVDataSource(data_source.DataSource):
       DataSourceError: If query against sqlite instance fails
     """
     if query_parameters.query_type == data_source.QueryParameters.CONCEPT_QUERY:
+      omitted_values = {}
+
+      # Pull out total values
+      for column_id in query_parameters.column_ids:
+        column = self.column_bundle.GetColumnByID(column_id)
+
+        if column.total_val:
+          omitted_values[column_id] = [column.total_val]
+
       query_results = self.data_container.DistinctValues(
-          query_parameters.column_ids)
+          query_parameters.column_ids, omitted_values)
     elif query_parameters.query_type == data_source.QueryParameters.SLICE_QUERY:
       # This request is for a slice table
       all_columns = []
@@ -317,6 +402,8 @@ class CSVDataSource(data_source.DataSource):
       time_dimension_id = ''
       metric_columns = []
       metric_aggregation_map = {}
+
+      query_total_vals = {}
 
       # Construct a SQL query that selects all parameters (with the necessary
       # aggregations), groups by non-time dimensions, and orders by all the
@@ -336,16 +423,29 @@ class CSVDataSource(data_source.DataSource):
           metric_aggregation_map[column_id] = (
               column.internal_parameters['aggregation'])
 
+        if column.total_val:
+          query_total_vals[column.column_id] = column.total_val
+
       order_by_columns = (
           [d for d in dimension_columns if d != time_dimension_id])
 
       if time_dimension_id:
         order_by_columns.append(time_dimension_id)
 
+      # Calculate the rows to filter out based on totals
+      aggregated_total_vals = {}
+
+      for column in self.column_bundle.GetColumnIterator():
+        if column.column_id not in query_parameters.column_ids:
+          if column.total_val:
+            aggregated_total_vals[column.column_id] = column.total_val
+
       query_results = self.data_container.GroupedValues(
           all_columns,
           dimension_columns, order_by_columns,
-          metric_aggregation_map)
+          metric_aggregation_map,
+          aggregated_total_vals,
+          query_total_vals)
     else:
       raise data_source.DataSourceError(
           'Unknown query type: %s' % query_parameters.query_type)

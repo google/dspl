@@ -72,16 +72,28 @@ def _CalculateSlices(column_bundle):
 
     all_slices.append([s for s in transformed_slice])
 
-  # Prune slices that contain both a concept and its parent
+  # Prune slices that contain both a concept and an ancestor
   slices_to_evaluate = []
 
   for data_slice in all_slices:
     keep_slice = True
 
-    for (key, value) in child_parent_dict.items():
-      if key in data_slice and value in data_slice:
-        keep_slice = False
-        break
+    for key in child_parent_dict.keys():
+      if key in data_slice:
+        curr_val = child_parent_dict[key]
+
+        # Loop through concept ancestors
+        while True:
+          if curr_val in data_slice:
+            keep_slice = False
+            break
+          elif curr_val in child_parent_dict:
+            curr_val = child_parent_dict[curr_val]
+          else:
+            break
+
+        if not keep_slice:
+          break
 
     if keep_slice:
       slices_to_evaluate.append(data_slice)

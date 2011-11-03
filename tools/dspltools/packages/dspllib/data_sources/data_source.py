@@ -210,7 +210,7 @@ class DataSourceColumn(object):
   def __init__(
       self, column_id, data_type='', data_format='', concept_ref='',
       concept_extension='', parent_ref='', slice_role='', rollup=False,
-      internal_parameters=None):
+      total_val='', internal_parameters=None):
     """Create a DataSourceColumn object.
 
     All arguments with the exception of column_id are optional.
@@ -228,6 +228,7 @@ class DataSourceColumn(object):
       slice_role: One of {'dimension', 'metric'}
       rollup: Whether this column should be aggregated away when generating
               slices
+      total_val: The string used to represent total values of this column
       internal_parameters: An object (e.g. dictionary or string) that can be
                            used by the data source for storing other, private
                            parameters
@@ -240,6 +241,7 @@ class DataSourceColumn(object):
     self.parent_ref = parent_ref
     self.slice_role = slice_role
     self.rollup = rollup
+    self.total_val = total_val
     self.internal_parameters = internal_parameters
 
 
@@ -277,12 +279,13 @@ class TableData(object):
     """
     self.rows = list(rows)
 
-  def MergeValues(self, join_source):
+  def MergeValues(self, join_source, num_columns=1):
     """Horizontally merge this object with another TableData object.
 
     Args:
       join_source: A TableData object with the same number of rows as this
                    one
+      num_columns: The number of columns to pull from the join source
 
     Returns:
       This TableData object
@@ -290,7 +293,7 @@ class TableData(object):
     assert len(self.rows) == len(join_source.rows)
 
     for r, row in enumerate(self.rows):
-      self.rows[r] = row + join_source.rows[r]
+      self.rows[r] = row + join_source.rows[r][0:num_columns]
 
     return self
 

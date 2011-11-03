@@ -51,7 +51,8 @@ class _MockDataSource(data_source.DataSource):
         'col1', data_type='string', slice_role='dimension',
         concept_extension='entity:entity', rollup=True)
     column2 = data_source.DataSourceColumn(
-        'col2', data_type='string', slice_role='dimension', parent_ref='col6')
+        'col2', data_type='string', concept_extension='geo:location',
+        slice_role='dimension', parent_ref='col6')
     column3 = data_source.DataSourceColumn(
         'col3', data_type='date', concept_ref='time:year', data_format='yyyy',
         slice_role='dimension')
@@ -110,12 +111,15 @@ class CalculateSlicesTests(unittest.TestCase):
     column1 = data_source.DataSourceColumn(
         'col1', rollup=True, concept_extension='entity:entity')
     column2 = data_source.DataSourceColumn('col2', rollup=False)
-    column3 = data_source.DataSourceColumn('col3', rollup=True)
+    column3 = data_source.DataSourceColumn(
+        'col3', rollup=True, parent_ref='col5')
     column4 = data_source.DataSourceColumn(
         'col4', rollup=True, parent_ref='col3')
+    column5 = data_source.DataSourceColumn(
+        'col5', rollup=True)
 
     column_bundle = data_source.DataSourceColumnBundle(
-        columns=[column1, column2, column3, column4])
+        columns=[column1, column2, column3, column4, column5])
 
     slice_column_sets = data_source_to_dspl._CalculateSlices(column_bundle)
 
@@ -131,8 +135,10 @@ class CalculateSlicesTests(unittest.TestCase):
         sorted([sorted(s) for s in slice_column_ids]),
         sorted([sorted(s) for s in [['col1', 'col2', 'col3'],
                                     ['col1', 'col2', 'col4'],
+                                    ['col1', 'col2', 'col5'],
                                     ['col1', 'col2'], ['col2', 'col3'],
-                                    ['col2', 'col4'], ['col2']]]))
+                                    ['col2', 'col4'], ['col2', 'col5'],
+                                    ['col2']]]))
 
 
 class PopulateDatasetTest(unittest.TestCase):
@@ -178,7 +184,7 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self.assertEqual(
         [c.concept_extension_reference for c in sorted_concepts],
-        ['entity:entity', '', '', '', '', ''])
+        ['entity:entity', 'geo:location', '', '', '', ''])
 
     self.assertEqual(
         [c.concept_reference for c in sorted_concepts],
@@ -256,11 +262,14 @@ class PopulateDatasetTest(unittest.TestCase):
 
     self._TableColumnTestHelper(
         col2_table,
-        expected_ids=['col2', 'col6'],
-        expected_types=['string', 'string'],
-        expected_formats=['', ''],
+        expected_ids=['col2', 'col6', 'latitude', 'longitude', 'name'],
+        expected_types=['string', 'string', 'float', 'float', 'string'],
+        expected_formats=['', '', '', '', ''],
         expected_data={'col2': ['col2', 'california', 'maine', 'oregon'],
-                       'col6': ['col6', 'west', 'east', 'west']})
+                       'col6': ['col6', 'west', 'east', 'west'],
+                       'name': ['name', 'california', 'maine', 'oregon'],
+                       'latitude': ['latitude', '', '', ''],
+                       'longitude': ['longitude', '', '', '']})
 
     self._TableColumnTestHelper(
         col6_table,

@@ -79,10 +79,11 @@ class TableDataTest(unittest.TestCase):
         [[1, 2, 3], [4, 5, 6]])
 
   def testMergeValues(self):
-    another_table_data = data_source.TableData([[4], [6]])
-    merged_table_data = self.table_data.MergeValues(another_table_data)
+    another_table_data = data_source.TableData([[4, 5, 6], [6, 7, 8]])
+    merged_table_data = self.table_data.MergeValues(
+        another_table_data, num_columns=2)
     self.assertEqual(merged_table_data.rows,
-                     [[1, 2, 3, 4], [4, 5, 6, 6]])
+                     [[1, 2, 3, 4, 5], [4, 5, 6, 6, 7]])
 
   def testMergeContant(self):
     merged_table_data = self.table_data.MergeConstant('abcd')
