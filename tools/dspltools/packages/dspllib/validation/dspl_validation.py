@@ -1,33 +1,10 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 #
-# Copyright 2011, Google Inc.
-# All rights reserved.
+# Copyright 2018 Google LLC
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-#    * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above
-# copyright notice, this list of conditions and the following disclaimer
-# in the documentation and/or other materials provided with the
-# distribution.
-#    * Neither the name of Google Inc. nor the names of its
-# contributors may be used to endorse or promote products derived from
-# this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file or at
+# https://developers.google.com/open-source/licenses/bsd
 
 """Validate a DSPL dataset model."""
 
@@ -165,7 +142,7 @@ class DSPLDatasetValidator(object):
               break
 
           if missing_def_table:
-            # Prevent duplicate messages if concept is used in multiple slices 
+            # Prevent duplicate messages if concept is used in multiple slices
             break
 
   def CheckSlices(self):
@@ -308,7 +285,7 @@ class DSPLDatasetValidator(object):
 
             # Check date format existence
             if (table_column.data_type == 'date' and
-                not table_column.data_format):
+                    not table_column.data_format):
               self.AddIssue(
                   DSPLValidationIssue(
                       DSPLValidationIssue.TABLE,
@@ -467,7 +444,7 @@ class DSPLDatasetValidator(object):
                   (slice_table.table_id, date_column.column_id, column_format)))
       elif dimension_concept.concept_reference == 'time:day':
         if (('y' not in column_format) or ('M' not in column_format) or
-            ('d' not in column_format)):
+                ('d' not in column_format)):
           self.AddIssue(
               DSPLValidationIssue(
                   DSPLValidationIssue.TABLE, DSPLValidationIssue.INCONSISTENCY,
@@ -736,7 +713,7 @@ class DSPLDatasetValidator(object):
                   row_value = row[column_to_csv_index[column]]
 
                   if (concept_data[dimension_id] and
-                      (row_value not in concept_data[dimension_id])):
+                          (row_value not in concept_data[dimension_id])):
                     self.AddIssue(
                         DSPLValidationIssue(
                             DSPLValidationIssue.DATA,

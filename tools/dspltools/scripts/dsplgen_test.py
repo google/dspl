@@ -1,33 +1,10 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python2
 #
-# Copyright 2011, Google Inc.
-# All rights reserved.
+# Copyright 2018 Google LLC
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-#
-#    * Redistributions of source code must retain the above copyright
-# notice, this list of conditions and the following disclaimer.
-#    * Redistributions in binary form must reproduce the above
-# copyright notice, this list of conditions and the following disclaimer
-# in the documentation and/or other materials provided with the
-# distribution.
-#    * Neither the name of Google Inc. nor the names of its
-# contributors may be used to endorse or promote products derived from
-# this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file or at
+# https://developers.google.com/open-source/licenses/bsd
 
 """Tests of dsplgen module."""
 
@@ -48,7 +25,7 @@ import dsplgen
 
 
 _TEST_CSV_CONTENT = (
-"""date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;rollup=true],metric1[extends=quantity:ratio;slice_role=metric],metric2,metric3
+    """date[type=date;format=yyyy-MM-dd],category1,category2[concept=geo:us_state;rollup=true],metric1[extends=quantity:ratio;slice_role=metric],metric2,metric3
 1980-01-01,red,california,89,321,71.21
 1981-01-01,red,california,99,231,391.2
 1982-01-01,blue,maine's,293,32,2.31

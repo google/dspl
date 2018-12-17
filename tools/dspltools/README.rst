@@ -1,6 +1,6 @@
 Documentation
 =============
-See http://code.google.com/apis/publicdata/docs/dspltools.html for documentation.
+See https://developers.google.com/public-data/docs/dspltools for documentation.
 
 
 Release Notes
@@ -119,3 +119,4 @@ Description:
 Fixed some bugs around multi-level concept hierarchies.
 
 Added total_val parameter to support pre-computed rollups in data.
+
