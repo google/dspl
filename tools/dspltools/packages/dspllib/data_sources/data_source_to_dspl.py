@@ -7,6 +7,7 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 """Functions for data source to DSPL model conversion."""
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -303,7 +304,7 @@ def PopulateDataset(data_source_obj, verbose):
   # Generate slice metadata
   for i, slice_column_set in enumerate(_CalculateSlices(column_bundle)):
     if verbose:
-      print 'Evaluating slice: %s' % ([c.column_id for c in slice_column_set])
+      print('Evaluating slice: %s' % ([c.column_id for c in slice_column_set]))
 
     dimension_ids = []
     metric_ids = []
@@ -322,7 +323,7 @@ def PopulateDataset(data_source_obj, verbose):
 
     # Execute slice query
     if verbose:
-      print 'Getting slice values'
+      print('Getting slice values')
 
     slice_table_rows = data_source_obj.GetTableData(
         data_source.QueryParameters(

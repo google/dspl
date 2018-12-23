@@ -11,6 +11,7 @@
 Note that not all DSPL features are currently supported (e.g., topics,
 concept properties, etc.).
 """
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -163,7 +164,7 @@ class DataSet(object):
     output_file_name = os.path.join(output_path, 'dataset.xml')
 
     if self.verbose:
-      print 'Writing file: %s' % output_file_name
+      print('Writing file: %s' % output_file_name)
 
     # Write XML file
     xml_file = open(output_file_name, 'w')
@@ -651,7 +652,7 @@ class Table(object):
     output_file_name = os.path.join(output_path, self.file_name)
 
     if self.verbose:
-      print 'Writing file: %s' % output_file_name
+      print('Writing file: %s' % output_file_name)
 
     csv_output_file = open(output_file_name, 'wb')
     csv_writer = csv.writer(csv_output_file)

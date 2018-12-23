@@ -16,6 +16,7 @@ column1_id[key1=value1;key2=value2;key3=value3;....],column2_id[...],...
 A local sqlite instance is used to aggregate and filter the data as
 required by the DataSource interface.
 """
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -98,7 +99,7 @@ class CSVDataSourceSqlite(data_source.DataSource):
              for column in self.column_bundle.GetColumnIterator()]))
 
     if self.verbose:
-      print '\nCreating sqlite3 table: %s' % (columns_string)
+      print('\nCreating sqlite3 table: %s' % (columns_string))
 
     self.sqlite_connection = sqlite3.connect(
         os.path.join(self.sqlite_dir, 'db.dat'))
@@ -106,10 +107,10 @@ class CSVDataSourceSqlite(data_source.DataSource):
     cursor.execute('create table csv_table (%s)' % (columns_string))
 
     if self.verbose:
-      print 'Adding CSV data to SQLite table'
+      print('Adding CSV data to SQLite table')
 
     body_csv_reader = csv.reader(csv_file, delimiter=',', quotechar='"')
-    body_csv_reader.next()
+    next(body_csv_reader)
 
     for r, row in enumerate(body_csv_reader):
       transformed_row_values = []
@@ -154,14 +155,14 @@ class CSVDataSourceSqlite(data_source.DataSource):
               '\n%s' % (r + 2, transformed_values_str, str(e)))
 
     if self.verbose:
-      print 'Committing transactions\n'
+      print('Committing transactions\n')
 
     self.sqlite_connection.commit()
 
     cursor.close()
 
     if self.verbose:
-      print 'Checking concept hierarchies'
+      print('Checking concept hierarchies')
 
     self._CheckHierarchies()
 
@@ -299,7 +300,7 @@ class CSVDataSourceSqlite(data_source.DataSource):
           'Unknown query type: %s' % query_parameters.query_type)
 
     if self.verbose:
-      print 'Executing query:\n%s\n' % (query_str)
+      print('Executing query:\n%s\n' % (query_str))
 
     # Execute the query against the sqlite backend
     cursor = self.sqlite_connection.cursor()

@@ -7,6 +7,7 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 """Generate a DSPL dataset from a tabular data source via the command-line."""
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -68,7 +69,7 @@ def main(argv):
     try:
       csv_file = open(options['data_source'], 'r')
     except IOError as io_error:
-      print 'Error opening CSV file\n\n%s' % io_error
+      print('Error opening CSV file\n\n%s' % io_error)
       sys.exit(2)
 
     if options['data_type'] == 'csv':
@@ -78,7 +79,7 @@ def main(argv):
       data_source_obj = csv_data_source_sqlite.CSVDataSourceSqlite(
           csv_file, options['verbose'])
   else:
-    print 'Error: Unknown data type: %s' % (options['data_type'])
+    print('Error: Unknown data type: %s' % (options['data_type']))
     sys.exit(2)
 
   # Create DSPL dataset from data source
@@ -87,14 +88,14 @@ def main(argv):
   data_source_obj.Close()
 
   if options['verbose']:
-    print 'Materializing dataset:'
-    print str(dataset)
+    print('Materializing dataset:')
+    print(str(dataset))
 
   # Write DSPL dataset to disk
   dataset.Materialize(options['output_path'])
 
   if options['verbose']:
-    print 'Completed in %0.2f seconds' % (time.time() - start_time)
+    print('Completed in %0.2f seconds' % (time.time() - start_time))
 
 
 if __name__ == '__main__':
