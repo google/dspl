@@ -15,7 +15,7 @@ is and how to use it.  The utilities in this repository are documented at [this
 site](https://developers.google.com/public-data/docs/dspltools).
 
 ## Build and install
-To build the tools, install `minixsv`, then use the `setup.py` script in
+To build the tools, install `lxml`, then use the `setup.py` script in
 `tools/dspltools/`.  You can use pip to install these:
 ```
 pip install -r tools/dspltools/requirements.txt
