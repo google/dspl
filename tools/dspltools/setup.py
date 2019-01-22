@@ -8,15 +8,16 @@
 
 """Setup script for the DSPLtools suite."""
 
+import setuptools
 from distutils.core import setup
 
 
 setup(name='dspltools',
       version='0.5.0',
       description='Suite of command-line tools for generating DSPL datasets',
-      author='Benjamin Yolken',
-      author_email='yolken@google.com',
-      url='http://code.google.com/apis/publicdata/docs/dspltools.html',
+      author='Public Statistics',
+      author_email='public-data-import-feedback@google.com',
+      url='http://github.com/google/dspl',
       packages=['dspllib', 'dspllib.data_sources',
                 'dspllib.model', 'dspllib.validation'],
       package_dir={'dspllib': 'packages/dspllib'},
