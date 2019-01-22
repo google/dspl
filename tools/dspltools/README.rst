@@ -120,3 +120,11 @@ Fixed some bugs around multi-level concept hierarchies.
 
 Added total_val parameter to support pre-computed rollups in data.
 
+
+*** v0.5.0 ***
+Release date: January 22, 2019
+
+Description:
+------------
+Switch to lxml for XML parsing and schema validation.
+

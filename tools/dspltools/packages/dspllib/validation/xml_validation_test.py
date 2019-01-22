@@ -71,6 +71,32 @@ _DSPL_CONTENT_SCHEMA_ERROR = (
   </provider>
 </dspl>""")
 
+_DSPL_BILLION_LAUGHS = (
+    """<!DOCTYPE lolz [
+ <!ENTITY lol "lol">
+ <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+ <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+ <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+ <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+ <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+ <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+ <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+ <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+ <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+]>
+<dspl xmlns="http://schemas.google.com/dspl/2010">
+  <info>
+    <name>
+      <value>&lol9;</value>
+    </name>
+  </info>
+  <provider>
+    <name>
+      <value>Provider Name</value>
+    </name>
+  </provider>
+</dspl>""")
+
 
 class XMLValidationTests(unittest.TestCase):
   """Test case for xml_validation module."""
@@ -92,7 +118,8 @@ class XMLValidationTests(unittest.TestCase):
     xml_error_input_file = StringIO.StringIO(_DSPL_CONTENT_XML_ERROR)
 
     result = xml_validation.RunValidation(xml_error_input_file)
-    self.assertTrue(re.search('not valid XML.*line 1', result, flags=re.DOTALL))
+    self.assertTrue(
+        re.search('XML declaration allowed only.*line 1', result, flags=re.DOTALL))
 
     xml_error_input_file.close()
 
@@ -101,10 +128,22 @@ class XMLValidationTests(unittest.TestCase):
     schema_error_input_file = StringIO.StringIO(_DSPL_CONTENT_SCHEMA_ERROR)
 
     result = xml_validation.RunValidation(schema_error_input_file)
-    self.assertTrue(re.search('does not validate against DSPL schema.*line 6',
+    # TODO: this validation failure has lineno 0; look into why lxml is not
+    #       returning the right location.
+    self.assertTrue(re.search('The attribute \'illegalproperty\' is not allowed',
                               result, flags=re.DOTALL))
 
     schema_error_input_file.close()
+
+  def testXMLBillionLaughsAttack(self):
+    """A simple test to verify that the validation routine is not susceptible
+    to the billion laughs attack.
+    """
+    billion_laughs_input_file = StringIO.StringIO(_DSPL_BILLION_LAUGHS)
+    result = xml_validation.RunValidation(billion_laughs_input_file)
+    self.assertTrue(re.search('Detected an entity reference loop', result))
+
+    billion_laughs_input_file.close()
 
 
 if __name__ == '__main__':

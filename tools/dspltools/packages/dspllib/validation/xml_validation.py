@@ -11,13 +11,10 @@
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
+from lxml import etree
 import os.path
 import re
-import xml.parsers.expat
-import xml.etree.ElementTree
 
-from genxmlif import GenXmlIfError
-from minixsv import pyxsval
 
 # The number of lines of context to show around XML errors
 _CONTEXT_LINES = 3
@@ -103,42 +100,21 @@ def RunValidation(xml_file, schema_file=None, verbose=True):
       substitution_function,
       schema_file_text, 2)
 
-  # Figure out which type of parsing exception this version of ElementTree
-  # throws; code adapted from example in ElementTree documentation
-  try:
-    parse_error = xml.etree.ElementTree.ParseError
-  except AttributeError:
-    try:
-      xml.etree.ElementTree.XML('<foo>')
-    except:
-      from sys import exc_type as parse_error
+  # Parse the schema file into an etree
+  schema_file_xml = etree.XML(schema_file_text)
 
   try:
-    pyxsval.parseAndValidateXmlInputString(
-        xml_file_text, xsdText=schema_file_text,
-        xmlIfClass=pyxsval.XMLIF_ELEMENTTREE,
-        warningProc=pyxsval.PRINT_WARNINGS)
-
-  except (GenXmlIfError, parse_error) as xml_error:
+    schema = etree.XMLSchema(schema_file_xml)
+    parser = etree.XMLParser(schema=schema)
+    etree.fromstring(xml_file_text, parser)
+  except etree.XMLSyntaxError as xml_error:
     # XML parsing error
     error_string = str(xml_error)
-
-    if verbose:
-      result = ('Input is not valid XML\n\n%s\n%s' %
-                (error_string, GetErrorContext(
-                    xml_file_text,
-                    GetErrorLineNumber(error_string))))
-    else:
-      result = error_string
-  except pyxsval.XsvalError as schema_error:
-    # Schema validation error
-    error_string = str(schema_error)
-
     if verbose:
       result = ('Input does not validate against DSPL schema\n\n%s\n%s' %
                 (error_string, GetErrorContext(
                     xml_file_text,
-                    GetErrorLineNumber(error_string))))
+                    xml_error.lineno)))
     else:
       result = error_string
   else:
