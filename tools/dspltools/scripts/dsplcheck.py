@@ -7,6 +7,7 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 """Check a DSPL dataset for likely import errors."""
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -82,10 +83,10 @@ def GetInputFilePath(input_file_path):
           xml_file_paths.append(os.path.join(dirpath, file_name))
 
     if not xml_file_paths:
-      print 'Error: zip does not have any XML files'
+      print('Error: zip does not have any XML files')
       sys.exit(2)
     elif len(xml_file_paths) > 1:
-      print 'Error: zip contains multiple XML files'
+      print('Error: zip contains multiple XML files')
       sys.exit(2)
     else:
       xml_file_path = xml_file_paths[0]
@@ -113,17 +114,17 @@ def main(argv):
   try:
     xml_file = open(file_paths['xml_file_path'], 'r')
   except IOError as io_error:
-    print 'Error opening XML file\n\n%s' % io_error
+    print('Error opening XML file\n\n%s' % io_error)
     sys.exit(2)
 
   if options['verbose']:
-    print '==== Checking XML file against DSPL schema....'
+    print('==== Checking XML file against DSPL schema....')
 
   result = xml_validation.RunValidation(
       xml_file,
       verbose=options['verbose'])
 
-  print result
+  print(result)
 
   if 'validates successfully' not in result:
     # Stop if XML validation not successful
@@ -131,7 +132,7 @@ def main(argv):
 
   if options['checking_level'] != 'schema_only':
     if options['verbose']:
-      print '\n==== Parsing DSPL dataset....'
+      print('\n==== Parsing DSPL dataset....')
 
     if options['checking_level'] == 'full':
       full_data_check = True
@@ -142,21 +143,21 @@ def main(argv):
       dataset = dspl_model_loader.LoadDSPLFromFiles(
           file_paths['xml_file_path'], load_all_data=full_data_check)
     except dspl_model_loader.DSPLModelLoaderError as loader_error:
-      print 'Error while trying to parse DSPL dataset\n\n%s' % loader_error
+      print('Error while trying to parse DSPL dataset\n\n%s' % loader_error)
       sys.exit(2)
 
     if options['verbose']:
-      print 'Parsing completed.'
+      print('Parsing completed.')
 
       if full_data_check:
-        print '\n==== Checking DSPL model and data....'
+        print('\n==== Checking DSPL model and data....')
       else:
-        print '\n==== Checking DSPL model....'
+        print('\n==== Checking DSPL model....')
 
     dspl_validator = dspl_validation.DSPLDatasetValidator(
         dataset, full_data_check=full_data_check)
 
-    print dspl_validator.RunValidation(options['verbose'])
+    print(dspl_validator.RunValidation(options['verbose']))
 
   xml_file.close()
 
@@ -165,7 +166,7 @@ def main(argv):
     shutil.rmtree(file_paths['zip_dir'])
 
   if options['verbose']:
-    print '\nCompleted in %0.2f seconds' % (time.time() - start_time)
+    print('\nCompleted in %0.2f seconds' % (time.time() - start_time))
 
 
 if __name__ == '__main__':

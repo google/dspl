@@ -325,11 +325,11 @@ class DSPLTableTests(unittest.TestCase):
     output_csv_reader = csv.reader(output_csv_file)
 
     self.assertEqual(
-        output_csv_reader.next(), ['col1', 'col2', 'col3'])
+        next(output_csv_reader), ['col1', 'col2', 'col3'])
     self.assertEqual(
-        output_csv_reader.next(), ['1/1/2010', 'blue', 'california'])
+        next(output_csv_reader), ['1/1/2010', 'blue', 'california'])
     self.assertEqual(
-        output_csv_reader.next(), ['1/2/2010', 'red', 'maine'])
+        next(output_csv_reader), ['1/2/2010', 'red', 'maine'])
 
     output_csv_file.close()
 

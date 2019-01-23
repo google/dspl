@@ -7,6 +7,7 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 """Utility functions useful for CSV data sources."""
+from __future__ import print_function
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
 
@@ -126,8 +127,8 @@ def ConstructColumnBundle(csv_file, verbose=True):
   """
   # Get the first and second rows of the CSV
   header_csv_reader = csv.reader(csv_file, delimiter=',', quotechar='"')
-  header_row_values = header_csv_reader.next()
-  second_row_values = header_csv_reader.next()
+  header_row_values = next(header_csv_reader)
+  second_row_values = next(header_csv_reader)
   csv_file.seek(0)
 
   # Check that second row is properly formatted
@@ -150,7 +151,7 @@ def ConstructColumnBundle(csv_file, verbose=True):
   # parameters as necessary
   for c, column in enumerate(column_bundle.GetColumnIterator()):
     if verbose:
-      print '\nEvaluating column %s' % column.column_id
+      print('\nEvaluating column %s' % column.column_id)
 
     # Check data type
     if not column.data_type:
@@ -158,8 +159,8 @@ def ConstructColumnBundle(csv_file, verbose=True):
           data_source.GuessDataType(second_row_values[c], column.column_id))
 
       if verbose:
-        print 'Guessing that column %s is of type %s' % (
-            column.column_id, column.data_type)
+        print('Guessing that column %s is of type %s' % (
+            column.column_id, column.data_type))
 
     # Check slice type
     if not column.slice_role:
@@ -169,8 +170,8 @@ def ConstructColumnBundle(csv_file, verbose=True):
         column.slice_role = 'dimension'
 
       if verbose:
-        print 'Guessing that column %s is a %s' % (
-            column.column_id, column.slice_role)
+        print('Guessing that column %s is a %s' % (
+            column.column_id, column.slice_role))
 
     # Check aggregation
     if column.slice_role == 'metric':
@@ -180,8 +181,8 @@ def ConstructColumnBundle(csv_file, verbose=True):
         column.internal_parameters['aggregation'] = 'SUM'
 
         if verbose:
-          print 'Guessing that column %s should be aggregated by %s' % (
-              column.column_id, column.internal_parameters['aggregation'])
+          print('Guessing that column %s should be aggregated by %s' % (
+              column.column_id, column.internal_parameters['aggregation']))
 
     # Check parent
     if column.parent_ref:

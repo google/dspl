@@ -16,6 +16,7 @@ column1_id[key1=value1;key2=value2;key3=value3;....],column2_id[...],...
 Implements all of the necessary aggregation, sorting, etc. by using in-memory
 Python objects.
 """
+from __future__ import print_function
 
 
 __author__ = 'Benjamin Yolken <yolken@google.com>'
@@ -266,10 +267,10 @@ class CSVDataSource(data_source.DataSource):
     self.data_container = DataContainer(column_ids)
 
     if self.verbose:
-      print 'Reading CSV data'
+      print('Reading CSV data')
 
     body_csv_reader = csv.reader(csv_file, delimiter=',', quotechar='"')
-    body_csv_reader.next()
+    next(body_csv_reader)
 
     for r, row in enumerate(body_csv_reader):
       transformed_row_values = []
@@ -310,7 +311,7 @@ class CSVDataSource(data_source.DataSource):
         self.data_container.AddRow(transformed_row_values)
 
     if self.verbose:
-      print 'Checking concept hierarchies'
+      print('Checking concept hierarchies')
 
     self._CheckHierarchies()
 
