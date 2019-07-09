@@ -15,8 +15,8 @@ There are no tools at this time.
 
 ## Samples
 
-Examples are in the DSPL 2.0 GitHub repository under [`samples`](https://github.com/google/dspl/tree/master/samples).
+Examples are in the DSPL 2.0 GitHub repository under [`samples`](https://github.com/google/dspl/tree/master/samples). Currently only Eurostat unemployment includes DSPL 2.0 metadata.
 
 ## Contributing
 
-To contribute, see the [CONTRIBUTING](CONTRIBUTING.html) file and after submitting a CLA, submit pull requests to the [DSPL 2.0 GitHub repository](https://github.com/google/dspl)
+To contribute, see the [CONTRIBUTING](CONTRIBUTING.html) file and after submitting a CLA, submit pull requests to the [DSPL GitHub repository](https://github.com/google/dspl)
