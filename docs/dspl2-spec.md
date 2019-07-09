@@ -2,7 +2,6 @@
 title: Data Set Publishing Language Specification, Version 2.0
 author: Omar Benjelloun and Natarajan Krishnaswami
 ---
-<link rel="stylesheet" href="dspl2-spec.css">
 
 # DSPL 2.0
 
