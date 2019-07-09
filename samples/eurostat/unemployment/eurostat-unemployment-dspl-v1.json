@@ -1,0 +1,220 @@
+{
+  "@context": [
+    "http://schema.org",
+    {
+      "name": { "@container": "@language" },
+      "description": { "@container": "@language" },
+      "url": { "@container": "@language" }
+    }
+  ],
+  "@type": "StatisticalDataset",
+  "@id": "#eurostat-unemployment",
+  "name": {
+    "en": "Unemployment in Europe (monthly)",
+    "de": "Arbeitslosigkeit in Europa (monatlich)",
+    "fr": "Le Chômage en Europe (mensuel)"
+  },
+  "description": {
+    "en": "Harmonized unemployment data for European countries. This dataset was prepared by Google based on data downloaded from Eurostat.",
+    "de": "Harmonisierte Daten zur Arbeitslosigkeit für europäische Länder. Dieser Datensatz wurde von Google aufbereitet, basierend auf online Daten von Eurostat.",
+    "fr": "Données harmonisées sur le chômage dans les pays européens. Ces données ont été préparées par Google sur la base de données téléchargées à partir d'Eurostat."
+  },
+  "url": {
+    "en": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-en/employment_unemployment_lfs/introduction",
+    "de": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-fr/employment_unemployment_lfs/introduction",
+    "fr": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-de/employment_unemployment_lfs/introduction"
+  },
+  "measure": [
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#unemployment",
+      "sameAs": "https://www.wikidata.org/wiki/Q41171",
+      "name": {
+        "en": "Unemployment (monthly)",
+        "de": "Arbeitslosigkeit (monatlich)",
+        "fr": "Chômeurs (mensuel)"
+      },
+      "description": {
+        "en": "The total number of people unemployed",
+        "de": "Anzahl der Arbeitslosen",
+        "fr":" Le nombre total de chômeurs"
+      },
+      "url": {
+        "en": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en",
+        "de": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=de",
+        "fr": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=fr"
+      },
+      "unitCode": "IE"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#unemployment_rate",
+      "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+      "name": {
+        "en": "Unemployment rate (monthly)",
+        "de": "Arbeitslosenquote (monatlich)",
+        "fr": "Taux de chômage (mensuel)"
+      },
+      "description": {
+        "en": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed.",
+        "de": "Die Arbeitslosenquote ist definiert als der prozentuale Anteil der Arbeitslosen an den Erwerbspersonen. Die Erwerbspersonen umfassen die Erwerbstätigen und die Arbeitslosen.",
+        "fr": "Le taux de chômage représente le pourcentage de chômeurs dans la population active. La population active représente le nombre total des personnes ayant un emploi ou étant au chômage."
+      },
+      "url": {
+        "en": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
+        "de": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=de",
+        "fr": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=fr"
+      },
+      "unitCode": "P1"
+    }
+  ],
+  "dimension": [
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#country_group",
+      "codeList": "country_groups.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#country",
+      "codeList": "countries.csv",
+      "equivalentType": "Country"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#age_group",
+      "codeList": "age_groups.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#sex",
+      "codeList": "sexes.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#seasonality",
+      "codeList": "seasonalities.csv"
+    },
+    {
+      "@type": "TimeDimension",
+      "@id": "#month",
+      "equivalentType": "xsd:gYearMonth",
+      "datePattern": "yyyy.MM"
+    }
+  ],
+  "footnote": "footnotes.csv",
+  "slice": [
+    {
+      "@type": "DataSlice",
+      "@id": "#country_age",
+      "dimension": [
+        "#country",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_age.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_group_age",
+      "dimension": [
+        "#country_group",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_group_age.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_group_sex_age",
+      "dimension": [
+        "#country_group",
+        "#sex",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_group_sex_age.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_group_sex",
+      "dimension": [
+        "#country_group",
+        "#sex",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_group_sex.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_group_total",
+      "dimension": [
+        "#country_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_group_total.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_sex_age",
+      "dimension": [
+        "#country",
+        "#sex",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_sex_age.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_sex",
+      "dimension": [
+        "#country",
+        "#sex",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_sex.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#country_total",
+      "dimension": [
+        "#country",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": "country_total.csv"
+    }
+  ]
+}

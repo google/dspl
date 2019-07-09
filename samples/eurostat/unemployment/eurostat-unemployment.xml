@@ -96,9 +96,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </description>
          </info>
          <table ref="country_groups">
-           <mapProperty ref="name" xml:lang="en" toColumn="name_en"/>
-           <mapProperty ref="name" xml:lang="de" toColumn="name_de"/>
-           <mapProperty ref="name" xml:lang="fr" toColumn="name_fr"/>
+           <mapProperty ref="country_group" xml:lang="en" toColumn="codeValue"/>
+           <mapProperty ref="name" xml:lang="en" toColumn="name@en"/>
+           <mapProperty ref="name" xml:lang="de" toColumn="name@de"/>
+           <mapProperty ref="name" xml:lang="fr" toColumn="name@fr"/>
          </table>
       </concept>
 
@@ -123,9 +124,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          <property id="google_country_code" concept="geo:country" isMapping="true"/>
          <property id="country_group" concept="country_group" isParent="true"/>
          <table ref="countries">
-            <mapProperty ref="name" xml:lang="en" toColumn="name_en"/>
-            <mapProperty ref="name" xml:lang="de" toColumn="name_de"/>
-            <mapProperty ref="name" xml:lang="fr" toColumn="name_fr"/>
+            <mapProperty ref="country" xml:lang="en" toColumn="codeValue"/>
+            <mapProperty ref="name" xml:lang="en" toColumn="name@en"/>
+            <mapProperty ref="name" xml:lang="de" toColumn="name@de"/>
+            <mapProperty ref="name" xml:lang="fr" toColumn="name@fr"/>
          </table>
       </concept>
       <concept id="age_group" extends="entity:entity">
@@ -150,9 +152,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <value>NATURAL</value>
          </attribute>
          <table ref="age_groups">
-            <mapProperty ref="name" xml:lang="en" toColumn="name_en"/>
-            <mapProperty ref="name" xml:lang="de" toColumn="name_de"/>
-            <mapProperty ref="name" xml:lang="fr" toColumn="name_fr"/>
+            <mapProperty ref="age_group" xml:lang="en" toColumn="codeValue"/>
+            <mapProperty ref="name" xml:lang="en" toColumn="name@en"/>
+            <mapProperty ref="name" xml:lang="de" toColumn="name@de"/>
+            <mapProperty ref="name" xml:lang="fr" toColumn="name@fr"/>
          </table>
       </concept>
       <concept id="sex" extends="entity:entity">
@@ -174,9 +177,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             </totalName>
          </info>
          <table ref="sexes">
-            <mapProperty ref="name" xml:lang="en" toColumn="name_en"/>
-            <mapProperty ref="name" xml:lang="de" toColumn="name_de"/>
-            <mapProperty ref="name" xml:lang="fr" toColumn="name_fr"/>
+            <mapProperty ref="sex" xml:lang="en" toColumn="codeValue"/>
+            <mapProperty ref="name" xml:lang="en" toColumn="name@en"/>
+            <mapProperty ref="name" xml:lang="de" toColumn="name@de"/>
+            <mapProperty ref="name" xml:lang="fr" toColumn="name@fr"/>
          </table>
       </concept>
       <concept id="seasonality" extends="entity:entity">
@@ -197,9 +201,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          </attribute>
          <defaultValue>sa</defaultValue>
          <table ref="seasonalities">
-            <mapProperty ref="name" xml:lang="en" toColumn="name_en"/>
-            <mapProperty ref="name" xml:lang="de" toColumn="name_de"/>
-            <mapProperty ref="name" xml:lang="fr" toColumn="name_fr"/>
+            <mapProperty ref="seasonality" xml:lang="en" toColumn="codeValue"/>
+            <mapProperty ref="name" xml:lang="en" toColumn="name@en"/>
+            <mapProperty ref="name" xml:lang="de" toColumn="name@de"/>
+            <mapProperty ref="name" xml:lang="fr" toColumn="name@fr"/>
          </table>
       </concept>
       <!-- Metrics -->
@@ -326,21 +331,21 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </slices>
    <tables>
       <table id="country_groups">
-         <column id="country_group" type="string"/>
-         <column id="name_en" type="string"/>
-         <column id="name_fr" type="string"/>
-         <column id="name_de" type="string"/>
+         <column id="codeValue" type="string"/>
+         <column id="name@en" type="string"/>
+         <column id="name@fr" type="string"/>
+         <column id="name@de" type="string"/>
          <data>
             <file encoding="utf-8" format="csv">country_groups.csv</file>
          </data>
       </table>
       <table id="countries">
-         <column id="country" type="string"/>
+         <column id="codeValue" type="string"/>
          <column id="google_country_code" type="string"/>
          <column id="country_group" type="string"/>
-         <column id="name_en" type="string"/>
-         <column id="name_fr" type="string"/>
-         <column id="name_de" type="string"/>
+         <column id="name@en" type="string"/>
+         <column id="name@fr" type="string"/>
+         <column id="name@de" type="string"/>
          <column id="latitude" type="float"/>
          <column id="longitude" type="float"/>
          <data>
@@ -348,28 +353,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          </data>
       </table>
       <table id="age_groups">
-         <column id="age_group" type="string"/>
-         <column id="name_en" type="string"/>
-         <column id="name_fr" type="string"/>
-         <column id="name_de" type="string"/>
+         <column id="codeValue" type="string"/>
+         <column id="name@en" type="string"/>
+         <column id="name@fr" type="string"/>
+         <column id="name@de" type="string"/>
          <data>
             <file encoding="utf-8" format="csv">age_groups.csv</file>
          </data>
       </table>
       <table id="sexes">
-         <column id="sex" type="string"/>
-         <column id="name_en" type="string"/>
-         <column id="name_fr" type="string"/>
-         <column id="name_de" type="string"/>
+         <column id="codeValue" type="string"/>
+         <column id="name@en" type="string"/>
+         <column id="name@fr" type="string"/>
+         <column id="name@de" type="string"/>
          <data>
             <file encoding="utf-8" format="csv">sexes.csv</file>
          </data>
       </table>
       <table id="seasonalities">
-         <column id="seasonality" type="string"/>
-         <column id="name_en" type="string"/>
-         <column id="name_fr" type="string"/>
-         <column id="name_de" type="string"/>
+         <column id="codeValue" type="string"/>
+         <column id="name@en" type="string"/>
+         <column id="name@fr" type="string"/>
+         <column id="name@de" type="string"/>
          <data>
             <file encoding="utf-8" format="csv">seasonalities.csv</file>
          </data>

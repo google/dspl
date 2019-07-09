@@ -1,0 +1,1997 @@
+{
+  "@context": "http://schema.org",
+  "@id": "#eurostat-unemployment",
+  "@type": "StatisticalDataset",
+  "description": [
+    {
+      "@language": "de",
+      "@value": "Harmonisierte Daten zur Arbeitslosigkeit f\u00fcr europ\u00e4ische L\u00e4nder. Dieser Datensatz wurde von Google aufbereitet, basierend auf online Daten von Eurostat."
+    },
+    {
+      "@language": "en",
+      "@value": "Harmonized unemployment data for European countries. This dataset was prepared by Google based on data downloaded from Eurostat."
+    },
+    {
+      "@language": "fr",
+      "@value": "Donn\u00e9es harmonis\u00e9es sur le ch\u00f4mage dans les pays europ\u00e9ens. Ces donn\u00e9es ont \u00e9t\u00e9 pr\u00e9par\u00e9es par Google sur la base de donn\u00e9es t\u00e9l\u00e9charg\u00e9es \u00e0 partir d'Eurostat."
+    }
+  ],
+  "dimension": [
+    {
+      "@id": "#country_group",
+      "@type": "CategoricalDimension",
+      "dataset": "#eurostat-unemployment",
+      "codeList": [
+        {
+          "@id": "#country_group=eu",
+          "dimension": "#country_group",
+          "@type": "DimensionValue",
+          "codeValue": "eu",
+          "name": [
+            {
+              "@value": "European Union",
+              "@language": "en"
+            },
+            {
+              "@value": "Union europ\u00e9enne",
+              "@language": "fr"
+            },
+            {
+              "@value": "Europ\u00e4ische Union",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country_group=non-eu",
+          "dimension": "#country_group",
+          "@type": "DimensionValue",
+          "codeValue": "non-eu",
+          "name": [
+            {
+              "@value": "Non EU countries",
+              "@language": "en"
+            },
+            {
+              "@value": "Pays hors Union europ\u00e9enne",
+              "@language": "fr"
+            },
+            {
+              "@value": "Nicht-EU-L\u00e4nder",
+              "@language": "de"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@id": "#country",
+      "@type": "CategoricalDimension",
+      "schema:equivalentType": "Country",
+      "dataset": "#eurostat-unemployment",
+      "codeList": [
+        {
+          "@id": "#country=at",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "at",
+          "alternateName": "AT",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 47.6965545
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 13.34598005
+            }
+          ],
+          "name": [
+            {
+              "@value": "Austria",
+              "@language": "en"
+            },
+            {
+              "@value": "Autriche",
+              "@language": "fr"
+            },
+            {
+              "@value": "\u00d6sterreich",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=be",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "be",
+          "alternateName": "BE",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 50.501045
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 4.47667405
+            }
+          ],
+          "name": [
+            {
+              "@value": "Belgium",
+              "@language": "en"
+            },
+            {
+              "@value": "Belgique",
+              "@language": "fr"
+            },
+            {
+              "@value": "Belgien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=bg",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "bg",
+          "alternateName": "BG",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 42.72567375
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 25.482321799999998
+            }
+          ],
+          "name": [
+            {
+              "@value": "Bulgaria",
+              "@language": "en"
+            },
+            {
+              "@value": "Bulgarie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Bulgarien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=hr",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "hr",
+          "alternateName": "HR",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "non-eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 44.74664297
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 15.34084438
+            }
+          ],
+          "name": [
+            {
+              "@value": "Croatia",
+              "@language": "en"
+            },
+            {
+              "@value": "Croatie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Kroatien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=cy",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "cy",
+          "alternateName": "CY",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 35.129141
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 33.428682300000006
+            }
+          ],
+          "name": [
+            {
+              "@value": "Cyprus",
+              "@language": "en"
+            },
+            {
+              "@value": "Chypre",
+              "@language": "fr"
+            },
+            {
+              "@value": "Zypern",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=cz",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "cz",
+          "alternateName": "CZ",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 49.803531
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 15.47499805
+            }
+          ],
+          "name": [
+            {
+              "@value": "Czech Republic",
+              "@language": "en"
+            },
+            {
+              "@value": "R\u00e9publique tch\u00e8que",
+              "@language": "fr"
+            },
+            {
+              "@value": "Tschechische Republik",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=dk",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "dk",
+          "alternateName": "DK",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 55.93968425
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 9.51668905
+            }
+          ],
+          "name": [
+            {
+              "@value": "Denmark",
+              "@language": "en"
+            },
+            {
+              "@value": "Danemark",
+              "@language": "fr"
+            },
+            {
+              "@value": "D\u00e4nemark",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=ee",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "ee",
+          "alternateName": "EE",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 58.5924685
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 25.8069503
+            }
+          ],
+          "name": [
+            {
+              "@value": "Estonia",
+              "@language": "en"
+            },
+            {
+              "@value": "Estonie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Estland",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=fi",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "fi",
+          "alternateName": "FI",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 64.95015875
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 26.06756405
+            }
+          ],
+          "name": [
+            {
+              "@value": "Finland",
+              "@language": "en"
+            },
+            {
+              "@value": "Finlande",
+              "@language": "fr"
+            },
+            {
+              "@value": "Finnland",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=fr",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "fr",
+          "alternateName": "FR",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 46.7109945
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 1.7185608
+            }
+          ],
+          "name": [
+            {
+              "@value": "France",
+              "@language": "en"
+            },
+            {
+              "@value": "France",
+              "@language": "fr"
+            },
+            {
+              "@value": "Frankreich",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=de",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "de",
+          "alternateName": "DE",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 51.16382538
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 10.4540478
+            }
+          ],
+          "name": [
+            {
+              "@value": "Germany (including  former GDR from 1991)",
+              "@language": "en"
+            },
+            {
+              "@value": "Allemagne (incluant l'ancienne RDA \u00e0 partir de 1991)",
+              "@language": "fr"
+            },
+            {
+              "@value": "Deutschland (einschlie\u00dflich der ehemaligen DDR seit 1991)",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=gr",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "gr",
+          "alternateName": "GR",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 39.698467
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 21.57725572
+            }
+          ],
+          "name": [
+            {
+              "@value": "Greece",
+              "@language": "en"
+            },
+            {
+              "@value": "Gr\u00e8ce",
+              "@language": "fr"
+            },
+            {
+              "@value": "Griechenland",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=hu",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "hu",
+          "alternateName": "HU",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 47.16116325
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 19.5042648
+            }
+          ],
+          "name": [
+            {
+              "@value": "Hungary",
+              "@language": "en"
+            },
+            {
+              "@value": "Hongrie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Ungarn",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=ie",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "ie",
+          "alternateName": "IE",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 53.415259999999996
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": -8.2391222
+            }
+          ],
+          "name": [
+            {
+              "@value": "Ireland",
+              "@language": "en"
+            },
+            {
+              "@value": "Irlande",
+              "@language": "fr"
+            },
+            {
+              "@value": "Irland",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=it",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "it",
+          "alternateName": "IT",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 42.504191
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 12.57378705
+            }
+          ],
+          "name": [
+            {
+              "@value": "Italy",
+              "@language": "en"
+            },
+            {
+              "@value": "Italie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Italien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=lv",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "lv",
+          "alternateName": "LV",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 56.880117000000006
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 24.60655505
+            }
+          ],
+          "name": [
+            {
+              "@value": "Latvia",
+              "@language": "en"
+            },
+            {
+              "@value": "Lettonie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Lettland",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=lt",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "lt",
+          "alternateName": "LT",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 55.173687
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 23.9431678
+            }
+          ],
+          "name": [
+            {
+              "@value": "Lithuania",
+              "@language": "en"
+            },
+            {
+              "@value": "Lituanie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Litauen",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=lu",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "lu",
+          "alternateName": "LU",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 49.815319
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 6.13335155
+            }
+          ],
+          "name": [
+            {
+              "@value": "Luxembourg",
+              "@language": "en"
+            },
+            {
+              "@value": "Luxembourg",
+              "@language": "fr"
+            },
+            {
+              "@value": "Luxemburg",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=mt",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "mt",
+          "alternateName": "MT",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 35.902421999999994
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 14.4474608
+            }
+          ],
+          "name": [
+            {
+              "@value": "Malta",
+              "@language": "en"
+            },
+            {
+              "@value": "Malte",
+              "@language": "fr"
+            },
+            {
+              "@value": "Malta",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=nl",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "nl",
+          "alternateName": "NL",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 52.10811825
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 5.3301983
+            }
+          ],
+          "name": [
+            {
+              "@value": "Netherlands",
+              "@language": "en"
+            },
+            {
+              "@value": "Pays-Bas",
+              "@language": "fr"
+            },
+            {
+              "@value": "Niederlande",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=no",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "no",
+          "alternateName": "NO",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "non-eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 64.55645975
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 12.66576565
+            }
+          ],
+          "name": [
+            {
+              "@value": "Norway",
+              "@language": "en"
+            },
+            {
+              "@value": "Norv\u00e8ge",
+              "@language": "fr"
+            },
+            {
+              "@value": "Norwegen",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=pl",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "pl",
+          "alternateName": "PL",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 51.91890725
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 19.1343338
+            }
+          ],
+          "name": [
+            {
+              "@value": "Poland",
+              "@language": "en"
+            },
+            {
+              "@value": "Pologne",
+              "@language": "fr"
+            },
+            {
+              "@value": "Polen",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=pt",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "pt",
+          "alternateName": "PT",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 39.55806875
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": -7.84494095
+            }
+          ],
+          "name": [
+            {
+              "@value": "Portugal",
+              "@language": "en"
+            },
+            {
+              "@value": "Portugal",
+              "@language": "fr"
+            },
+            {
+              "@value": "Portugal",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=ro",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "ro",
+          "alternateName": "RO",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 45.94261125
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 24.99015155
+            }
+          ],
+          "name": [
+            {
+              "@value": "Romania",
+              "@language": "en"
+            },
+            {
+              "@value": "Roumanie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Rum\u00e4nien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=sk",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "sk",
+          "alternateName": "SK",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 48.67264375
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 19.7000323
+            }
+          ],
+          "name": [
+            {
+              "@value": "Slovakia",
+              "@language": "en"
+            },
+            {
+              "@value": "Slovaquie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Slowakei",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=si",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "si",
+          "alternateName": "SI",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 46.14925925
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 14.98661705
+            }
+          ],
+          "name": [
+            {
+              "@value": "Slovenia",
+              "@language": "en"
+            },
+            {
+              "@value": "Slov\u00e9nie",
+              "@language": "fr"
+            },
+            {
+              "@value": "Slowenien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=es",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "es",
+          "alternateName": "ES",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 39.8950135
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": -2.9882957
+            }
+          ],
+          "name": [
+            {
+              "@value": "Spain",
+              "@language": "en"
+            },
+            {
+              "@value": "Espagne",
+              "@language": "fr"
+            },
+            {
+              "@value": "Spanien",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=se",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "se",
+          "alternateName": "SE",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 62.19846750000001
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 14.89630657
+            }
+          ],
+          "name": [
+            {
+              "@value": "Sweden",
+              "@language": "en"
+            },
+            {
+              "@value": "Su\u00e8de",
+              "@language": "fr"
+            },
+            {
+              "@value": "Schweden",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=tr",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "tr",
+          "alternateName": "TR",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "non-eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 38.95294205
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": 35.43979471
+            }
+          ],
+          "name": [
+            {
+              "@value": "Turkey",
+              "@language": "en"
+            },
+            {
+              "@value": "Turquie",
+              "@language": "fr"
+            },
+            {
+              "@value": "T\u00fcrkei",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#country=uk",
+          "dimension": "#country",
+          "@type": [
+            "DimensionValue",
+            "Country"
+          ],
+          "codeValue": "uk",
+          "alternateName": "GB",
+          "additionalProperty": [
+            {
+              "@type": "PropertyValue",
+              "propID": "country_group",
+              "value": "eu"
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "latitude",
+              "value": 54.315447
+            },
+            {
+              "@type": "PropertyValue",
+              "propID": "longitude",
+              "value": -2.23261195
+            }
+          ],
+          "name": [
+            {
+              "@value": "United Kingdom",
+              "@language": "en"
+            },
+            {
+              "@value": "Royaume-Uni",
+              "@language": "fr"
+            },
+            {
+              "@value": "Vereinigtes K\u00f6nigreich",
+              "@language": "de"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@id": "#age_group",
+      "@type": "CategoricalDimension",
+      "dataset": "#eurostat-unemployment",
+      "codeList": [
+        {
+          "@id": "#age_group=y25-74",
+          "dimension": "#age_group",
+          "@type": "DimensionValue",
+          "codeValue": "y25-74",
+          "name": [
+            {
+              "@value": "From 25 to 74 years",
+              "@language": "en"
+            },
+            {
+              "@value": "De 25 \u00e0 74 ans",
+              "@language": "fr"
+            },
+            {
+              "@value": "25 bis 74 Jahre",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#age_group=y_lt25",
+          "dimension": "#age_group",
+          "@type": "DimensionValue",
+          "codeValue": "y_lt25",
+          "name": [
+            {
+              "@value": "Less than 25 years",
+              "@language": "en"
+            },
+            {
+              "@value": "Moins de 25 ans",
+              "@language": "fr"
+            },
+            {
+              "@value": "Weniger als 25 Jahre",
+              "@language": "de"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@id": "#sex",
+      "@type": "CategoricalDimension",
+      "dataset": "#eurostat-unemployment",
+      "codeList": [
+        {
+          "@id": "#sex=f",
+          "dimension": "#sex",
+          "@type": "DimensionValue",
+          "codeValue": "f",
+          "name": [
+            {
+              "@value": "Females",
+              "@language": "en"
+            },
+            {
+              "@value": "Femmes",
+              "@language": "fr"
+            },
+            {
+              "@value": "Frauen",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#sex=m",
+          "dimension": "#sex",
+          "@type": "DimensionValue",
+          "codeValue": "m",
+          "name": [
+            {
+              "@value": "Males",
+              "@language": "en"
+            },
+            {
+              "@value": "Hommes",
+              "@language": "fr"
+            },
+            {
+              "@value": "M\u00e4nner",
+              "@language": "de"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@id": "#seasonality",
+      "@type": "CategoricalDimension",
+      "dataset": "#eurostat-unemployment",
+      "codeList": [
+        {
+          "@id": "#seasonality=nsa",
+          "dimension": "#seasonality",
+          "@type": "DimensionValue",
+          "codeValue": "nsa",
+          "name": [
+            {
+              "@value": "Not seasonally adjusted data",
+              "@language": "en"
+            },
+            {
+              "@value": "Donn\u00e9es non d\u00e9saisonnalis\u00e9es",
+              "@language": "fr"
+            },
+            {
+              "@value": "Nichtsaisonbereinigte Daten",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#seasonality=sa",
+          "dimension": "#seasonality",
+          "@type": "DimensionValue",
+          "codeValue": "sa",
+          "name": [
+            {
+              "@value": "Seasonally adjusted data",
+              "@language": "en"
+            },
+            {
+              "@value": "Donn\u00e9es d\u00e9saisonnalis\u00e9es",
+              "@language": "fr"
+            },
+            {
+              "@value": "Saisonbereinigte Daten",
+              "@language": "de"
+            }
+          ]
+        },
+        {
+          "@id": "#seasonality=trend",
+          "dimension": "#seasonality",
+          "@type": "DimensionValue",
+          "codeValue": "trend",
+          "name": [
+            {
+              "@value": "Trend cycle",
+              "@language": "en"
+            },
+            {
+              "@value": "Tendance-cycle",
+              "@language": "fr"
+            },
+            {
+              "@value": "Trend (glatte Komponente)",
+              "@language": "de"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@id": "#month",
+      "@type": "TimeDimension",
+      "datePattern": "yyyy/MM",
+      "schema:equivalentType": "xsd:gYearMonth",
+      "dataset": "#eurostat-unemployment"
+    }
+  ],
+  "measure": [
+    {
+      "@id": "#unemployment",
+      "@type": "StatisticalMeasure",
+      "description": [
+        {
+          "@language": "de",
+          "@value": "Anzahl der Arbeitslosen"
+        },
+        {
+          "@language": "en",
+          "@value": "The total number of people unemployed"
+        },
+        {
+          "@language": "fr",
+          "@value": " Le nombre total de ch\u00f4meurs"
+        }
+      ],
+      "name": [
+        {
+          "@language": "de",
+          "@value": "Arbeitslosigkeit (monatlich)"
+        },
+        {
+          "@language": "en",
+          "@value": "Unemployment (monthly)"
+        },
+        {
+          "@language": "fr",
+          "@value": "Ch\u00f4meurs (mensuel)"
+        }
+      ],
+      "sameAs": "https://www.wikidata.org/wiki/Q41171",
+      "unitCode": "IE",
+      "schema:url": [
+        {
+          "@language": "de",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=de"
+        },
+        {
+          "@language": "en",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en"
+        },
+        {
+          "@language": "fr",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=fr"
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#unemployment_rate",
+      "@type": "StatisticalMeasure",
+      "description": [
+        {
+          "@language": "de",
+          "@value": "Die Arbeitslosenquote ist definiert als der prozentuale Anteil der Arbeitslosen an den Erwerbspersonen. Die Erwerbspersonen umfassen die Erwerbst\u00e4tigen und die Arbeitslosen."
+        },
+        {
+          "@language": "en",
+          "@value": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed."
+        },
+        {
+          "@language": "fr",
+          "@value": "Le taux de ch\u00f4mage repr\u00e9sente le pourcentage de ch\u00f4meurs dans la population active. La population active repr\u00e9sente le nombre total des personnes ayant un emploi ou \u00e9tant au ch\u00f4mage."
+        }
+      ],
+      "name": [
+        {
+          "@language": "de",
+          "@value": "Arbeitslosenquote (monatlich)"
+        },
+        {
+          "@language": "en",
+          "@value": "Unemployment rate (monthly)"
+        },
+        {
+          "@language": "fr",
+          "@value": "Taux de ch\u00f4mage (mensuel)"
+        }
+      ],
+      "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+      "unitCode": "P1",
+      "schema:url": [
+        {
+          "@language": "de",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=de"
+        },
+        {
+          "@language": "en",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en"
+        },
+        {
+          "@language": "fr",
+          "@value": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=fr"
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    }
+  ],
+  "name": [
+    {
+      "@language": "de",
+      "@value": "Arbeitslosigkeit in Europa (monatlich)"
+    },
+    {
+      "@language": "en",
+      "@value": "Unemployment in Europe (monthly)"
+    },
+    {
+      "@language": "fr",
+      "@value": "Le Ch\u00f4mage en Europe (mensuel)"
+    }
+  ],
+  "slice": [
+    {
+      "@id": "#country_age",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#age_group=y25-74/country=at/month=1993/01",
+          "@type": "Observation",
+          "slice": "#country_age",
+          "dimensionValues": [
+            "#age_group=y25-74",
+            "#country=at",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "1993-01"
+              }
+            }
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 128000.0,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 4.0,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_group_age",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country_group",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#age_group=y25-74/country_group=eu/month=2000/01",
+          "@type": "Observation",
+          "slice": "#country_group_age",
+          "dimensionValues": [
+            "#age_group=y25-74",
+            "#country_group=eu",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "2000-01"
+              }
+            }
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 15441000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 7.9,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_group_sex_age",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country_group",
+        "#sex",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#age_group=y25-74/country_group=eu/month=2000/01/sex=f",
+          "@type": "Observation",
+          "slice": "#country_group_sex_age",
+          "dimensionValues": [
+            "#age_group=y25-74",
+            "#country_group=eu",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "2000-01"
+              }
+            },
+            "#sex=f"
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 7655000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 9.0,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_group_sex",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country_group",
+        "#sex",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#country_group=eu/month=2000/01/sex=f",
+          "@type": "Observation",
+          "slice": "#country_group_sex",
+          "dimensionValues": [
+            "#country_group=eu",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "2000-01"
+              }
+            },
+            "#sex=f"
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 10161000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 10.3,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_group_total",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#country_group=eu/month=2000/01",
+          "@type": "Observation",
+          "slice": "#country_group_total",
+          "dimensionValues": [
+            "#country_group=eu",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "2000-01"
+              }
+            }
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 20641000,
+              "unitCode": "IE",
+              "footnote": "#footnote=p"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 9.3,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_sex_age",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country",
+        "#sex",
+        "#age_group",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#age_group=y25-74/country=at/month=1993/01/sex=f",
+          "@type": "Observation",
+          "slice": "#country_sex_age",
+          "dimensionValues": [
+            "#age_group=y25-74",
+            "#country=at",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "1993-01"
+              }
+            },
+            "#sex=f"
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 61000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 4.5,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_sex",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country",
+        "#sex",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#country=at/month=1993/01/sex=f",
+          "@type": "Observation",
+          "slice": "#country_sex",
+          "dimensionValues": [
+            "#country=at",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "1993-01"
+              }
+            },
+            "#sex=f"
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 82000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 4.9,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    },
+    {
+      "@id": "#country_total",
+      "@type": "DataSlice",
+      "schema:dimension": [
+        "#country",
+        "#month"
+      ],
+      "measure": [
+        "#unemployment",
+        "#unemployment_rate"
+      ],
+      "observation": [
+        {
+          "@id": "#country=at/month=1993/01",
+          "@type": "Observation",
+          "slice": "#country_total",
+          "dimensionValues": [
+            "#country=at",
+            {
+              "@type": "DimensionValue",
+              "dimension": "#month",
+              "value": {
+                "@type": "xsd:gYearMonth",
+                "@value": "1993-01"
+              }
+            }
+          ],
+          "measureValues": [
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment",
+              "value": 171000,
+              "unitCode": "IE"
+            },
+            {
+              "@type": "MeasureValue",
+              "measure": "#unemployment_rate",
+              "value": 4.5,
+              "unitCode": "P1"
+            }
+          ]
+        }
+      ],
+      "dataset": "#eurostat-unemployment"
+    }
+  ],
+  "schema:url": [
+    {
+      "@language": "de",
+      "@value": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-fr/employment_unemployment_lfs/introduction"
+    },
+    {
+      "@language": "en",
+      "@value": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-en/employment_unemployment_lfs/introduction"
+    },
+    {
+      "@language": "fr",
+      "@value": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-de/employment_unemployment_lfs/introduction"
+    }
+  ],
+  "footnote": [
+    {
+      "@id": "#footnote=p",
+      "dataset": "#eurostat-unemployment",
+      "@type": "StatisticalAnnotation",
+      "codeValue": "p",
+      "description": "This value is a projection"
+    },
+    {
+      "@id": "#footnote=r",
+      "dataset": "#eurostat-unemployment",
+      "@type": "StatisticalAnnotation",
+      "codeValue": "r",
+      "description": "This value has been revised"
+    }
+  ]
+}

@@ -1,0 +1,376 @@
+{
+  "@context": {
+    "schema": "http://schema.org/",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  },
+  "@graph": [
+    {
+      "@id": "schema:StatisticalDataset",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StatisticalDataset",
+      "rdfs:comment": "A dataset that contains statistical data.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Dataset"
+      }
+    },
+    {
+      "@id": "schema:StatisticalMeasure",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StatisticalMeasure",
+      "rdfs:comment": "A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, ...).",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+    },
+    {
+      "@id": "schema:CategoricalDimension",
+      "@type": "rdfs:Class",
+      "rdfs:label": "CategoricalDimension",
+      "rdfs:comment": "Categorical dimensions define the categories that measures can apply to. For instance, countries, genders, age groups, etc. A categorical dimension has a list of possible categories or values, called a codeList (see below).",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+    },
+    {
+      "@id": "schema:TimeDimension",
+      "@type": "rdfs:Class",
+      "rdfs:label": "TimeDimension",
+      "rdfs:comment": "Time dimensions define times that time series measures apply to. For instance, years, years with quarters, dates, etc.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+    },
+    {
+      "@id": "schema:StatisticalAnnotation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "StatisticalAnnotation",
+      "rdfs:comment": "Many statistical datasets use annotate values in observations with footnotes to provide contextual explanations or methodological details. The properties inherited from Thing (e.g., name, description, and URL) can be used to provide details.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+    },
+    {
+      "@id": "schema:DimensionValue",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DimensionValue",
+      "rdfs:comment": "A dimension’s permitted or observed value. Values in a codeList must provide a code using the codeValue property, which is used to identify it elsewhere in the dataset (e.g., in observations). In an observation, values for dimensions without codes, such as the timestamps in time series data, should be set using the value property.",
+      "rdfs:subClassOf": {
+        "@id": "schema:StructuredValue"
+      }
+    },
+    {
+      "@id": "schema:DataSlice",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DataSlice",
+      "rdfs:comment": "A slice is a grouping of statistical observations that share the same measures and dimensions. For example, A slice may contain population and GDP (measures) by country and year (dimensions).",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+
+    },
+    {
+      "@id": "schema:Observation",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Observation",
+      "rdfs:comment": "Values in a slice can be provided as observations.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Intangible"
+      }
+    },
+    {
+      "@id": "schema:MeasureValue",
+      "@type": "rdfs:Class",
+      "rdfs:label": "MeasureValue",
+      "rdfs:comment": "Measure values in observations are property values that may be annotated with footnotes. For example, a population dataset might use a footnote to distinguish model estimates from direct counts.",
+      "rdfs:subClassOf": {
+        "@id": "schema:QuantitativeValue"
+      }
+    },
+    {
+      "@id": "schema:measure",
+      "@type": "rdf:Property",
+      "rdfs:label": "measure",
+      "rdfs:comment": "A measure defined in a StatisticalDataset.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalDataset"
+        },
+        {
+          "@id": "schema:MeasureValue"
+        },
+        {
+          "@id": "schema:DataSlice"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:StatisticalMeasure"
+        }
+      ]
+    },
+    {
+      "@id": "schema:dimension",
+      "@type": "rdf:Property",
+      "rdfs:label": "dimension",
+      "rdfs:comment": "A dimension defined in a StatisticalDataset",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalDataset"
+        },
+        {
+          "@id": "schema:DimensionValue"
+        },
+        {
+          "@id": "schema:DataSlice"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:CategoricalDimension"
+        },
+        {
+          "@id": "schema:TimeDimension"
+        }
+      ]
+    },
+    {
+      "@id": "schema:footnote",
+      "@type": "rdf:Property",
+      "rdfs:label": "footnote",
+      "rdfs:comment": "A footnote defined in this dataset, or the URL of a CSV table containing the footnote definitions.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalDataset"
+        },
+        {
+          "@id": "schema:MeasureValue"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:URL"
+        },
+        {
+          "@id": "schema:StatisticalAnnotation"
+        }
+      ]
+    },
+    {
+      "@id": "schema:slice",
+      "@type": "rdf:Property",
+      "rdfs:label": "slice",
+      "rdfs:comment": "A slice defined in a StatisticalDataset",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalDataset"
+        },
+        {
+          "@id": "schema:Observation"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:DataSlice"
+      }
+    },
+    {
+      "@id": "schema:equivalentType",
+      "@type": "rdf:Property",
+      "rdfs:label": "equivalentType",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CategoricalDimension"
+        },
+        {
+          "@id": "schema:TimeDimension"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:URL"
+      }
+    },
+    {
+      "@id": "schema:datePattern",
+      "@type": "rdf:Property",
+      "rdfs:comment": "A CLDR date pattern to use for parsing values into a TimeDimension's equivalentType. See http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Pattern_Examples for details.",
+      "rdfs:label": "datePattern",
+      "schema:domainIncludes": {
+        "@id": "schema:TimeDimension"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:codeList",
+      "@type": "rdf:Property",
+      "rdfs:label": "codeList",
+      "schema:domainIncludes": {
+        "@id": "schema:CategoricalDimension"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:URL"
+        },
+        {
+          "@id": "schema:DimensionValue"
+        }
+      ]
+    },
+    {
+      "@id": "schema:codeValue",
+      "@type": "rdf:Property",
+      "rdfs:comment": "A short textual code that uniquely identifies the value.",
+      "rdfs:label": "codeValue",
+      "rdfs:subPropertyOf": {
+        "@id": "schema:termCode"
+      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DimensionValue"
+        },
+        {
+          "@id": "schema:StatisticalAnnotation"
+        },
+        {
+          "@id": "schema:CategoryCode"
+        },
+        {
+          "@id": "schema:MedicalCode"
+        }
+      ],
+      "schema:isPartOf": {
+        "@id": "http://pending.schema.org"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:data",
+      "@type": "rdf:Property",
+      "rdfs:label": "data",
+      "schema:domainIncludes": {
+        "@id": "schema:DataSlice"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:URL"
+        },
+        {
+          "@id": "schema:Observation"
+        }
+      ]
+    },
+    {
+      "@id": "schema:dimensionValues",
+      "@type": "rdf:Property",
+      "rdfs:label": "dimensionValues",
+      "schema:domainIncludes": {
+        "@id": "schema:Observation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:DimensionValue"
+      }
+    },
+    {
+      "@id": "schema:measureValues",
+      "@type": "rdf:Property",
+      "rdfs:label": "measureValues",
+      "schema:domainIncludes": {
+        "@id": "schema:Observation"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:MeasureValue"
+      }
+    },
+    {
+      "@id": "schema:additionalProperty",
+      "@type": "rdf:Property",
+      "rdfs:label": "additionalProperty",
+      "rdfs:comment": "A property-value pair representing an additional characteristics of the entitity, e.g. a product feature or another characteristic for which there is no matching property in schema.org.<br/><br/>\n\nNote: Publishers should be aware that applications designed to use specific schema.org properties (e.g. http://schema.org/width, http://schema.org/color, http://schema.org/gtin13, ...) will typically expect such data to be provided using those properties, rather than using the generic property/value mechanism.",
+
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:DimensionValue"
+        },
+        {
+          "@id": "schema:Place"
+        },
+        {
+          "@id": "schema:Product"
+        },
+        {
+          "@id": "schema:QualitativeValue"
+        },
+        {
+          "@id": "schema:QuantitativeValue"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:PropertyValue"
+      }
+    },
+    {
+      "@id": "schema:unitCode",
+      "@type": "rdf:Property",
+      "dcterms:source": {
+        "@id": "http://www.w3.org/wiki/WebSchemas/SchemaDotOrgSources#source_GoodRelationsTerms"
+      },
+      "rdfs:comment": "The unit of measurement given using the UN/CEFACT Common Code (3 characters) or a URL. Other codes than the UN/CEFACT Common Code may be used with a prefix followed by a colon.",
+      "rdfs:label": "unitCode",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalMeasure"
+        },
+        {
+          "@id": "schema:QuantitativeValue"
+        },
+        {
+          "@id": "schema:TypeAndQuantityNode"
+        },
+        {
+          "@id": "schema:UnitPriceSpecification"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:URL"
+        }
+      ]
+    },
+    {
+      "@id": "schema:unitText",
+      "@type": "rdf:Property",
+      "rdfs:comment": "A string or text indicating the unit of measurement. Useful if you cannot provide a standard unit code for\n<a href='unitCode'>unitCode</a>.",
+      "rdfs:label": "unitText",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:StatisticalMeasure"
+        },
+        {
+          "@id": "schema:TypeAndQuantityNode"
+        },
+        {
+          "@id": "schema:QuantitativeValue"
+        },
+        {
+          "@id": "schema:UnitPriceSpecification"
+        },
+        {
+          "@id": "schema:PropertyValue"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

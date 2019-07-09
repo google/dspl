@@ -1,0 +1,5 @@
+include:
+  - LICENSE.md
+  - CONTRIBUTING.md
+  - index.md
+  - dspl2-spec.md
