@@ -21,3 +21,9 @@ To build the tools, install `lxml`, then use the `setup.py` script in
 pip install -r tools/dspltools/requirements.txt
 pip install tools/dspltools
 ```
+
+# DSPL 2
+The draft of the DSPL 2 specification, which replaces the existing XML metadata
+format with schema.org markup, can be found at the [DSPL GitHub
+page](https://google.github.io/dspl).  The source for the specification is at
+[`docs/dspl2-spec.md`](https://github.com/google/dspl/blob/master/docs/dspl2-spec.md).
