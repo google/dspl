@@ -16,6 +16,47 @@
       "@value": "Donn\u00e9es harmonis\u00e9es sur le ch\u00f4mage dans les pays europ\u00e9ens. Ces donn\u00e9es ont \u00e9t\u00e9 pr\u00e9par\u00e9es par Google sur la base de donn\u00e9es t\u00e9l\u00e9charg\u00e9es \u00e0 partir d'Eurostat."
     }
   ],
+  "creator":{
+     "@type":"Organization",
+     "url": "https://ec.europa.eu/eurostat",
+     "name":"Eurostat",
+     "contactPoint": [
+       {
+         "@type":"ContactPoint",
+         "name": "Eurostat Multilingual User Support Network"
+         "contactType": "Central Support",
+         "telephone":"+352 4301 36789",
+       },
+       {
+         "@type":"ContactPoint",
+         "name": "Eurostat Multilingual User Support Network"
+         "contactType": "Republic of Ireland",
+         "availableLanguage": "en",
+         "telephone":"+353 151 33080",
+       }
+     ]
+  },
+  "distribution":[
+     {
+        "@type":"DataDownload",
+        "encodingFormat":"text/tab-separated-values",
+        "contentUrl":"https://ec.europa.eu/eurostat/estat-navtree-portlet-prod/BulkDownloadListing?sort=1&file=data%2Fei_lmhu_m.tsv.gz"
+     },
+     {
+        "@type":"DataDownload",
+        "encodingFormat":"application/vnd.sdmx.genericdata+xml;version=2.0",
+        "contentUrl":"https://ec.europa.eu/eurostat/estat-navtree-portlet-prod/BulkDownloadListing?sort=1&file=data%2Fei_lmhu_m.sdmx.zip"
+     }
+  ],
+  "temporalCoverage":"1993-01/2010-12",
+  "spatialCoverage":{
+     "@type":"Place",
+     "geo":{
+       "@type":"GeoShape",
+       "name": "European Union",
+        "box":"34.633285 -10.468556 70.096054 34.597916"
+     }
+  },
   "dimension": [
     {
       "@id": "#country_group",
