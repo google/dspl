@@ -124,6 +124,21 @@ A dataset that contains statistical data. It has the following properties
   "name": "Unemployment in Europe (monthly)",
   "description": "Harmonized unemployment data for European countries.",
   "url": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-en/employment_unemployment_lfs/introduction",
+  "license": "https://ec.europa.eu/eurostat/about/policies/copyright",
+  "creator":{
+     "@type":"Organization",
+     "url": "https://ec.europa.eu/eurostat",
+     "name":"Eurostat",
+  },
+  "temporalCoverage":"1993-01/2010-12",
+  "spatialCoverage":{
+     "@type":"Place",
+     "geo":{
+       "@type":"GeoShape",
+       "name": "European Union",
+        "box":"34.633285 -10.468556 70.096054 34.597916"
+     }
+  },
   "measure": …,
   "dimension": …,
   "footnote": …,
@@ -823,6 +838,21 @@ Below, all the dimensions, measures, footnotes and slices are defined in CSV fil
   "name": "Unemployment in Europe (monthly)",
   "description": "Harmonized unemployment data for European countries.",
   "url": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-en/employment_unemployment_lfs/introduction",
+  "license": "https://ec.europa.eu/eurostat/about/policies/copyright",
+  "creator":{
+     "@type":"Organization",
+     "url": "https://ec.europa.eu/eurostat",
+     "name":"Eurostat",
+  },
+  "temporalCoverage":"1993-01/2010-12",
+  "spatialCoverage":{
+     "@type":"Place",
+     "geo":{
+       "@type":"GeoShape",
+       "name": "European Union",
+        "box":"34.633285 -10.468556 70.096054 34.597916"
+     }
+  },
   "measure": [
     {
       "@type": "StatisticalMeasure",
@@ -895,6 +925,21 @@ Below, data for all properties is provided inline as JSON:
   "name": "Le Ch\u00f4mage en Europe (mensuel)",
   "description": "Harmonized unemployment data for European countries. This dataset was prepared by Google based on data downloaded from Eurostat.",
   "url": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-en/employment_unemployment_lfs/introduction",
+  "license": "https://ec.europa.eu/eurostat/about/policies/copyright",
+  "creator":{
+     "@type":"Organization",
+     "url": "https://ec.europa.eu/eurostat",
+     "name":"Eurostat",
+  },
+  "temporalCoverage":"1993-01/2010-12",
+  "spatialCoverage":{
+     "@type":"Place",
+     "geo":{
+       "@type":"GeoShape",
+       "name": "European Union",
+        "box":"34.633285 -10.468556 70.096054 34.597916"
+     }
+  },
   "dimension": [
     {
       "@id": "#country",
