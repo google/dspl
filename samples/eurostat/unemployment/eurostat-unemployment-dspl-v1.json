@@ -24,6 +24,7 @@
     "de": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-fr/employment_unemployment_lfs/introduction",
     "fr": "http://epp.eurostat.ec.europa.eu/portal/page/portal/lang-de/employment_unemployment_lfs/introduction"
   },
+  "license": "https://ec.europa.eu/eurostat/about/policies/copyright",
   "creator":{
      "@type":"Organization",
      "url": "https://ec.europa.eu/eurostat",
