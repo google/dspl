@@ -750,11 +750,12 @@ References to footnotes appear as footnote values on MeasureValue instances. If 
 
 A footnotes CSV table might look like the one from the prior example:
 
+```
 codeValue,description@en
-
 p,This value is a projection.
-
 r,This value has been revised.
+```
+
 
 If the footnotes are given as JSON, they might look like this:
 
