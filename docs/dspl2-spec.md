@@ -213,8 +213,6 @@ Categorical dimensions define the categories that measures can apply to. For ins
 
 A categorical dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s equivalentType. The values in the codeList may specify that they have that type and set any of its properties.
 
-TODO: :Figure out if/how to support mapping to KG types and entities.
-
 <table>
   <tr>
    <td><strong>Property</strong>
