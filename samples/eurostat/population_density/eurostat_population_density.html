@@ -1,0 +1,187 @@
+<html>
+  <!-- This is fairly ugly in the browser, but the main aim is to show
+  how to mark up an HTML document with StatisticalDataset microdata
+  rather than to be pretty. -->
+  <head>
+    <title>Population Density in European Metropolitan Areas</title>
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+      thead tr {
+        background: #888;
+      }
+      tbody tr:nth-child(even) {
+        background: #CCC;
+      }
+      tbody tr:nth-child(odd) {
+        background: #FFF;
+      }
+      th, td {
+        padding: 5px;
+      }
+      div {
+        padding: 1ex;
+      }
+    </style>
+    <script type="application/ld+json">
+    {
+      "@id": "",
+      "@context": "http://schema.org",
+      "@type": "Dataset",
+      "name": "Population Density in European Metropolitan Areas",
+      "description": "Population density in European metropolitan areas in number of people per square kilometer.",
+      "license": "https://ec.europa.eu/eurostat/about/policies/copyright"
+    }
+    </script>
+  </head>
+  <body itemscope itemtype="http://schema.org/StatisticalDataset">
+    <div>
+      <h1>Dataset</h1>
+      <div>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Name</td><td itemprop="name"><a itemprop="url" href="https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w">Population Density in European Metropolitan Areas</a></td></tr>
+            <tr><td>Description</td><td itemprop="description">Population density in European metropolitan areas.</td></tr>
+            <tr><td>Identifier</td><td itemprop="identifier">met_d3dens</td></tr>
+            <tr><td>Date created</td><td itemprop="dateCreated">2015-10-16</td></tr>
+            <tr><td>Date modified</td><td itemprop="dateModified">2019-06-18</td></tr>
+            <tr><td>Temporal coverage</td><td itemprop="temporalCoverage">1990-01-01/2016-01-01</td></tr>
+            <tr><td>Spatial coverage</td><td itemprop="spatialCoverage" itemscope itemtype="http://schema.org/Place">
+                <span itemprop="geo" itemscope itemtype="http://schema.org/GeoShape">
+                  <span itemprop="name">European Union</span>
+                  [bounding box: <span itemprop="box">34.633285 -10.468556 70.096054 34.597916</span>]
+                </span>
+              </td>
+            </tr>
+            <tr><td>License</td><td itemprop="license"><a href="https://ec.europa.eu/eurostat/about/policies/copyright">https://ec.europa.eu/eurostat/about/policies/copyright</a></td></tr>
+            <tr><td>Creator</td><td itemprop="creator" itemscope itemtype="http://schema.org/Organization">
+                <a href="https://ec.europa.eu/eurostat" itemprop="url">
+                  <span itemprop="name">Eurostat</span>
+                </a>
+                <span itemprop="contactPoint" itemscope itemtype="http://schema.org/Contactpoint">
+                  (<a href="https://ec.europa.eu/eurostat/help/support" itemprop="url"><span itemprop="contactType">User Support</span></a>)
+                </span>
+              </td>
+            </tr>
+            <tr><td>Publisher</td><td itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+                <a href="https://ec.europa.eu/eurostat" itemprop="url"><span itemprop="name">Eurostat</span></a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h1>Dimensions</h1>
+      <div>
+        <table itemprop="dimension" itemscope itemtype="http://schema.org/CategoricalDimension" itemid="#metroreg">
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Name</td><td>metropolitan region</td></tr>
+            <tr><td>Code list</td><td><a href="metroreg.csv" itemprop="codeList">metroreg.csv</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table itemprop="dimension" itemscope itemtype="http://schema.org/TemporalDimension" itemid="#year">
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Name</td><td itemprop="name">year</td></tr>
+            <tr><td>Date format</td><td itemprop="dateFormat">yyyy</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h1>Measures</h1>
+      <div>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody itemprop="measure" itemscope itemtype="http://schema.org/StatisticalMeasure" itemid="#density">
+            <tr><td>Name</td><td itemprop="name">population density</td></tr>
+            <tr><td>Unit</td><td itemprop="unitText">persons per square kilometre</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h1>Footnotes</h1>
+      <div>
+        <table>
+          <thead>
+            <tr><th>Code</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=b">
+              <td itemprop="codeValue"><code>b</code></td><td itemprop="description">break in time series</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=c">
+              <td itemprop="codeValue"><code>c</code></td><td itemprop="description">confidential</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=d">
+              <td itemprop="codeValue"><code>d</code></td><td itemprop="description">definition differs, see metadata</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=e">
+              <td itemprop="codeValue"><code>e</code></td><td itemprop="description">estimated</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=f">
+              <td itemprop="codeValue"><code>f</code></td><td itemprop="description">forecast</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=n">
+              <td itemprop="codeValue"><code>n</code></td><td itemprop="description">not significant</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=p">
+              <td itemprop="codeValue"><code>p</code></td><td itemprop="description">provisional</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=r">
+              <td itemprop="codeValue"><code>r</code></td><td itemprop="description">revised</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=s">
+              <td itemprop="codeValue"><code>s</code></td><td itemprop="description">Eurostat estimate</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=u">
+              <td itemprop="codeValue"><code>e</code></td><td itemprop="description">low reliability</td>
+            </tr>
+            <tr itemscope itemprop="footnote" itemtype="http://schema.org/StatisticalAnnotation" itemid="#footnote=z">
+              <td itemprop="codeValue"><code>z</code></td><td itemprop="description">not applicable</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <h1>Slices</h1>
+      <div>
+        <h2>Slice 1</h2>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Value</th></tr>
+          </thead>
+          <tbody itemscope itemprop="slice" itemtype="http://schema.org/StatisticalSlice">
+            <tr><td>Dimensions</td><td>[
+                <span itemprop="dimension" content="#metroreg">metropolitan region</span>,
+                <span itemprop="dimension" content="#year">year</span>
+                ]</td></tr>
+            <tr><td>Measures</td><td>[
+                <span itemprop="measure" content="#density">population density</span>
+                ]</td></tr>
+            <tr><td>Observations</td><td>
+                <a itemprop="observation" href="met_d3dens.csv">met_d3dens.csv</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

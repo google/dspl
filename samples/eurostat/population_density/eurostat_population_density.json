@@ -1,0 +1,146 @@
+{
+  "@context": "http://schema.org",
+  "@type": "StatisticalDataset",
+  "@id": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+  "identifier": "met_d3dens",
+  "name": "Eurostat Population Density",
+  "description": "Population density by metropolitan regions",
+  "dateCreated": "2015-10-16",
+  "dateModified": "2019-06-18",
+  "temporalCoverage": "1990-01-01/2016-01-01",
+  "spatialCoverage":{
+    "@type":"Place",
+    "geo":{
+      "@type":"GeoShape",
+      "name": "European Union",
+      "box":"34.633285 -10.468556 70.096054 34.597916"
+    }
+  },
+  "license": "https://ec.europa.eu/eurostat/about/policies/copyright",
+  "creator":{
+     "@type":"Organization",
+     "url": "https://ec.europa.eu/eurostat",
+     "name":"Eurostat"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Eurostat",
+    "url": "https://ec.europa.eu/eurostat",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "User Support",
+      "url": "https://ec.europa.eu/eurostat/help/support"
+    }
+  },
+  "dimension": [
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#metroreg",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeList": "metroreg.csv"
+    },
+    {
+      "@type": "TemporalDimension",
+      "@id": "#year",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "name": "year",
+      "equivalentType": "xsd:Year",
+      "dateFormat": "yyyy"
+    }
+  ],
+  "measure": [
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#density",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "name": "Population density",
+      "unitText": "persons per square kilometre"
+   }
+  ],
+  "footnote": [
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=b",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "b",
+      "description": "break in time series"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=c",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "c",
+      "description": "confidential"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=d",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "d",
+      "description": "definition differs, see metadata"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=e",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "e",
+      "description": "estimated"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=f",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "f",
+      "description": "forecast"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=n",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "n",
+      "description": "not significant"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=p",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "p",
+      "description": "provisional"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=r",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "r",
+      "description": "revised"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=s",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "s",
+      "description": "Eurostat estimate"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=u",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "u",
+      "description": "low reliability"
+    },
+    {
+      "@type": "StatisticalAnnotation",
+      "@id": "#footnote=z",
+      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "codeValue": "z",
+      "description": "not applicable"
+    }
+  ],
+  "slice":  {
+    "@type": "StatisticalSlice",
+    "@id": "#metroreg_year",
+    "dimension": ["#metroreg", "#year"],
+    "measure": "#density",
+    "observation": "met_d3dens.csv"
+  }
+}
