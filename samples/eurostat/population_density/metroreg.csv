@@ -1,0 +1,415 @@
+codeValue,name
+BE001MC,Bruxelles / Brussel
+BE002M,Antwerpen
+BE003M,Gent
+BE004M,Charleroi
+BE005M,LiÃ¨ge
+BG001MC,Sofia
+BG002M,Plovdiv
+BG003M,Varna
+CZ001MC,Praha
+CZ002M,Brno
+CZ003M,Ostrava
+CZ004M,Plzen
+DK001MC,KÃ¸benhavn
+DK002M,Ã…rhus
+DK003M,Odense
+DK004M,Aalborg
+DE001MC,Berlin
+DE002M,Hamburg
+DE003M,MÃ¼nchen
+DE004M,KÃ¶ln
+DE005M,Frankfurt am Main
+DE007M,Stuttgart
+DE008M,Leipzig
+DE009M,Dresden
+DE011M,DÃ¼sseldorf
+DE012M,Bremen
+DE013M,Hannover
+DE014M,NÃ¼rnberg
+DE017M,Bielefeld
+DE018M,Halle an der Saale
+DE019M,Magdeburg
+DE020M,Wiesbaden
+DE021M,GÃ¶ttingen
+DE025M,Darmstadt
+DE027M,Freiburg im Breisgau
+DE028M,Regensburg
+DE031M,Schwerin
+DE032M,Erfurt
+DE033M,Augsburg
+DE034M,Bonn
+DE035M,Karlsruhe
+DE036M,MÃ¶nchengladbach
+DE037M,Mainz
+DE038M,Ruhrgebiet
+DE039M,Kiel
+DE040M,SaarbrÃ¼cken
+DE042M,Koblenz
+DE043M,Rostock
+DE044M,Kaiserslautern
+DE045M,Iserlohn
+DE052M,Flensburg
+DE053M,Marburg
+DE054M,Konstanz
+DE057M,GieÃŸen
+DE059M,Bayreuth
+DE061M,Aschaffenburg
+DE063M,Plauen
+DE064M,Neubrandenburg
+DE069M,Rosenheim
+DE073M,Offenburg
+DE074M,GÃ¶rlitz
+DE077M,Schweinfurt
+DE079M,Wetzlar
+DE083M,Braunschweig-Salzgitter-Wolfsburg
+DE084M,Mannheim-Ludwigshafen
+DE502M,Mannheim
+DE504M,MÃ¼nster
+DE505M,Chemnitz
+DE506M,Braunschweig
+DE507M,Aachen
+DE510M,LÃ¼beck
+DE512M,Rostock
+DE513M,Kassel
+DE517M,OsnabrÃ¼ck
+DE520M,Oldenburg (Oldenburg)
+DE522M,Heidelberg
+DE523M,Paderborn
+DE524M,WÃ¼rzburg
+DE526M,Wolfsburg
+DE527M,Bremerhaven
+DE529M,Heilbronn
+DE532M,Ulm
+DE533M,Pforzheim
+DE534M,Ingolstadt
+DE537M,Reutlingen
+DE539M,Cottbus
+DE540M,Siegen
+DE542M,Hildesheim
+DE544M,Zwickau
+DE546M,Wuppertal
+EE001MC,Tallinn
+IE001MC,Dublin
+IE002M,Cork
+EL001MC,Athina
+EL002M,Thessaloniki
+ES001MC,Madrid
+ES002M,Barcelona
+ES003M,Valencia
+ES004M,Sevilla
+ES005M,Zaragoza
+ES006M,MÃ¡laga - Marbella
+ES007M,Murcia - Cartagena
+ES008M,Las Palmas
+ES009M,Valladolid
+ES010M,Palma de Mallorca
+ES012M,Vitoria/Gasteiz
+ES013M,Oviedo - GijÃ³n
+ES014M,Pamplona/IruÃ±a
+ES015M,Santander
+ES019M,Bilbao
+ES020M,CÃ³rdoba
+ES021M,Alicante/Alacant - Elche/Elx
+ES022M,Vigo
+ES025M,Santa Cruz de Tenerife
+ES026M,A CoruÃ±a
+ES501M,Granada
+ES502M,CoruÃ±a (A)
+ES510M,GuipÃºzcoa
+ES522M,CÃ¡diz
+FR001MC,Paris
+FR003M,Lyon
+FR004M,Toulouse
+FR006M,Strasbourg
+FR007M,Bordeaux
+FR008M,Nantes
+FR009M,Lille - Dunkerque - Valenciennes
+FR010M,Montpellier
+FR011M,Saint-Etienne
+FR013M,Rennes
+FR014M,Amiens
+FR015M,Rouen
+FR016M,Nancy
+FR017M,Metz
+FR018M,Reims
+FR019M,OrlÃ©ans
+FR020M,Dijon
+FR021M,Poitiers
+FR022M,Clermont-Ferrand
+FR023M,Caen
+FR024M,Limoges
+FR025M,BesanÃ§on
+FR026M,Grenoble
+FR032M,Toulon
+FR035M,Tours
+FR036M,Angers
+FR037M,Brest
+FR038M,Le Mans
+FR039M,Avignon
+FR040M,Mulhouse
+FR043M,Perpignan
+FR044M,Nimes
+FR045M,Pau
+FR203M,Marseille
+FR205M,Nice
+FR207M,Lens - LiÃ©vin
+IT001MC,Roma
+IT002M,Milano
+IT003M,Napoli
+IT004M,Torino
+IT005M,Palermo
+IT006M,Genova
+IT007M,Firenze
+IT008M,Bari
+IT009M,Bologna
+IT010M,Catania
+IT011M,Venezia
+IT012M,Verona
+IT019M,Pescara
+IT021M,Caserta
+IT022M,Taranto
+IT027M,Cagliari
+IT028M,Padova
+IT029M,Brescia
+IT030M,Modena
+IT032M,Salerno
+IT501M,Messina
+IT502M,Prato
+IT503M,Parma
+IT505M,Reggio nell Emilia
+IT513M,Latina
+IT514M,Vicenza
+CY001MC,Lefkosia
+LV001MC,Riga
+LT001MC,Vilnius
+LT002M,Kaunas
+LU001MC,Luxembourg
+HU001MC,Budapest
+HU002M,Miskolc
+HU004M,PÃ©cs
+HU005M,Debrecen
+HU009M,SzÃ©kesfehÃ©rvÃ¡r
+MT001MC,Valletta
+NL001M,s' Gravenhage
+NL002MC,Amsterdam
+NL003M,Rotterdam
+NL004M,Utrecht
+NL005M,Eindhoven
+NL006M,Tilburg
+NL007M,Groningen
+NL008M,Enschede
+NL009M,Arnhem - Nijmegen
+NL010M,Heerlen
+NL012M,Breda
+NL503M,s-Hertogenbosch
+NL507M,Leiden
+AT001MC,Wien
+AT002M,Graz
+AT003M,Linz
+AT004M,Salzburg
+AT005M,Innsbruck
+PL001MC,Warszawa
+PL002M,LÃ³dz
+PL003M,KrakÃ³w
+PL004M,Wroclaw
+PL005M,Poznan
+PL006M,Gdansk
+PL007M,Szczecin
+PL008M,Bydgoszcz - TorÃºn
+PL009M,Lublin
+PL010M,Katowice
+PL011M,Bialystok
+PL012M,Kielce
+PL014M,Olsztyn
+PL015M,RzeszÃ³w
+PL016M,Opole
+PL024M,Czestochowa
+PL025M,Radom
+PL027M,Kalisz
+PL506M,Bielsko-Biala
+PL511M,Walbrzych
+PL513M,Wloclawek
+PL514M,TarnÃ³w
+PT001MC,Lisboa
+PT002M,Porto
+PT005M,Coimbra
+RO001MC,Bucuresti
+RO002M,Cluj-Napoca
+RO003M,Timisoara
+RO004M,Craiova
+RO501M,Constanta
+RO502M,Iasi
+RO503M,Galati
+RO504M,Brasov
+SI001MC,Ljubljana
+SI002M,Maribor
+SK001MC,Bratislava
+SK002M,Kosice
+FI001MC,Helsinki
+FI002M,Tampere
+FI003M,Turku
+SE001MC,Stockholm
+SE002M,GÃ¶teborg
+SE003M,MalmÃ¶
+SE006M,Uppsala
+UK001MC,London
+UK002M,West Midlands urban area
+UK003M,Leeds
+UK004M,Glasgow
+UK005M,Bradford
+UK006M,Liverpool
+UK007M,Edinburgh
+UK008M,Manchester
+UK009M,Cardiff
+UK010M,Sheffield
+UK011M,Bristol
+UK012M,Belfast
+UK013M,Newcastle upon Tyne
+UK014M,Leicester
+UK016M,Aberdeen
+UK017M,Cambridge
+UK018M,Exeter
+UK022M,Wrexham
+UK023M,Portsmouth
+UK024M,Worcester
+UK025M,Coventry
+UK026M,Kingston upon Hull
+UK027M,Stoke-on-Trent
+UK029M,Nottingham
+UK201M,Bradford-Leeds
+UK501M,Kirklees
+UK506M,Doncaster
+UK510M,Sunderland
+UK515M,Brighton and Hove
+UK516M,Plymouth
+UK517M,Swansea
+UK518M,Derby
+UK520M,Southampton
+UK528M,Northampton
+UK532M,Luton
+UK535M,Swindon
+UK536M,Stockton-on-Tees
+UK539M,Bournemouth
+UK552M,Reading
+UK553M,Blackburn - Blackpool - Preston
+UK559M,Middlesbrough
+UK566M,Norwich
+UK568M,Cheshire West and Chester
+NO001MC,Oslo
+NO002M,Bergen
+NO004M,Stavanger
+CH001M,ZÃ¼rich
+CH002M,GenÃ¨ve
+CH003M,Basel
+CH004MC,Bern
+CH005M,Lausanne
+HR001MC,Zagreb
+HR005M,Split
+BE_NM,Non-metropolitan regions in Belgium
+BG_NM,Non-metropolitan regions in Bulgaria
+CZ_NM,Non-metropolitan regions in Czech Republic
+DK_NM,Non-metropolitan regions in Denmark
+DE_NM,Non-metropolitan regions in Germany
+EE_NM,Non-metropolitan regions in Estonia
+IE_NM,Non-metropolitan regions in Ireland
+EL_NM,Non-metropolitan regions in Greece
+ES_NM,Non-metropolitan regions in Spain
+FR_NM,Non-metropolitan regions in France
+HR_NM,Non-metropolitan regions in Croatia
+IT_NM,Non-metropolitan regions in Italy
+CY_NM,Non-metropolitan regions in Cyprus
+LV_NM,Non-metropolitan regions in Latvia
+LT_NM,Non-metropolitan regions in Lithuania
+LU_NM,Non-metropolitan regions in Luxembourg
+HU_NM,Non-metropolitan regions in Hungary
+MT_NM,Non-metropolitan regions in Malta
+NL_NM,Non-metropolitan regions in Netherlands
+AT_NM,Non-metropolitan regions in Austria
+PL_NM,Non-metropolitan regions in Poland
+PT_NM,Non-metropolitan regions in Portugal
+RO_NM,Non-metropolitan regions in Romania
+SI_NM,Non-metropolitan regions in Slovenia
+SK_NM,Non-metropolitan regions in Slovakia
+FI_NM,Non-metropolitan regions in Finland
+SE_NM,Non-metropolitan regions in Sweden
+UK_NM,Non-metropolitan regions in United Kingdom
+NO_NM,Non-metropolitan regions in Norway
+CH_NM,Non-metropolitan regions in Switzerland
+BG004M,Burgas
+CZ007M,Liberec
+IT0011M,Bergamo
+RO505M,Ploiesti
+UK513M,Medway
+UK569M,Ipswich
+IS_NM,Non-metropolitan regions in Iceland
+LI_NM,Non-metropolitan regions in Liechtenstein
+ME_NM,Non-metropolitan regions in Montenegro
+MK_NM,Non-metropolitan regions in North Macedonia
+AL_NM,Non-metropolitan regions in Albania
+RS_NM,Non-metropolitan regions in Serbia
+TR_NM,Non-metropolitan regions in Turkey
+BE001MC_10,Bruxelles / Brussel (NUTS 2010)
+BE005M_10,LiÃ¨ge (NUTS 2010)
+DE064M_10,Neubrandenburg (NUTS 2010)
+DE084M_10,Mannheim-Ludwigshafen (NUTS 2010)
+DE522M_10,Heidelberg (NUTS 2010)
+FR048M,Annecy (FR) / GenÃ¨ve (CH)
+FR203M_10,Marseille (NUTS 2010)
+HR001MC_10,Zagreb (NUTS 2010)
+NL002MC_10,Amsterdam (NUTS 2010)
+NL007M_10,Groningen (NUTS 2010)
+PT002M_10,Porto (NUTS 2010)
+RO001MC_10,Bucuresti (NUTS 2010)
+SI001MC_10,Ljubljana (NUTS 2010)
+FI002M_10,Tampere (NUTS 2010)
+UK001MC_10,London (NUTS 2010)
+UK008M_10,Manchester (NUTS 2010)
+UK023M_10,Portsmouth (NUTS 2010)
+UK553M_10,Blackburn - Blackpool - Preston (NUTS 2010)
+UK566M_10,Norwich (NUTS 2010)
+IT511M,Bergamo
+BE,Belgium
+BG,Bulgaria
+CZ,Czechia
+DK,Denmark
+DE,Germany (until 1990 former territory of the FRG)
+EE,Estonia
+IE,Ireland
+EL,Greece
+ES,Spain
+FR,France
+HR,Croatia
+IT,Italy
+CY,Cyprus
+LV,Latvia
+LT,Lithuania
+LU,Luxembourg
+HU,Hungary
+MT,Malta
+NL,Netherlands
+AT,Austria
+PL,Poland
+PT,Portugal
+RO,Romania
+SI,Slovenia
+SK,Slovakia
+FI,Finland
+SE,Sweden
+UK,United Kingdom
+IS,Iceland
+LI,Liechtenstein
+NO,Norway
+CH,Switzerland
+ME,Montenegro
+MK,North Macedonia
+AL,Albania
+RS,Serbia
+TR,Turkey
+DE548M,DÃ¼ren
+DE549M,Bocholt
+FR030M,Fort-de-France
+NL015M,Leeuwarden
+NL511M,Zwolle
+UK546M,Colchester
+UK560M,Oxford
