@@ -275,10 +275,10 @@ Where the CSV table might begin like this:
 "codeValue","name@en","name@fr","name@de"
 "f","Women","Femmes","Frauen"
 "m","Men","Hommes","Männer"
-"nb","Non-binary","Genre non binaire","Nichtbinäres Geschlecht"
+"nb","Non-binary","Non-binaire","Nichtbinär"
 "tm","Transmasculine","Transmasculin","Transmaskulin"
 "tf","Transfeminine","Transféminine","Transfeminin"
-"ag","Agender",,
+"ag","Agender","Agenre","Agender"
 ```
 
 ### TimeDimension
