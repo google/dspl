@@ -15,7 +15,7 @@ There are no tools at this time.
 
 ## Samples
 
-Examples are in the DSPL 2.0 GitHub repository under [`samples`](https://github.com/google/dspl/tree/master/samples). Currently only Eurostat unemployment includes DSPL 2.0 metadata.
+Examples are in the DSPL 2.0 GitHub repository under [`samples`](https://github.com/google/dspl/tree/master/samples). Currently Eurostat unemployment and Eurostat population density samples include DSPL 2.0 metadata.
 
 ## Contributing
 
