@@ -37,13 +37,19 @@ DSPL2 builds on a number of existing formats and vocabularies:
 * [DSPL](https://developers.google.com/public-data/): The existing Google format for public statistics, used by Public Data Explorer and Search. DSPL2 is based on a similar data model, and will eventually replace DSPL
 * [Schema.org/Dataset](http://Schema.org/Dataset) (for reference metadata)
 
-DSPL2 is closely related to the following formats
+DSPL2 is closely related to the following formats:
 
 * [SDMX](sdmx.org)
 * [RDF Data cube](https://www.w3.org/TR/vocab-data-cube/)
 * SDF / Data packages
 * DataCommons/S
 
+Other formats addressing similar dataset authoring use case include:
+
+* [JSON-stat](https://json-stat.org/): JSON-stat is very similar, with a key difference being the use of a custom JSON schema rather than JSON-LD
+* [OGC Observations & Measurements](https://www.opengeospatial.org/standards/om): O&M is defined using UML, with mappings specified to XML and JSON implementations.  OGC O&M has a richer data model, including support for categorical timeseries data, non-timeseries data, and sampled data; and data interpolation, quality annotation, and censoring
+  * [TimeSeriesML](https://www.opengeospatial.org/standards/tsml): TSML is an XML implementation of the [O&M Timeseries profile](https://docs.opengeospatial.org/is/15-043r3/15-043r3.html)
+* [CSVW](https://www.w3.org/TR/tabular-data-primer/): CSVW allows specification of metadata for CSV tables such as key columns and mappings to triples.  DSPL 2.0 relies on schema.org properties and conventions for CSV header names.  Support for CSVW mappings could be added as a future enhancement
 ## Overview
 
 We introduce the following constructs:
@@ -60,6 +66,15 @@ We introduce the following constructs:
 
 While most of the constructs above describe "metadata" about the dataset, we also need to represent actual data. The preferred way of providing this data is to use CSV tables. An equivalent triple representation is also supported.
 
+### Notes
+#### Provenance
+
+Many statistical datasets include data from multiple providers. The [CreativeWork](http://schema.org/CreativeWork) superclass for StatisticalDataset offers support for multiple authors and publishers at the dataset level, but does not address provenance for individual measures or timeseries observations.
+
+#### Identifiers
+
+JSON-LD objects can be assigned URIs (or rather, [IRIs](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier)) using the `@id` property. Within a file, these can refer to the file's location using an empty identifier, or document-unique IDs using fragments like `#age_year_slice`. This can be used to give permanent identifiers to datasets, their dimensions and measures, and the timeseries within them.
+
 ### Schema
 
 A draft of the schema additions is at [dspl2.jsonld](https://github.com/google/dspl/tree/master/schema/dspl2.jsonld). (The schema should follow this document; any discrepancies are errors.)
@@ -70,7 +85,7 @@ A draft of the schema additions is at [dspl2.jsonld](https://github.com/google/d
 
 Thing > CreativeWork > Dataset > StatisticalDataset
 
-A dataset that contains statistical data. It has the following properties
+A dataset that contains statistical data. It has the following properties, in addition to those available to a [Dataset](http://schema.org/Dataset):
 
 <table>
   <tr>
