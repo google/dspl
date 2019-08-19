@@ -1,0 +1,39 @@
+{% from 'render.html' import render %}
+<html>
+  <head>
+    <title>DSPL 2 Viewer</title>
+    <style>
+      {% include 'viewer.css' %}
+    </style>
+  </head>
+  <body>
+    <h1>DSPL 2 Viewer</h1>
+    <h2 class="active">Dataset</h2>
+    <h2>Dimensions</h2>
+    <h2>Measures</h2>
+    <h2>Footnotes</h2>
+    <h2>Slices</h2>
+    <div id="dataset">
+      {{render(dataset)}}
+    </div>
+    <div id="dimensions" class="hidden">
+      {{ render(dimension) }}
+    </div>
+    <div id="measures" class="hidden">
+      {{ render(measure) }}
+    </div>
+    {% if footnote %}
+    <div id="footnotes" class="hidden">
+      {{ render(footnote) }}
+    </div>
+    {% endif %}
+    <div id="slices" class="hidden">
+      {{ render(slice) }}
+    </div>
+
+    <!-- Footer -->
+    <script>
+      {% include 'viewer.js' %}
+    </script>
+  </body>
+</html>
