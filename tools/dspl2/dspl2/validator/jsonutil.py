@@ -14,64 +14,68 @@ def AsList(val):
   return [val]
 
 
+def GetSchemaProp(obj, key, default=None):
+  return obj.get(key, obj.get('schema:' + key, default))
+
+
 def ProcessFiles(getter):
   for dim in AsList(getter.json.get('dimension', [])):
     if isinstance(dim.get('codeList'), str):
       codeList = []
-      with getter.Fetch(dim['codeList']) as f:
+      with getter.Fetch(GetSchemaProp(dim, 'codeList')) as f:
         reader = DictReader(f)
         for row in reader:
           if dim.get('equivalentType'):
-            row['@type'] = ['DimensionValue', dim['equivalentType']]
+            row['@type'] = ['DimensionValue', GetSchemaProp(dim, 'equivalentType')]
           else:
             row['@type'] = 'DimensionValue'
-          row['@id'] = dim['@id'] + '='
+          row['@id'] = GetSchemaProp(dim, '@id') + '='
           row['@id'] += row['codeValue']
-          row['dimension'] = dim['@id']
+          row['dimension'] = GetSchemaProp(dim, '@id')
           codeList.append(row)
       dim['codeList'] = codeList
-  if isinstance(getter.json.get('footnote'), str):
+  if isinstance(GetSchemaProp(getter.json, 'footnote'), str):
     footnotes = []
-    with getter.Fetch(getter.json['footnote']) as f:
+    with getter.Fetch(GetSchemaProp(getter.json, 'footnote')) as f:
       reader = DictReader(f)
       for row in reader:
         row['@type'] = 'StatisticalAnnotation'
-        row['@id'] = getter.json['@id'] + '#footnote='
+        row['@id'] = GetSchemaProp(getter.json, '@id') + '#footnote='
         row['@id'] += row['codeValue']
-        row['dataset'] = getter.json['@id']
+        row['dataset'] = GetSchemaProp(getter.json, '@id')
         footnotes.append(row)
     getter.json['footnote'] = footnotes
-  for slice in AsList(getter.json.get('slice', [])):
-    if isinstance(slice.get('data'), str):
+  for slice in AsList(GetSchemaProp(getter.json, 'slice', [])):
+    if isinstance(GetSchemaProp(slice, 'data'), str):
       data = []
-      with getter.Fetch(slice['data']) as f:
+      with getter.Fetch(GetSchemaProp(slice, 'data')) as f:
         reader = DictReader(f)
         for row in reader:
           val = {}
           val['@type'] = 'Observation'
-          val['slice'] = slice['@id']
+          val['slice'] = GetSchemaProp(slice, '@id')
           val['dimensionValues'] = []
           val['measureValues'] = []
-          for dim in AsList(slice['dimension']):
+          for dim in AsList(GetSchemaProp(slice, 'dimension')):
             fragment = urlparse(dim).fragment
             val['dimensionValues'].append({
                 '@type': 'DimensionValue',
                 'dimension': dim,
             })
-            for dim_def in AsList(getter.json['dimension']):
-              if dim_def['@id'] == dim:
-                if dim_def['@type'] == 'CategoricalDimension':
+            for dim_def in AsList(GetSchemaProp(getter.json, 'dimension')):
+              if GetSchemaProp(dim_def, '@id') == dim:
+                if GetSchemaProp(dim_def, '@type') == 'CategoricalDimension':
                   val['dimensionValues'][-1]['codeValue'] = row[fragment]
-                elif dim_def['@type'] == 'TimeDimension':
-                  if dim_def.get('equivalentType'):
+                elif GetSchemaProp(dim_def, '@type') == 'TimeDimension':
+                  if GetSchemaProp(dim_def, 'equivalentType'):
                     val['dimensionValues'][-1]['value'] = {
-                        '@type': dim_def['equivalentType'],
+                        '@type': GetSchemaProp(dim_def, 'equivalentType'),
                         '@value': row[fragment]
                     }
                   else:
                     val['dimensionValues'][-1]['value'] = row[fragment]
 
-          for measure in AsList(slice['measure']):
+          for measure in AsList(GetSchemaProp(slice, 'measure')):
             fragment = urlparse(measure).fragment
             val['measureValues'].append({
                 '@type': 'MeasureValue',
@@ -97,7 +101,7 @@ def JsonToKwArgsDict(json_val):
   special_keys = {'dimension', 'measure', 'footnote', 'slice'}
   for key in json_val:
     if key in special_keys:
-      ret[key] = json_val[key]
+      ret[key] = GetSchemaProp(json_val, key)
     else:
-      ret['dataset'][key] = json_val[key]
+      ret['dataset'][key] = GetSchemaProp(json_val, key)
   return ret
