@@ -1,3 +1,4 @@
+#!/bin/env python3
 # Copyright 2018 Google LLC
 #
 # Use of this source code is governed by a BSD-style
@@ -5,11 +6,12 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 from flask import Flask, request, render_template
+from pathlib import Path
 import requests
 import simplejson as json
 
 import dspl2.validator
-from dspl2.validator.filegetter import *
+from dspl2.validator.filegetter import InternetFileGetter, UploadedFileGetter
 from dspl2.validator.jsonutil import ProcessFiles, JsonToKwArgsDict
 from dspl2.validator.rdfutil import NormalizeJsonLd
 
