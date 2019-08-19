@@ -1,6 +1,7 @@
 {
   "@context": "http://schema.org",
-  "@id": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+  "@id": "",
+  "url": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
   "@type": "StatisticalDataset",
   "creator": {
     "@type": "Organization",
@@ -14,7 +15,7 @@
     {
       "@id": "#metroreg",
       "@type": "CategoricalDimension",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "codeList": [
         {
           "@id": "#metroreg=BE001MC",
@@ -2919,7 +2920,7 @@
     {
       "@id": "#year",
       "@type": "TemporalDimension",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "dateFormat": "yyyy",
       "schema:equivalentType": "xsd:Year",
       "name": "year"
@@ -2930,77 +2931,77 @@
       "@id": "#footnote=b",
       "@type": "StatisticalAnnotation",
       "codeValue": "b",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "break in time series"
     },
     {
       "@id": "#footnote=c",
       "@type": "StatisticalAnnotation",
       "codeValue": "c",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "confidential"
     },
     {
       "@id": "#footnote=d",
       "@type": "StatisticalAnnotation",
       "codeValue": "d",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "definition differs, see metadata"
     },
     {
       "@id": "#footnote=e",
       "@type": "StatisticalAnnotation",
       "codeValue": "e",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "estimated"
     },
     {
       "@id": "#footnote=f",
       "@type": "StatisticalAnnotation",
       "codeValue": "f",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "forecast"
     },
     {
       "@id": "#footnote=n",
       "@type": "StatisticalAnnotation",
       "codeValue": "n",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "not significant"
     },
     {
       "@id": "#footnote=p",
       "@type": "StatisticalAnnotation",
       "codeValue": "p",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "provisional"
     },
     {
       "@id": "#footnote=r",
       "@type": "StatisticalAnnotation",
       "codeValue": "r",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "revised"
     },
     {
       "@id": "#footnote=s",
       "@type": "StatisticalAnnotation",
       "codeValue": "s",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "Eurostat estimate"
     },
     {
       "@id": "#footnote=u",
       "@type": "StatisticalAnnotation",
       "codeValue": "u",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "low reliability"
     },
     {
       "@id": "#footnote=z",
       "@type": "StatisticalAnnotation",
       "codeValue": "z",
-      "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+      "dataset": "",
       "description": "not applicable"
     }
   ],
@@ -3009,7 +3010,7 @@
   "measure": {
     "@id": "#density",
     "@type": "StatisticalMeasure",
-    "dataset": "https://data.europa.eu/euodp/en/data/dataset/bAzn6fiusnRFOBwUeIo78w",
+    "dataset": "",
     "name": "Population density",
     "unitText": "persons per square kilometre"
   },
@@ -3026,7 +3027,7 @@
   },
   "slice": {
     "@id": "#metroreg_year",
-    "@type": "StatisticalSlice",
+    "@type": "DataSlice",
     "schema:dimension": [
       "#metroreg",
       "#year"
