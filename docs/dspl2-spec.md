@@ -49,6 +49,7 @@ DSPL2 is closely related to the following formats and standards that address dat
 * [OGC Observations & Measurements](https://www.opengeospatial.org/standards/om): O&M is defined using UML, with mappings specified to XML and JSON implementations.  OGC O&M has a richer data model, including support for categorical timeseries data, non-timeseries data, and sampled data; and data interpolation, quality annotation, and censoring
   * [TimeSeriesML](https://www.opengeospatial.org/standards/tsml): TSML is an XML implementation of the [O&M Timeseries profile](https://docs.opengeospatial.org/is/15-043r3/15-043r3.html)
 * [CSVW](https://www.w3.org/TR/tabular-data-primer/): CSVW allows specification of metadata for CSV tables such as key columns and mappings to triples.  DSPL 2.0 relies on schema.org properties and conventions for CSV header names.  Support for CSVW mappings could be added as a future enhancement
+
 ## Overview
 
 We introduce the following constructs:
