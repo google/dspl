@@ -65,6 +65,9 @@ We introduce the following constructs:
 
 While most of the constructs above describe "metadata" about the dataset, we also need to represent actual data. The preferred way of providing this data is to use CSV tables. An equivalent triple representation is also supported.
 
+![Diagram of DSPL 2.0 types and properties](dspl2-chart.png)
+
+
 ### Notes
 #### Provenance
 
