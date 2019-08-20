@@ -11,8 +11,9 @@ import requests
 import simplejson as json
 
 import dspl2.validator
+from dspl2.validator.expander import ExpandStatisticalDataset
 from dspl2.validator.filegetter import InternetFileGetter, UploadedFileGetter
-from dspl2.validator.jsonutil import ProcessFiles, JsonToKwArgsDict
+from dspl2.validator.jsonutil import JsonToKwArgsDict
 from dspl2.validator.rdfutil import NormalizeJsonLd
 
 
@@ -41,7 +42,7 @@ def _HandleUploads():
         return render_template('error.html',
                                message="No URL provided")
       getter = InternetFileGetter(url)
-    json_val = ProcessFiles(getter)
+    json_val = ExpandStatisticalDataset(getter)
     if normalize:
       json_val = NormalizeJsonLd(json_val)
     return _Display('display.html', json_val)
