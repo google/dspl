@@ -17,6 +17,7 @@ site](https://developers.google.com/public-data/docs/dspltools).
 ## Build and install
 To build the tools, install `lxml`, then use the `setup.py` script in
 `tools/dspltools/`.  You can use pip to install these:
+
 ```
 pip install -r tools/dspltools/requirements.txt
 pip install tools/dspltools
@@ -28,4 +29,13 @@ format with schema.org markup, can be found at the [DSPL GitHub
 page](https://google.github.io/dspl).  The source for the specification is at
 [`docs/dspl2-spec.md`](https://github.com/google/dspl/blob/master/docs/dspl2-spec.md).
 
-Some initial library and tool support are available in [`tools/dspl2`](https://github.com/google/dspl/tree/master/tools/dspl2)
+Some initial library and tool support is available in [`tools/dspl2`](https://github.com/google/dspl/tree/master/tools/dspl2)
+
+## Build and install
+To build the tools, install the prerequisites`, then use the `setup.py` script in
+`tools/dspl2/`.  You can use pip to install these:
+
+```
+pip install -r tools/dspl2/requirements.txt
+pip install tools/dspl2
+```
