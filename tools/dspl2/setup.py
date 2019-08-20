@@ -20,7 +20,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     package_data={
-        'dspl2.validator': ['templates/*', 'schema/*'],
+        'dspl2': ['templates/*', 'schema/*'],
     },
     scripts=[
         'scripts/validator.py',

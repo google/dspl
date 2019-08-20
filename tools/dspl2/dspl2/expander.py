@@ -6,7 +6,7 @@
 
 from csv import DictReader
 from urllib.parse import urlparse
-from dspl2.validator.jsonutil import AsList, GetSchemaId, GetSchemaProp, MakeIdKeyedDict
+from dspl2.jsonutil import AsList, GetSchemaId, GetSchemaProp, MakeIdKeyedDict
 
 
 def _ExpandCodeList(dim, getter):

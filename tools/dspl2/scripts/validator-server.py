@@ -10,18 +10,18 @@ from pathlib import Path
 import requests
 import simplejson as json
 
-import dspl2.validator
-from dspl2.validator.expander import ExpandStatisticalDataset
-from dspl2.validator.filegetter import InternetFileGetter, UploadedFileGetter
-from dspl2.validator.jsonutil import JsonToKwArgsDict
-from dspl2.validator.rdfutil import NormalizeJsonLd
+import dspl2
+from dspl2.expander import ExpandStatisticalDataset
+from dspl2.filegetter import InternetFileGetter, UploadedFileGetter
+from dspl2.jsonutil import JsonToKwArgsDict
+from dspl2.rdfutil import NormalizeJsonLd
 
 
 def _Display(template, json_val):
   return render_template(template, **JsonToKwArgsDict(json_val))
 
 
-template_dir = Path(dspl2.validator.__file__).parent / 'templates'
+template_dir = Path(dspl2.__file__).parent / 'templates'
 app = Flask('dspl2-viewer', template_folder=template_dir.as_posix())
 
 @app.route('/')

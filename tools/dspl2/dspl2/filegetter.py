@@ -11,7 +11,7 @@ import requests
 import simplejson as json
 from urllib.parse import urljoin, urlparse
 
-from dspl2.validator.rdfutil import NormalizeJsonLd
+from dspl2.rdfutil import NormalizeJsonLd
 
 
 def _ProcessDspl2File(filename, file, *, type=''):
