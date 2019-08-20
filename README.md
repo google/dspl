@@ -27,3 +27,5 @@ The draft of the DSPL 2 specification, which replaces the existing XML metadata
 format with schema.org markup, can be found at the [DSPL GitHub
 page](https://google.github.io/dspl).  The source for the specification is at
 [`docs/dspl2-spec.md`](https://github.com/google/dspl/blob/master/docs/dspl2-spec.md).
+
+Some initial library and tool support are available in [`tools/dspl2`](https://github.com/google/dspl/tree/master/tools/dspl2)
