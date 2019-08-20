@@ -1,0 +1,24 @@
+<html>
+  <head>
+    <title>DSPL 2 Viewer</title>
+    <link rel="stylesheet" href="static/viewer.css">
+  </head>
+  <body>
+    <h1>DSPL 2 Viewer</h1>
+    <h2>Error fetching dataset</h2>
+    <div>
+      <div>
+      {% if url %}
+      Error {{action}} {{url}}</div>
+      {% endif %}
+      </div>
+      <div>
+      {% if status %}
+      HTTP status {{status}}:
+      {% endif %}
+      {% if text %}
+      {{text}}
+      {% endif %}
+      </div>
+  </body>
+</html>

@@ -10,10 +10,11 @@ import jinja2
 from pathlib import Path
 import sys
 
-import dspl2.validator
-from dspl2.validator.filegetter import *
-from dspl2.validator.jsonutil import ProcessFiles, JsonToKwArgsDict
-from dspl2.validator.rdfutil import NormalizeJsonLd
+import dspl2
+from dspl2.expander import ExpandStatisticalDataset
+from dspl2.filegetter import *
+from dspl2.jsonutil import JsonToKwArgsDict
+from dspl2.rdfutil import NormalizeJsonLd
 
 
 FLAGS = flags.FLAGS
@@ -22,14 +23,14 @@ flags.DEFINE_boolean('normalize', False,
 
 
 def RenderLocalDspl2(path, normalize):
-  template_dir = Path(dspl2.validator.__file__).parent / 'templates'
+  template_dir = Path(dspl2.__file__).parent / 'templates'
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(
       template_dir.as_posix()))
   try:
     print("Loading template")
     template = env.get_template('display.html')
     getter = LocalFileGetter(path)
-    json_val = ProcessFiles(getter)
+    json_val = ExpandStatisticalDataset(getter)
     if normalize:
       json_val = NormalizeJsonLd(json_val)
     print("Rendering template")
