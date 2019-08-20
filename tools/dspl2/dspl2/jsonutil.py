@@ -57,3 +57,14 @@ def MakeIdKeyedDict(vals):
 
 def GetSchemaId(obj):
   return obj.get('@id', GetSchemaProp(obj, 'id'))
+
+
+def GetSchemaType(obj):
+  return obj.get('@type', GetSchemaProp(obj, 'type'))
+
+
+def GetUrl(obj):
+  if isinstance(obj, str):
+    return obj
+  elif isinstance(obj, dict):
+    return GetSchemaId(obj)
