@@ -32,7 +32,7 @@ page](https://google.github.io/dspl).  The source for the specification is at
 Some initial library and tool support is available in [`tools/dspl2`](https://github.com/google/dspl/tree/master/tools/dspl2)
 
 ## Build and install
-To build the tools, install the prerequisites`, then use the `setup.py` script in
+To build the tools, install the prerequisites, then use the `setup.py` script in
 `tools/dspl2/`.  You can use pip to install these:
 
 ```
