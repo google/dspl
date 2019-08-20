@@ -25,6 +25,6 @@ setuptools.setup(
     scripts=[
         'scripts/dspl2-pretty-print.py',
         'scripts/dspl2-pretty-print-server.py',
-        'scripts/dspl2-validator.py',
+        'scripts/dspl2-validate.py',
     ],
 )
