@@ -7,12 +7,12 @@
 
 from absl import app
 from absl import flags
-from dspl2 import (Dspl2JsonLdExpander, Dspl2RdfExpander, LocalFileGetter,
-                   FrameGraph, LoadGraph, ValidateDspl2)
+from dspl2 import (Dspl2RdfExpander, Dspl2JsonLdExpander, FrameGraph,
+                   LocalFileGetter)
+import json
 import sys
 
 
-FLAGS = flags.FLAGS
 flags.DEFINE_boolean('rdf', False, 'Process the JSON-LD as RDF.')
 
 
@@ -26,9 +26,7 @@ def main(args):
     dspl = FrameGraph(getter.graph)
   else:
     dspl = Dspl2JsonLdExpander(getter).Expand()
-  warnings = ValidateDspl2(dspl, getter)
-  for warning in warnings:
-    print(warning)
+  json.dump(dspl, sys.stdout, indent=2)
 
 
 if __name__ == '__main__':

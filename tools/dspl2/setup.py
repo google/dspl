@@ -23,6 +23,7 @@ setuptools.setup(
         'dspl2': ['templates/*', 'schema/*'],
     },
     scripts=[
+        'scripts/dspl2-expand.py',
         'scripts/dspl2-pretty-print.py',
         'scripts/dspl2-pretty-print-server.py',
         'scripts/dspl2-validate.py',

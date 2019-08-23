@@ -42,13 +42,13 @@
     {
       "@type": "CategoricalDimension",
       "@id": "#metroreg",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeList": "metroreg.csv"
     },
     {
       "@type": "TimeDimension",
       "@id": "#year",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "name": "year",
       "equivalentType": "xsd:Year",
       "dateFormat": "yyyy"
@@ -58,7 +58,7 @@
     {
       "@type": "StatisticalMeasure",
       "@id": "#density",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "name": "Population density",
       "unitText": "persons per square kilometre"
    }
@@ -67,77 +67,77 @@
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=b",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "b",
       "description": "break in time series"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=c",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "c",
       "description": "confidential"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=d",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "d",
       "description": "definition differs, see metadata"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=e",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "e",
       "description": "estimated"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=f",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "f",
       "description": "forecast"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=n",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "n",
       "description": "not significant"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=p",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "p",
       "description": "provisional"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=r",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "r",
       "description": "revised"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=s",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "s",
       "description": "Eurostat estimate"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=u",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "u",
       "description": "low reliability"
     },
     {
       "@type": "StatisticalAnnotation",
       "@id": "#footnote=z",
-      "dataset": "",
+      "dataset": {"@id": ""},
       "codeValue": "z",
       "description": "not applicable"
     }
@@ -145,9 +145,9 @@
   "slice":  {
     "@type": "DataSlice",
     "@id": "#metroreg_year",
-    "dataset": "",
+    "dataset": {"@id": ""},
     "dimension": ["#metroreg", "#year"],
-    "measure": "#density",
-    "data": "met_d3dens.csv"
+    "measure": {"@id": "#density"},
+    "data": {"@id": "met_d3dens.csv"}
   }
 }

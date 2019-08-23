@@ -6,18 +6,20 @@
 
 import extruct
 from io import StringIO
+import json
 from pathlib import Path
 import requests
-import simplejson as json
+import sys
 from urllib.parse import urljoin, urlparse
 
-from dspl2.rdfutil import NormalizeJsonLd
+from dspl2.rdfutil import LoadGraph, SelectFromGraph
 
 
 def _ProcessDspl2File(filename, file, *, type=''):
-  if filename.endswith('.html') or type.startswith('text/html'):
+  if any([filename.endswith('.html'),
+          type.startswith('text/html')]):
     data = extruct.extract(file.read(), uniform='True')
-    return NormalizeJsonLd({
+    return LoadGraph({
         '@context': 'http://schema.org',
         '@graph': [
             subdata_elem
@@ -25,15 +27,18 @@ def _ProcessDspl2File(filename, file, *, type=''):
             for subdata_elem in subdata
             if subdata
         ]
-    })
-  if filename.endswith('.json') or filename.endswith('.jsonld') or type.startswith('application/ld+json'):
-    return json.load(file)
+    }, filename)
+  if any([filename.endswith('.json'),
+          filename.endswith('.jsonld'),
+          type.startswith('application/ld+json')]):
+    json_val = json.load(file)
+    return LoadGraph(json_val, filename)
 
 
 class UploadedFileGetter(object):
   def __init__(self, files):
     json_files = set()
-    self.json = None
+    self.graph = None
     self.file_map = {}
     for f in files:
       self.file_map[f.filename] = f
@@ -41,8 +46,8 @@ class UploadedFileGetter(object):
       if data:
         json_files.add(f.filename)
         self.base = f.filename
-        self.json = data
-    if not self.json:
+        self.graph = data
+    if not self.graph:
       raise RuntimeError("DSPL 2 file not present in {}".format(
           [file.filename for file in self.file_map.values()]))
     if len(json_files) > 1:
@@ -61,7 +66,7 @@ class InternetFileGetter(object):
     self.base = url
     r = requests.get(self.base)
     r.raise_for_status()
-    self.json = _ProcessDspl2File(url, StringIO(r.text), type=r.headers['content-type'])
+    self.graph = _ProcessDspl2File(url, StringIO(r.text), type=r.headers['content-type'])
 
   def Fetch(self, filename):
     r = requests.get(urljoin(self.base, filename))
@@ -71,11 +76,12 @@ class InternetFileGetter(object):
 
 class LocalFileGetter(object):
   def __init__(self, path):
-    self.base = path
-    with Path(path).open() as f:
-      self.json = _ProcessDspl2File(path, f)
+    self.base = urlparse(path).path
+    with Path(self.base).open() as f:
+      self.graph = _ProcessDspl2File(path, f)
 
   def Fetch(self, filename):
+    filename = urlparse(filename).path
     path = Path(self.base).parent.joinpath(Path(filename)).resolve()
     return path.open()
 
@@ -95,7 +101,7 @@ class HybridFileGetter(object):
 
   def __init__(self, json_uri):
     self.base = json_uri
-    self.json = _ProcessDspl2File(
+    self.graph = _ProcessDspl2File(
         json_uri,
         json.load(HybridFileGetter._load_file(json_uri)))
 

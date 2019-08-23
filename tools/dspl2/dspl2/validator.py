@@ -6,130 +6,213 @@
 
 from dspl2.jsonutil import (
     AsList, GetSchemaId, GetSchemaProp, GetSchemaType, GetUrl, MakeIdKeyedDict)
+from dspl2.rdfutil import LoadGraph, SelectFromGraph
+import json
 
 
-def _CheckPropertyPresent(name, obj, prop, category, expected=None):
+def _CheckPropertyPresent(warnings, name, obj, prop, category, expected=None):
   val = GetSchemaProp(obj, prop)
-  if not val:
-    print(f'{name} property "{prop}" is {category}')
+  if val is None:
+    warnings.append(f'{name} property "{prop}" is {category}')
   elif expected and val != expected:
-    print(f'{name} property "{prop}" has value "{val}" but expected "{expected}"')
+    warnings.append(f'{name} property "{prop}" has value "{val}" but expected "{expected}"')
 
 
-def _CheckAnyPropertyPresent(name, obj, props, category):
+def _CheckUrlPresent(warnings, name, obj, prop, category, expected=None):
+  val = GetUrl(GetSchemaProp(obj, prop))
+  if val is None:
+    warnings.append(f'{name} property "{prop}" is {category}')
+  elif expected and val != expected:
+    warnings.append(f'{name} property "{prop}" has value "{val}" but expected "{expected}"')
+
+
+def _CheckAnyPropertyPresent(warnings, name, obj, props, category):
   if not any(GetSchemaProp(obj, prop) for prop in props):
-    print(f'{name}: One property of {props} is {category}')
+    warnings.append(f'{name}: One property of {props} is {category}')
 
 
-def _CheckIdPresent(name, obj):
-  if not GetSchemaId(obj):
-    print(f'{name} has no "@id"')
+def _CheckIdPresent(warnings, name, obj):
+  if GetSchemaId(obj) is None:
+    warnings.append(f'{name} has no "@id"')
 
 
-def _CheckType(name, obj, typelist=[]):
+def _CheckType(warnings, name, obj, typelist=[]):
   type = GetSchemaType(obj)
-  if not type:
-    print(f'{name} has no "@type"')
+  if type is None:
+    warnings.append(f'{name} has no "@type"')
   elif typelist and type not in typelist:
-    print(f'{name} has unexpected type: "{type}" expected: {typelist}')
+    warnings.append(f'{name} has unexpected type: "{type}" expected: {typelist}')
 
 
-def CheckDataset(dataset):
-  _CheckPropertyPresent('Dataset', dataset, 'description', 'required')
-  _CheckPropertyPresent('Dataset', dataset, 'name', 'required')
-  _CheckPropertyPresent('Dataset', dataset, 'alternateName', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'creator', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'citation', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'identifier', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'keywords', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'license', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'sameAs', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'spatialCoverage', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'temporalCoverage', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'variableMeasured', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'version', 'recommended')
-  _CheckPropertyPresent('Dataset', dataset, 'url', 'recommended')
+def CheckDataset(warnings, dataset):
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'description', 'required')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'name', 'required')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'alternateName', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'creator', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'citation', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'identifier', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'keywords', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'license', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'sameAs', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'spatialCoverage', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'temporalCoverage', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'variableMeasured', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'version', 'recommended')
+  _CheckPropertyPresent(warnings, 'Dataset', dataset, 'url', 'recommended')
 
 
-def CheckDimension(dim, dsid):
-  _CheckIdPresent('Dimension', dim)
-  _CheckType('Dimension', dim, ['TimeDimension', 'CategoricalDimension'])
-  _CheckPropertyPresent('Dimension', dim, 'dataset',
+def CheckDimension(warnings, dim, dsid):
+  _CheckIdPresent(warnings, 'Dimension', dim)
+  _CheckType(warnings, 'Dimension', dim,
+             ['TimeDimension', 'CategoricalDimension'])
+  _CheckUrlPresent(warnings, 'Dimension', dim, 'dataset',
                         'required for id ' + GetSchemaId(dim), dsid)
   type = GetSchemaType(dim)
   if type == 'TimeDimension':
-    _CheckPropertyPresent('Dimension', dim, 'dateFormat',
+    _CheckPropertyPresent(warnings, 'Dimension', dim, 'dateFormat',
                           'required for id ' + GetSchemaId(dim))
   elif type == 'CategoricalDimension':
-    _CheckPropertyPresent('Dimension', dim, 'codeList',
+    _CheckPropertyPresent(warnings, 'Dimension', dim, 'codeList',
                           'required for id ' + GetSchemaId(dim))
 
 
-def CheckMeasure(measure, dsid):
-  _CheckIdPresent('Measure', measure)
-  _CheckType('Measure', measure, ['StatisticalMeasure'])
-  _CheckPropertyPresent('Measure', measure, 'dataset',
+def CheckMeasure(warnings, measure, dsid):
+  _CheckIdPresent(warnings, 'Measure', measure)
+  _CheckType(warnings, 'Measure', measure, ['StatisticalMeasure'])
+  _CheckUrlPresent(warnings, 'Measure', measure, 'dataset',
                         'required for id ' + GetSchemaId(measure), dsid)
-  _CheckAnyPropertyPresent('Measure', measure, ['unitType', 'unitText'],
-                           'recommended')
+  _CheckAnyPropertyPresent(warnings, 'Measure', measure,
+                           ['unitType', 'unitText'], 'recommended')
 
 
-def CheckSliceData(slicedata, slice_id):
+def CheckSliceData(warnings, slicedata, slice_id):
   if isinstance(slicedata, str):
-    print(f'Observation: data must be one URL or a list of observations for slice {slice_id}')
+    warnings.append(f'Observation: data must be one URL or a list of observations for slice {slice_id}')
   else:
-    _CheckPropertyPresent('Observation', slicedata, 'slice', 'required',
+    _CheckPropertyPresent(warnings, 'Observation', slicedata, 'slice', 'required',
                           slice_id)
 
 
-def CheckSlice(slice, dsid):
-  _CheckIdPresent('Slice', slice)
-  _CheckType('Slice', slice, ['DataSlice'])
-  _CheckPropertyPresent('Slice', slice, 'dataset',
-                        'required for id ' + GetSchemaId(slice), dsid)
-  _CheckPropertyPresent('Slice', slice, 'dimension', 'required')
+def CheckSlice(warnings, slice, dsid):
+  _CheckIdPresent(warnings, 'Slice', slice)
+  slice_id = GetSchemaId(slice)
+  _CheckType(warnings, 'Slice', slice, ['DataSlice'])
+  _CheckUrlPresent(warnings, 'Slice', slice, 'dataset',
+                   'required for id ' + slice_id, dsid)
+  _CheckPropertyPresent(warnings, 'Slice', slice, 'dimension', 'required')
 
-  dims = GetSchemaProp(slice, 'dimension')
-  if not isinstance(dims, list):
-    print(f'Slice property "dimension" value is required to be a list for {GetSchemaId(slice)}')
+  dims = AsList(GetSchemaProp(slice, 'dimension'))
   for dim in dims:
     url = GetUrl(dim)
-    if not url:
-      print(f'Slice property "dimension" values must have URLs for {GetSchemaId(slice)}')
+    if url is None:
+      warnings.append(f'Slice property "dimension" values must have URLs for {slice_id}')
 
-  _CheckPropertyPresent('Slice', slice, 'measure', 'required')
-  measures = GetSchemaProp(slice, 'measure')
-  if not isinstance(measures, list):
-    print(f'Slice property "measure" value is required to be a list for {GetSchemaId(slice)}')
+  _CheckPropertyPresent(warnings, 'Slice', slice, 'measure', 'required')
+  measures = AsList(GetSchemaProp(slice, 'measure'))
   for measure in measures:
     url = GetUrl(measure)
-    if not url:
-      print(f'Slice property "measure" values must have URLs for {GetSchemaId(slice)}')
+    if url is None:
+      warnings.append(f'Slice property "measure" values must have URLs for {slice_id}')
 
-  _CheckPropertyPresent('Slice', slice, 'data', 'required')
+  _CheckPropertyPresent(warnings, 'Slice', slice, 'data', 'required')
   data = GetSchemaProp(slice, 'data')
   if not isinstance(data, str):
     if isinstance(data, dict):
-      CheckSliceData(data, GetSchemaId(slice))
+      CheckSliceData(warnings, data, slice_id)
     elif isinstance(data, list):
       for datum in data:
-        CheckSliceData(datum, GetSchemaId(slice))
+        CheckSliceData(warnings, datum, slice_id)
 
 
-def CheckStatisticalDataset(dataset):
-  _CheckType('StatisticalDataset', dataset, ['StatisticalDataset'])
-  _CheckIdPresent('StatisticalDataset', dataset)
-  _CheckPropertyPresent('StatisticalDataset', dataset, 'dimension', 'required')
+def CheckStatisticalDataset(warnings, dataset):
+  _CheckType(warnings, 'StatisticalDataset', dataset, ['StatisticalDataset'])
+  _CheckIdPresent(warnings, 'StatisticalDataset', dataset)
+  _CheckPropertyPresent(warnings, 'StatisticalDataset', dataset, 'dimension',
+                        'required')
   for dim in AsList(GetSchemaProp(dataset, 'dimension')):
-    CheckDimension(dim, GetSchemaId(dataset))
-  _CheckPropertyPresent('StatisticalDataset', dataset, 'measure', 'required')
+    CheckDimension(warnings, dim, GetSchemaId(dataset))
+  _CheckPropertyPresent(warnings, 'StatisticalDataset', dataset, 'measure',
+                        'required')
   for measure in AsList(GetSchemaProp(dataset, 'measure')):
-    CheckMeasure(measure, GetSchemaId(dataset))
-  _CheckPropertyPresent('StatisticalDataset', dataset, 'slice', 'required')
+    CheckMeasure(warnings, measure, GetSchemaId(dataset))
+  _CheckPropertyPresent(warnings, 'StatisticalDataset', dataset, 'slice',
+                        'required')
   for slice in AsList(GetSchemaProp(dataset, 'slice')):
-    CheckSlice(slice, GetSchemaId(dataset))
+    CheckSlice(warnings, slice, GetSchemaId(dataset))
 
 
-def ValidateDspl2(dataset):
-  CheckDataset(dataset)
-  CheckStatisticalDataset(dataset)
+def CheckRdfConstraints(warnings, graph):
+  # Check dataset ID
+  results = SelectFromGraph(
+      graph,
+      ('?ds', 'a', 'schema:StatisticalDataset'),
+  )
+  if not results or not results[0]['ds']:
+    warnings.append("RDF: StatisticalDataset ID not found")
+
+  # Check all slice dimensions are present
+  results = SelectFromGraph(
+      graph,
+      ('?ds', 'a', 'schema:StatisticalDataset'),
+      ('?ds', 'schema:dimension', '?dim'),
+  )
+  dims = set(result['dim'] for result in results)
+  if not dims:
+    warnings.append('RDF: No dataset dimensions found')
+  results = SelectFromGraph(
+      graph,
+      ('?slice', 'a', 'schema:DataSlice'),
+      ('?slice', 'schema:dimension', '?dim'),
+  )
+  slice_dims = set(result['dim'] for result in results)
+  excess_dims = slice_dims - dims
+  if excess_dims:
+    warnings.append(f'RDF: undefined dimensions found in slice: {excess_dims}; expected={dims}')
+
+  # Check all slice measures are present
+  results = SelectFromGraph(
+      graph,
+      ('?ds', 'a', 'schema:StatisticalDataset'),
+      ('?ds', 'schema:measure', '?measure'),
+  )
+  measures = set(result['measure'] for result in results)
+  if not measures:
+    warnings.append('RDF: No dataset measures found')
+  results = SelectFromGraph(
+      graph,
+      ('?slice', 'a', 'schema:DataSlice'),
+      ('?slice', 'schema:measure', '?measure'),
+  )
+  slice_measures = set(result['measure'] for result in results)
+  excess_measures = slice_measures - measures
+  if excess_measures:
+    warnings.append(f'RDF: undefined measures found in slice: {excess_measures}; expected={measures}')
+
+  # Check all measurevalue footnotes are present
+  results = SelectFromGraph(
+      graph,
+      ('?ds', 'a', 'schema:StatisticalDataset'),
+      ('?ds', 'schema:footnote', '?footnote'),
+      ('?footnote', 'schema:codeValue', '?codeValue'),
+  )
+  footnotes = set(result['codeValue'] for result in results)
+  if not footnotes:
+    warnings.append('RDF: No dataset footnotes found')
+  results = SelectFromGraph(
+      graph,
+      ('?val', 'a', 'schema:MeasureValue'),
+      ('?val', 'schema:footnote', '?footnote'),
+      ('?footnote', 'schema:codeValue', '?codeValue'),
+  )
+  slice_footnotes = set(result['codeValue'] for result in results)
+  excess_footnotes = slice_footnotes - footnotes
+  if excess_footnotes:
+    warnings.append(f'RDF: undefined footnotes found in slice: {excess_footnotes}; expected={footnotes}')
+
+
+def ValidateDspl2(dataset, getter):
+  warnings = []
+  CheckDataset(warnings, dataset)
+  CheckStatisticalDataset(warnings, dataset)
+  CheckRdfConstraints(warnings, getter.graph)
+  return warnings
