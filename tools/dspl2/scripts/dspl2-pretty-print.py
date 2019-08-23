@@ -29,7 +29,7 @@ def _RenderLocalDspl2(path, rdf):
     if rdf:
       graph = dspl2.Dspl2RdfExpander(getter).Expand()
       print("Framing DSPL2")
-      json_val = FrameGraph(graph)
+      json_val = dspl2.FrameGraph(graph)
     else:
       json_val = dspl2.Dspl2JsonLdExpander(getter).Expand()
     print("Rendering template")
