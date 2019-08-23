@@ -6,15 +6,14 @@
 # https://developers.google.com/open-source/licenses/bsd
 
 from flask import Flask, request, render_template
+import json
 from pathlib import Path
 import requests
-import simplejson as json
 
 import dspl2
-from dspl2.expander import ExpandStatisticalDataset
-from dspl2.filegetter import InternetFileGetter, UploadedFileGetter
-from dspl2.jsonutil import JsonToKwArgsDict
-from dspl2.rdfutil import NormalizeJsonLd
+from dspl2 import (
+    Dspl2JsonLdExpander, Dspl2RdfExpander, InternetFileGetter,
+    JsonToKwArgsDict, LoadGraph, FrameGraph, UploadedFileGetter)
 
 
 def _Display(template, json_val):
@@ -32,7 +31,7 @@ def Root():
 @app.route('/render', methods=['GET', 'POST'])
 def _HandleUploads():
   try:
-    normalize = request.args.get('normalize') == 'on'
+    rdf = request.args.get('rdf') == 'on'
     url = request.args.get('url')
     if request.method == 'POST':
       files = request.files.getlist('files[]')
@@ -42,14 +41,16 @@ def _HandleUploads():
         return render_template('error.html',
                                message="No URL provided")
       getter = InternetFileGetter(url)
-    json_val = ExpandStatisticalDataset(getter)
-    if normalize:
-      json_val = NormalizeJsonLd(json_val)
+    if rdf:
+      graph = Dspl2RdfExpander(getter).Expand()
+      json_val = FrameGraph(graph)
+    else:
+      json_val = Dspl2JsonLdExpander(getter).Expand()
     return _Display('display.html', json_val)
-  except json.errors.JSONDecodeError as e:
+  except json.JSONDecodeError as e:
     return render_template('error.html',
                            action="decoding",
-                           url=e.doc,
+                           url=e.doc or url,
                            text=str(e))
   except IOError as e:
     return render_template('error.html',
@@ -69,11 +70,6 @@ def _HandleUploads():
     return render_template('error.html',
                            url=url,
                            action="retrieving",
-                           text=str(e))
-  except json.errors.JSONDecodeError as e:
-    return render_template('error.html',
-                           action="decoding",
-                           url=url,
                            text=str(e))
   except Exception as e:
     return render_template('error.html',

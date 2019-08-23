@@ -2350,10 +2350,10 @@
     "dimension": {"@id": "schema:dimension","@type": "@id"},
     "footnote": {"@id": "schema:footnote","@type": "@id"},
     "equivalentType": {"@id": "schema:equivalentType","@type": "@id"},
-    "codeList": {"@id": "schema:codeList"},
+    "codeList": {"@id": "schema:codeList", "@type": "@id"},
     "datePattern": {"@id": "schema:datePattern"},
     "slice": {"@id": "schema:slice"},
-    "data": {"@id": "schema:data"},
+    "data": {"@id": "schema:data", "@type": "@id"},
     "dimensionValues": {"@id": "schema:dimensionValues"},
     "measureValues": {"@id": "schema:measureValues"}
   }

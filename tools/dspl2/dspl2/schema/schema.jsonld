@@ -21839,6 +21839,10 @@
       "@id": "http://schema.org/dataset",
       "@type": "rdf:Property",
       "http://schema.org/domainIncludes": {
+        "@id": "http://schema.org/CategoricalDimension",
+        "@id": "http://schema.org/TimeDimension",
+        "@id": "http://schema.org/StatisticalMeasure",
+        "@id": "http://schema.org/DataSlice",
         "@id": "http://schema.org/DataCatalog"
       },
       "http://schema.org/inverseOf": {

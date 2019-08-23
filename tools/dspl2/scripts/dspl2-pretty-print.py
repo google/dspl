@@ -6,35 +6,34 @@
 
 from absl import app
 from absl import flags
+import dspl2
 import jinja2
 from pathlib import Path
 import sys
 
-import dspl2
-from dspl2.expander import ExpandStatisticalDataset
-from dspl2.filegetter import *
-from dspl2.jsonutil import JsonToKwArgsDict
-from dspl2.rdfutil import NormalizeJsonLd
-
 
 FLAGS = flags.FLAGS
-flags.DEFINE_boolean('normalize', False,
-                     'Normalize the JSON-LD before processing.')
+flags.DEFINE_boolean('rdf', False, 'Process the JSON-LD as RDF.')
 
 
-def RenderLocalDspl2(path, normalize):
+def _RenderLocalDspl2(path, rdf):
   template_dir = Path(dspl2.__file__).parent / 'templates'
   env = jinja2.Environment(loader=jinja2.FileSystemLoader(
       template_dir.as_posix()))
   try:
     print("Loading template")
     template = env.get_template('display.html')
-    getter = LocalFileGetter(path)
-    json_val = ExpandStatisticalDataset(getter)
-    if normalize:
-      json_val = NormalizeJsonLd(json_val)
+    print("Loading DSPL2")
+    getter = dspl2.LocalFileGetter(path)
+    print("Expanding DSPL2")
+    if rdf:
+      graph = dspl2.Dspl2RdfExpander(getter).Expand()
+      print("Framing DSPL2")
+      json_val = FrameGraph(graph)
+    else:
+      json_val = dspl2.Dspl2JsonLdExpander(getter).Expand()
     print("Rendering template")
-    return template.render(**JsonToKwArgsDict(json_val))
+    return template.render(**dspl2.JsonToKwArgsDict(json_val))
   except Exception as e:
     raise
     template = loader.load(env, 'error.html')
@@ -48,7 +47,7 @@ def main(argv):
     print(f'Usage: {argv[0]} [input.json] [output.html]', file=sys.stderr)
     exit(1)
   with open(argv[2], 'w') as f:
-    print(RenderLocalDspl2(argv[1], FLAGS.normalize), file=f)
+    print(_RenderLocalDspl2(argv[1], FLAGS.rdf), file=f)
 
 
 if __name__ == '__main__':

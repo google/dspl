@@ -1,9 +1,10 @@
-absl
+absl-py
 extruct
 flask
-icu
+pyicu
 jinja2
 pandas
 pyld
+rdflib
+rdflib-jsonld
 requests
-simplejson
