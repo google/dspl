@@ -164,9 +164,9 @@ A dataset that contains statistical data. It has the following properties, in ad
 }
 ```
 
-### Measure
+### StatisticalMeasure
 
-Thing > Intangible > Measure
+Thing > Intangible > StatisticalMeasure
 
 A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, …) . 
 
