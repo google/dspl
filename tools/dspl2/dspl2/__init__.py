@@ -19,6 +19,7 @@ from dspl2.jsonutil import JsonToKwArgsDict
 from dspl2.jsonutil import MakeIdKeyedDict
 from dspl2.rdfutil import LoadGraph
 from dspl2.rdfutil import FrameGraph
+from dspl2.rdfutil import MakeSparqlSelectQuery
 from dspl2.rdfutil import SelectFromGraph
 from dspl2.validator import CheckDataset
 from dspl2.validator import CheckDimension
@@ -49,6 +50,7 @@ __all__ = [
     "LoadGraph",
     "LocalFileGetter",
     "MakeIdKeyedDict",
+    "MakeSparqlSelectQuery",
     "SelectFromGraph",
     "UploadedFileGetter",
     "ValidateDspl2",

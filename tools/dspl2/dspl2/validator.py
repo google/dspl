@@ -4,8 +4,8 @@
 # license that can be found in the LICENSE file or at
 # https://developers.google.com/open-source/licenses/bsd
 
-from dspl2.jsonutil import (
-    AsList, GetSchemaId, GetSchemaProp, GetSchemaType, GetUrl, MakeIdKeyedDict)
+from dspl2.jsonutil import (AsList, GetSchemaId, GetSchemaProp, GetSchemaType,
+                            GetUrl)
 from dspl2.rdfutil import LoadGraph, SelectFromGraph
 import json
 

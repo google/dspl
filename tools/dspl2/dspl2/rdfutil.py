@@ -148,28 +148,6 @@ def SelectFromGraph(graph, *constraints):
               for binding in result.bindings)
 
 
-def MakeSparqlInsertQuery(*data,
-                          ns_manager=None,
-                          rdf_prefixes=_RdfPrefixes):
-  ret = ''
-  for prefix, url in rdf_prefixes.items():
-    ret += f'PREFIX {prefix}: <{url}>\n'
-  ret += 'INSERT DATA {\n'
-  for triple in data:
-    sub, pred, obj = (_N3(field, ns_manager)
-                      for field in triple)
-    ret += f'    {sub} {pred} {obj} .\n'
-  ret += '}'
-  return ret
-
-
-def InsertIntoGraph(graph, *data):
-  graph.update(
-      MakeSparqlInsertQuery(
-          *data,
-          ns_manager=graph.namespace_manager))
-
-
 def main(args, context, schema):
   with open(args[1]) as f:
     normalized = FrameGraph(LoadGraph(f, args[1]))
