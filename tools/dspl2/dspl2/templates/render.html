@@ -18,7 +18,7 @@
   </tr>
   {% endfor %}
 </table>
-{% elif obj.startswith and obj.startswith('https://') or obj.startswith('http://') %}
+{% elif obj and obj.startswith and (obj.startswith('https://') or obj.startswith('http://')) %}
 <a href="{{obj}}">{{obj}}</a>
 {% else %}
 {{obj}}
