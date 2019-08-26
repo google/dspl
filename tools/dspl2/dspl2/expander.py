@@ -8,43 +8,35 @@ from csv import DictReader
 from urllib.parse import urlparse, urldefrag
 from dspl2.jsonutil import (AsList, GetSchemaId, GetSchemaProp, GetUrl,
                             MakeIdKeyedDict)
-from dspl2.rdfutil import (_DataFileFrame, FrameGraph, LoadGraph,
-                           MakeSparqlSelectQuery)
-import json
+from dspl2.rdfutil import (_DataFileFrame, FrameGraph, MakeSparqlSelectQuery,
+                           SCHEMA)
 import rdflib
 
 
 class Dspl2RdfExpander(object):
-  """Expand CSV files in an DSPL2 RDF graph"""
+  """Expand CSV files in an DSPL2 via the RDF graph"""
   def __init__(self, getter):
     self.getter = getter
     self.graph = getter.graph
     self.subjects = set(self.graph.subjects())
 
   def _ExpandDimensionValue(self, dim, equivalentTypes, row_id, row):
+    self.graph.add((dim, SCHEMA.codeList, row_id))
+    self.graph.add((rdflib.URIRef(row_id), rdflib.RDF.type,
+                    SCHEMA.DimensionValue))
     self.graph.add(
-        (rdflib.URIRef(row_id),
-         rdflib.RDF.type,
-         rdflib.URIRef('http://schema.org/DimensionValue')))
-    self.graph.add(
-        (rdflib.URIRef(row_id),
-         rdflib.URIRef('http://schema.org/dimension'),
-         rdflib.URIRef(dim)))
+        (rdflib.URIRef(row_id), SCHEMA.dimension, dim))
     for type_id in equivalentTypes:
-      self.graph.add(
-          (rdflib.URIRef(row_id),
-           rdflib.RDF.type,
-           rdflib.URIRef(typeid)))
+      self.graph.add((rdflib.URIRef(row_id), rdflib.RDF.type,
+                      rdflib.URIRef(type_id)))
     for key, val in row.items():
       fields = key.split('@')
       if len(fields) > 1:
         # A language code is specified
-        self.graph.add((rdflib.URIRef(row_id),
-                        rdflib.URIRef('http://schema.org/' + fields[0]),
+        self.graph.add((rdflib.URIRef(row_id), getattr(SCHEMA, fields[0]),
                         rdflib.Literal(val, language=fields[1])))
       else:
-        self.graph.add((rdflib.URIRef(row_id),
-                        rdflib.URIRef('http://schema.org/' + key),
+        self.graph.add((rdflib.URIRef(row_id), getattr(SCHEMA, key),
                         rdflib.Literal(val)))
 
   def _ExpandCodeList(self, dim):
@@ -55,21 +47,22 @@ class Dspl2RdfExpander(object):
     else:
       id_prefix = str(dim) + '#' + str(self.graph.triples(
           subject=dim,
-          predicate=rdflib.URIRef('http://schema.org/name'))[0])
+          predicate=SCHEMA.name)[0])
     id_prefix += '='
     equivalentTypes = self.graph.objects(
         subject=dim,
-        predicate=rdflib.URIRef('http://schema.org/equivalentType'))
+        predicate=SCHEMA.equivalentType)
     for codeList in self.graph.objects(
         subject=dim,
-        predicate=rdflib.URIRef('http://schema.org/codeList')):
+        predicate=SCHEMA.codeList):
       if codeList not in self.subjects:
-        self.graph.remove((dim, rdflib.URIRef('http://schema.org/codeList'), codeList))
+        self.graph.remove((dim, SCHEMA.codeList, codeList))
         with self.getter.Fetch(str(codeList)) as f:
           reader = DictReader(f)
           for row in reader:
             self._ExpandDimensionValue(
-                dim, equivalentTypes, id_prefix + row['codeValue'], row)
+                dim, equivalentTypes,
+                rdflib.URIRef(id_prefix + row['codeValue']), row)
 
   def _ExpandFootnotes(self):
     for result in self.graph.query(
@@ -78,28 +71,23 @@ class Dspl2RdfExpander(object):
             ('?ds', 'schema:footnote', '?fn'),
             ns_manager=self.graph.namespace_manager)):
       if result['fn'] not in self.subjects:
-        self.graph.remove((result['ds'],
-                           rdflib.URIRef('http://schema.org/footnote'),
-                           result['fn']))
+        self.graph.remove((result['ds'], SCHEMA.footnote, result['fn']))
         id_prefix = urldefrag(str(result['ds'])).url
         with self.getter.Fetch(str(result['fn'])) as f:
           reader = DictReader(f)
           for row in reader:
-            row_id = id_prefix + '#footnote=' + row['codeValue']
-            self.graph.add(
-                (rdflib.URIRef(row_id),
-                 rdflib.RDF.type,
-                 rdflib.URIRef('http://schema.org/StatisticalAnnotation')))
+            row_id = rdflib.URIRef(id_prefix + '#footnote=' + row['codeValue'])
+            self.graph.add((result['ds'], SCHEMA.footnote, row_id))
+            self.graph.add((row_id, rdflib.RDF.type,
+                            SCHEMA.StatisticalAnnotation))
             for key, val in row.items():
               fields = key.split('@')
               if len(fields) > 1:
                 # A language code is specified
-                self.graph.add((rdflib.URIRef(row_id),
-                                rdflib.URIRef('http://schema.org/' + fields[0]),
+                self.graph.add((row_id, getattr(SCHEMA, fields[0]),
                                 rdflib.Literal(val, language=fields[1])))
               else:
-                self.graph.add((rdflib.URIRef(row_id),
-                                rdflib.URIRef('http://schema.org/' + key),
+                self.graph.add((row_id, getattr(SCHEMA, key),
                                 rdflib.Literal(val)))
 
   def _GetDimensionDataForSlice(self, slice_id):
@@ -107,18 +95,18 @@ class Dspl2RdfExpander(object):
     dims = sorted(
         self.graph.objects(
             subject=slice_id,
-            predicate=rdflib.URIRef('http://schema.org/dimension')))
+            predicate=SCHEMA.dimension))
     for dim_id in dims:
       dim_type = list(self.graph.objects(
           subject=dim_id,
           predicate=rdflib.RDF.type))
       dim_equiv_types = list(self.graph.objects(
           subject=dim_id,
-          predicate=rdflib.URIRef('http://schema.org/equivalentType')))
+          predicate=SCHEMA.equivalentType))
       csv_id = None
       for identifier in self.graph.objects(
           subject=dim_id,
-          predicate=rdflib.URIRef('http://schema.org/identifier')):
+          predicate=SCHEMA.identifier):
         csv_id = identifier
         break
       if not csv_id:
@@ -138,18 +126,18 @@ class Dspl2RdfExpander(object):
     measures = sorted(
         self.graph.objects(
             subject=slice_id,
-            predicate=rdflib.URIRef('http://schema.org/measure')))
+            predicate=SCHEMA.measure))
     for measure_id in measures:
       unit_codes = list(self.graph.objects(
           subject=measure_id,
-          predicate=rdflib.URIRef('http://schema.org/unitCode')))
+          predicate=SCHEMA.unitCode))
       unit_texts = list(self.graph.objects(
           subject=measure_id,
-          predicate=rdflib.URIRef('http://schema.org/unitText')))
+          predicate=SCHEMA.unitText))
       csv_id = None
       for identifier in self.graph.objects(
           subject=measure_id,
-          predicate=rdflib.URIRef('http://schema.org/identifier')):
+          predicate=SCHEMA.identifier):
         csv_id = identifier
         break
       if not csv_id:
@@ -180,67 +168,54 @@ class Dspl2RdfExpander(object):
 
   def _ExpandObservationDimensionValue(self, dim, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, rdflib.URIRef('http://schema.org/dimensionValues'),
-                    node_id))
-    self.graph.add((node_id, rdflib.RDF.type,
-                    rdflib.URIRef('http://schema.org/DimensionValue')))
-    self.graph.add((node_id, rdflib.URIRef('http://schema.org/dimension'),
-                    data['id']))
+    self.graph.add((row_id, SCHEMA.dimensionValues, node_id))
+    self.graph.add((node_id, rdflib.RDF.type, SCHEMA.DimensionValue))
+    self.graph.add((node_id, SCHEMA.dimension, data['id']))
     for dim_type in data['type']:
       if dim_type.endswith('CategoricalDimension'):
         for type_id in data['types']:
           self.graph.add((node_id, rdflib.RDF.type, type_id))
-        self.graph.add((node_id, rdflib.URIRef('http://schema.org/codeValue'),
-                        rdflib.Literal(row[dim])))
+        self.graph.add((node_id, SCHEMA.codeValue, rdflib.Literal(row[dim])))
       else:
         if data['types']:
-          self.graph.add((node_id, rdflib.URIRef('http://schema.org/value'),
-                          rdflib.Literal(
-                              row[dim],
+          self.graph.add(
+              (node_id, SCHEMA.value,
+               rdflib.Literal(row[dim],
                               datatype=rdflib.URIRef(data['types'][0]))))
         else:
-          self.graph.add((node_id, rdflib.URIRef('http://schema.org/value'),
-                          rdflib.Literal(row[dim])))
+          self.graph.add((node_id, SCHEMA.value, rdflib.Literal(row[dim])))
 
   def _ExpandObservationMeasureValue(self, measure, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, rdflib.URIRef('http://schema.org/measureValues'),
-                    node_id))
-    self.graph.add((node_id, rdflib.RDF.type,
-                    rdflib.URIRef('http://schema.org/MeasureValue')))
+    self.graph.add((row_id, SCHEMA.measureValues, node_id))
+    self.graph.add((node_id, rdflib.RDF.type, SCHEMA.MeasureValue))
     for unit_code in data['unit_code']:
-      self.graph.add((node_id, rdflib.URIRef('http://schema.org/unitCode'),
-                      rdflib.Literal(unit_code)))
+      self.graph.add((node_id, SCHEMA.unitCode, rdflib.Literal(unit_code)))
     for unit_text in data['unit_text']:
-      self.graph.add((node_id, rdflib.URIRef('http://schema.org/unitCode'),
-                      rdflib.Literal(unit_text)))
-    self.graph.add((node_id, rdflib.URIRef('http://schema.org/value'),
-                    rdflib.Literal(row[measure])))
+      self.graph.add((node_id, SCHEMA.unitCode, rdflib.Literal(unit_text)))
+    self.graph.add((node_id, SCHEMA.value, rdflib.Literal(row[measure])))
     for footnote in row.get(measure + '*', '').split(';'):
       footnote_id = rdflib.BNode()
+      self.graph.add((node_id, SCHEMA.footnote, footnote_id))
       self.graph.add((footnote_id, rdflib.RDF.type,
-                      rdflib.URIRef('http://schema.org/StatisticalAnnotation')))
-      self.graph.add((footnote_id, rdflib.URIRef('http://schema.org/codeValue'),
-                      rdflib.Literal(footnote)))
+                      SCHEMA.StatisticalAnnotation))
+      self.graph.add((footnote_id, SCHEMA.codeValue, rdflib.Literal(footnote)))
 
   def _ExpandSliceData(self, slice_id):
     dim_data = self._GetDimensionDataForSlice(slice_id)
     measure_data = self._GetMeasureDataForSlice(slice_id)
     for data_id in self.graph.objects(
         subject=slice_id,
-        predicate=rdflib.URIRef('http://schema.org/data')):
+        predicate=SCHEMA.data):
       if data_id not in self.subjects:
         with self.getter.Fetch(data_id) as f:
           reader = DictReader(f)
           for row in reader:
             row_id = rdflib.URIRef(self._MakeSliceDataRowId(
                 slice_id, dim_data, measure_data, row))
-            self.graph.add((slice_id, rdflib.URIRef('http://schema.org/data'), row_id))
-            self.graph.add((row_id, rdflib.RDF.type,
-                            rdflib.URIRef('http://schema.org/Observation')))
-            self.graph.add((row_id,
-                            rdflib.URIRef('http://schema.org/slice'),
-                            slice_id))
+            self.graph.add((slice_id, SCHEMA.data, row_id))
+            self.graph.add((row_id, rdflib.RDF.type, SCHEMA.Observation))
+            self.graph.add((row_id, SCHEMA.slice, slice_id))
             for dim, data in dim_data.items():
               self._ExpandObservationDimensionValue(dim, data, row_id, row)
             for measure, data in measure_data.items():
@@ -249,17 +224,18 @@ class Dspl2RdfExpander(object):
   def Expand(self):
     for dim in set(self.graph.subjects(
         predicate=rdflib.RDF.type,
-        object=rdflib.URIRef('http://schema.org/CategoricalDimension'))):
+        object=SCHEMA.CategoricalDimension)):
       self._ExpandCodeList(dim)
     self._ExpandFootnotes()
     for slice_id in set(self.graph.subjects(
         predicate=rdflib.RDF.type,
-        object=rdflib.URIRef('http://schema.org/DataSlice'))):
+        object=SCHEMA.DataSlice)):
       self._ExpandSliceData(slice_id)
     return self.graph
 
 
 class Dspl2JsonLdExpander(object):
+  """Expand CSV files in an DSPL2 directly as JSON-LD"""
   def __init__(self, getter):
     self.getter = getter
 
@@ -270,7 +246,8 @@ class Dspl2JsonLdExpander(object):
       reader = DictReader(f)
       for row in reader:
         if GetSchemaProp(dim, 'equivalentType'):
-          row['@type'] = ['DimensionValue', GetSchemaProp(dim, 'equivalentType')]
+          row['@type'] = ['DimensionValue',
+                          GetSchemaProp(dim, 'equivalentType')]
         else:
           row['@type'] = 'DimensionValue'
         row['@id'] = GetSchemaId(dim) + '='

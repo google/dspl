@@ -7,11 +7,14 @@
 import json
 from pathlib import Path
 from pyld import jsonld
-from rdflib import Graph
+from rdflib import Graph, Namespace
 from rdflib.serializer import Serializer
 import sys
 
 from dspl2.jsonutil import AsList
+
+
+SCHEMA = Namespace('http://schema.org/')
 
 
 _Schema = {}
@@ -39,7 +42,15 @@ _FullFrame = {
             '@embed': '@never'
         },
         'data': {
+            'dimensionValues': {
+                'dimension': {
+                    '@embed': '@never'
+                }
+            },
             'measureValues': {
+                'measure': {
+                    '@embed': '@never'
+                },
                 'footnote': {
                     '@embed': '@never'
                 }
