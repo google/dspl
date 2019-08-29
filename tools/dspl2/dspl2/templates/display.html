@@ -17,18 +17,38 @@
       {{render(dataset)}}
     </div>
     <div id="dimensions" class="hidden">
-      {{ render(dimension) }}
+      <table>
+        <tr>
+          <td>dimensions</td>
+          <td>{{ render(dimension) }}</td>
+        </tr>
+      </table>
     </div>
     <div id="measures" class="hidden">
-      {{ render(measure) }}
+      <table>
+        <tr>
+          <td>measures</td>
+          <td>{{ render(measure) }}</td>
+        </tr>
+      </table>
     </div>
     {% if footnote %}
     <div id="footnotes" class="hidden">
-      {{ render(footnote) }}
+      <table>
+        <tr>
+          <td>footnotes</td>
+          <td>{{ render(footnote) }}</td>
+        </tr>
+      </table>
     </div>
     {% endif %}
     <div id="slices" class="hidden">
-      {{ render(slice) }}
+      <table>
+        <tr>
+          <td>slices</td>
+          <td>{{ render(slice) }}</td>
+        </tr>
+      </table>
     </div>
 
     <!-- Footer -->
