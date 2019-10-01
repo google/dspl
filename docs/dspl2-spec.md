@@ -1144,3 +1144,184 @@ Below, data for all properties is provided inline as JSON:
   ]
 }
 ```
+
+## JSON API considerations
+Per the [JSON-LD API best practices
+draft](https://json-ld.org/spec/latest/json-ld-api-best-practices/#use-json), a
+first consideration of JSON-LD APIs is to produce developer-friendly JSON.
+
+The DSPL 2 JSON format described above has a number of inconvenient features for
+use as the output of a JSON API. These center around its use of arrays instead
+of objects for a number of properties, making lookups cumbersome.  Several of
+these can be simplified by customizing value indexing in the [JSON-LD
+context](https://w3c.github.io/json-ld-syntax/#the-context). Although the
+features are described separately, we anticipate they will be most useful
+when combined.
+
+### Language indexing
+Fields like `name` and `description` support JSON-LD literal values for multilingual values:
+
+```
+{
+    "name": [
+        {"@value": "Germany", "@language": "en"},
+        {"@value": "Deutschland", "@language": "de"},
+        {"@value": "Allemania", "@language": "fr"}
+    ]
+}
+```
+
+we can make this friendlier for data consumers by writing it as a map using [*language indexing*](https://w3c.github.io/json-ld-syntax/#language-indexing):
+
+```
+{
+    "@context": [
+        {
+            "description": {"@container": "@language"}
+            "name": {"@container": "@language"}
+        },
+        "http://schema.org"
+    ],
+    "name": {
+        "en": "Germany",
+        "de": "Deutschland",
+        "fr": "Allemange"
+    }
+}
+```
+
+### Data indexing
+Dimension code lists and footnotes have a `codeValue` field, and
+`additionalProperties` a `propertyID`, which users will commonly want to look
+up:
+
+```
+{
+    "footnote": [
+        {
+            "@id": "#footnote=p",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "codeValue": "p",
+            "description": "This value is a projection"
+        },
+        {
+            "@id": "#footnote=r",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "codeValue": "r",
+            "description": "This value has been revised"
+        }
+    ]
+}
+```
+
+We can use JSON-LD 1.1 [*property-based data
+indexing*](https://w3c.github.io/json-ld-syntax/#property-based-data-indexing)
+fruitfully in this case:
+
+```
+{
+    "@context": [
+        {
+            "@version": 1.1,
+            "footnote": {
+                "@container": "@index",
+                "@index": "schema:codeValue"
+            },
+            "additionalProperty": {
+                "@container": "@index",
+                "@index": "schema:propertyID"
+            }
+        },
+        "http://schema.org"
+    ],
+    "footnote": {
+        "p": {
+            "@id": "#footnote=p",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "description": "This value is a projection"
+        },
+        "r": {
+          "@id": "#footnote=r",
+          "@type": "StatisticalAnnotation",
+          "dataset": "#europe_unemployment",
+          "description": "This value has been revised"
+        }
+    }
+}
+```
+
+### Node identifier indexing
+In other cases, such as dimensions and measures, a DSPL 2 dataset might have
+lists of these values which would need to be looked up by ID, e.g., to resolve
+ the dimensions or measures in a slice:
+
+```
+{
+    "measure": [
+        {
+            "@id": "#unemployment",
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment (monthly)",
+            "description": "The total number of people unemployed",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q41171",
+            "unitCode": "IE"
+        },
+        {
+            "@id": "#unemployment_rate",
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment rate (monthly)",
+            "description": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed.",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+            "unitCode": "P1"
+        }
+    ]
+}
+```
+
+We can use (*node identifier indexing*)[https://w3c.github.io/json-ld-syntax/#node-identifier-indexing] to write these as ID-keyed objects instead of lists:
+
+```
+{
+    "@context": [
+        {
+            "dimension": {
+                "@container": "@id"
+            },
+            "measure": {
+                "@container": "@id"
+            },
+            "slice": {
+                "@container": "@id"
+            }
+        },
+        "http://schema.org"
+    ],
+    "measure": {
+        "#unemployment": {
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment (monthly)",
+            "description": "The total number of people unemployed",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q41171",
+            "unitCode": "IE"
+        },
+        "#unemployment_rate": {
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment rate (monthly)",
+            "description": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed.",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+            "unitCode": "P1"
+        }
+    }
+}
+```
