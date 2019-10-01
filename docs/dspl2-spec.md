@@ -131,6 +131,14 @@ A dataset that contains statistical data. It has the following properties, in ad
    <td>A slice defined in this dataset.
    </td>
   </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the dataset.
+   </td>
+  </tr>
 </table>
 
 #### Examples
@@ -203,6 +211,14 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
    <td>A string or text indicating the unit of measurement. Useful if you cannot provide a standard unit code for <a href="http://schema.org/unitCode">unitCode</a>.
    </td>
   </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the measure.
+   </td>
+  </tr>
 </table>
 
 #### Examples
@@ -262,6 +278,14 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    <td>DimensionValue or URL
    </td>
    <td>The code values and additional properties for this dimension or the URL of a CSV file containing them.
+   </td>
+  </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the dimension.
    </td>
   </tr>
 </table>
@@ -340,12 +364,20 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    <td>A CLDR date format pattern to use for parsing values from a slice CSV file into the dimension’s equivalentType. See <a href="http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns">http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns</a> for details on these patterns.
    </td>
   </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the dimension.
+   </td>
+  </tr>
 </table>
 
 #### Examples
 
 ```
-{    
+{
   "@type": "TimeDimension",
   "@id": "#month",
   "dataset": "#europe_unemployment",
@@ -383,6 +415,14 @@ Many statistical datasets use annotate values in observations with footnotes to 
    <td>Text
    </td>
    <td>The code to use for this annotation.
+   </td>
+  </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the annotation.
    </td>
   </tr>
 </table>
@@ -449,11 +489,19 @@ In an observation, the values for dimensions without codes, such as the timestam
    </td>
   </tr>
   <tr>
+   <td>containedInValue
+   </td>
+   <td>CodeValue
+   </td>
+   <td>A value hierarchically containing the dimension value.
+   </td>
+  </tr>
+  <tr>
    <td>additionalProperty
    </td>
    <td>PropertyValue
    </td>
-   <td>A property/value pair associated with the code.
+   <td>A property/value pair associated with the dimension value.
    </td>
   </tr>
 </table>
@@ -467,7 +515,7 @@ A DimensionValue with an inherited property (name):
   "@type": "DimensionValue",
   "@id": "#country_group=eu",
   "dimension": "#country_group",
-  "codeValue": "eu"
+  "codeValue": "eu",
   "name": [
     {"@language": "en", "@value": "European Union"},
     {"@language": "fr", "@value": "Union européenne"},
@@ -476,7 +524,7 @@ A DimensionValue with an inherited property (name):
 }
 ```
 
-A DimensionValue in #country’s codeList, with properties from an equivalentType:
+A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType`, and an `additionalProperty`:
 
 ```
 {
@@ -494,11 +542,12 @@ A DimensionValue in #country’s codeList, with properties from an equivalentTyp
     "@type": "GeoCoordinates",
     "latitude": 47.6965545,
     "longitude": 13.34598005
-  }
+  },
+  "containedInValue": "#country_group=eu",
   "additionalProperty": {
     "@type": "PropertyValue",
-    "propertyID": "country_group",
-    "value": "eu"
+    "propertyID": "language_spoken",
+    "value": "de"
   }
 }
 ```
@@ -583,6 +632,14 @@ A slice is a grouping of statistical observations that share the same measures a
    <td>A CSV table containing the observations of the slice or a  set of observations that belong to the slice.
    </td>
   </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the slice.
+   </td>
+  </tr>
 </table>
 
 Slice data can be provided in two equivalent ways:
@@ -652,6 +709,14 @@ A statistical observation holds the individual measurements for a slice, for a g
    <td>MeasureValue
    </td>
    <td>One or more measure values for measures specified in the containing slice.
+   </td>
+  </tr>
+  <tr>
+   <td>additionalProperty
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A property/value pair associated with the slice.
    </td>
   </tr>
 </table>
@@ -1033,7 +1098,7 @@ Below, data for all properties is provided inline as JSON:
       "codeValue": "r",
       "description": "This value has been revised"
     }
-  ]
+  ],
   "slice": [
     {
       "@type": "DataSlice",
