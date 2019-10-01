@@ -243,9 +243,9 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
 
 Type: Thing > Intangible > CategoricalDimension
 
-Categorical dimensions define the categories that measures can apply to. For instance, countries, genders, age groups, etc. A categorical dimension has a list of possible categories or values, called a codeList (see below). 
+Categorical dimensions define the categories that measures can apply to. For instance, countries, genders, age groups, etc. A categorical dimension has a list of possible categories or values, called a `codeList` (see below). 
 
-A categorical dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s equivalentType. The values in the codeList may specify that they have that type and set any of its properties.
+A categorical dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s `equivalentType`. The values in the `codeList` may specify that they have that type and set any of its properties.
 
 <table>
   <tr>
@@ -301,11 +301,11 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
 When a code list is provided as a table, the data in the CSV table must follow these conventions:
 
 * The first row of the table is a header that contains the names the columns.
-* Each value corresponds to one row in the table. All possible values of the codeList must appear in the table.
+* Each value corresponds to one row in the table. All possible values of the `codeList` must appear in the table.
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
-    * If `parentValue` is present, values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
+    * If `parentValue` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
 
 #### Examples
 
@@ -332,13 +332,45 @@ Where the CSV table might begin like this:
 "ag","Agender","Agenre","Agender"
 ```
 
+These have a `parentDimension` relationship:
+
+```
+{
+  "@type": "CategoricalDimension",
+  "@id": "#country_group",
+  "dataset": "#europe_unemployment",
+  "codeList": [{
+    "@type": "DimensionValue",
+    "@id": "#country_group=eu",
+    "dimension": "#country_group",
+    "codeValue": "eu",
+    "name": "European Union members"
+  }, {
+    "@type": "DimensionValue",
+    "@id": "#country_group=non-eu",
+    "dimension": "#country_group",
+    "codeValue": "non-eu",
+    "name": "non-European Union members"
+  }
+},
+{
+  "@type": "CategoricalDimension",
+  "@id": "#country",
+  "dataset": "#europe_unemployment",
+  "parentDimension": "#country_group",
+  "codeList": "countries.csv"
+}
+```
+
+Where CSV file `countries.csv` has a column 'parentValue' with values of 'eu' or 'non-eu'.
+
 ### TimeDimension
 
 Type: Thing > Intangible > TimeDimension
 
 Time dimensions define times that time series measures apply to. For instance, years, years with quarters, dates, datetimes, etc. 
 
-A time dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s equivalentType. The dateFormat property indicates how to parse timestamps in slice observations, for slices with observations in CSV files.
+A time dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s `equivalentType`. The `dateFormat` property indicates how to parse timestamps in slice observations, for slices with observations in CSV files.
 
 <table>
   <tr>
@@ -448,9 +480,9 @@ Type: Thing > Intangible > StructuredValue > DimensionValue
 
 A dimension’s permitted or observed value.
 
-Values in a codeList must provide a code using the codeValue property, which is used to identify it elsewhere in the dataset (e.g., in observations). These can have additional properties:
+Values in a `codeList` must provide a code using the `codeValue` property, which is used to identify it elsewhere in the dataset (e.g., in observations). These can have additional properties:
 
-* If the dimension has an equivalentType, it should be added to the @type list and its properties can be used directly. 
+* If the dimension has an `equivalentType`, it should be added to the @type list and its properties can be used directly. 
 * Standard schema.org properties from super types can be used as well (e.g., name)
 * Properties not covered by schema.org can be added, through the PropertyValue mechanism.
 
@@ -547,8 +579,9 @@ A DimensionValue in `#country`’s `codeList`, with properties from an `equivale
   "parentValue": "#country_group=eu"
 }
 ```
+*Note*: In the above example, `parentValue` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
 
-A DimensionValue in an Observation can refer to a DimensionValue defined in its CategoricalDimension’s codeList by code:
+Similarly, a DimensionValue in an Observation can refer to a DimensionValue defined in its CategoricalDimension’s `codeList` by code:
 
 ```
 {
@@ -1181,8 +1214,8 @@ we can write:
 ```
 
 ### Data indexing
-Dimension code lists and annotations have a `codeValue` field, and
-`additionalProperties` a `propertyID`, which users will commonly want to look
+Dimension code lists and annotations have a `codeValue` field, and `footnote`
+and `additionalProperty` a `propertyID`, which users will commonly want to look
 up:
 
 ```
@@ -1204,14 +1237,18 @@ up:
     ]
 ```
 
-We can use JSON-LD 1.1 [*property-based data
+We can use apply JSON-LD 1.1 [*property-based data
 indexing*](https://w3c.github.io/json-ld-syntax/#property-based-data-indexing)
-fruitfully in this case. E.g.,
+in this case. E.g.,
 
 ```
     "@context": [
         {
             "@version": 1.1,
+            "codeList": {
+                "@container": "@index",
+                "@index": "schema:codeValue"
+            }
             "annotation": {
                 "@container": "@index",
                 "@index": "schema:codeValue"
@@ -1247,7 +1284,6 @@ lists of these values which would need to be looked up by ID, e.g., to resolve
  the dimensions or measures in a slice:
 
 ```
-{
     "measure": [
         {
             "@id": "#unemployment",
@@ -1270,13 +1306,11 @@ lists of these values which would need to be looked up by ID, e.g., to resolve
             "unitCode": "P1"
         }
     ]
-}
 ```
 
 We can use (*node identifier indexing*)[https://w3c.github.io/json-ld-syntax/#node-identifier-indexing] to write these as ID-keyed objects instead of lists. E.g, 
 
 ```
-{
     "@context": [
         {
             "dimension": {
@@ -1297,7 +1331,6 @@ We can use (*node identifier indexing*)[https://w3c.github.io/json-ld-syntax/#no
 lets us write:
 
 ```
-
     "measure": {
         "#unemployment": {
             "@type": "StatisticalMeasure",
@@ -1318,5 +1351,4 @@ lets us write:
             "unitCode": "P1"
         }
     }
-}
 ```
