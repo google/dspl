@@ -9,6 +9,8 @@ This is the project website for the DSPL 2.0 specification, samples, and related
 
 The draft specification is here: [dspl2-spec.html](dspl2-spec.html).
 
+To provide feedback on the draft, please create a [GitHub issue](https://github.com/google/dspl/issues), or email us at (public-data-import-feedback@google.com)[mailto:public-data-import-feedback@google.com].
+
 ## Related tools
 
 Initial tool and a python library are in the DSPL 2.0 GitHub repository under [`tools/dspl2`](https://github.com/google/dspl/tree/master/tools/dspl2).
@@ -25,4 +27,4 @@ Examples are in the DSPL 2.0 GitHub repository under [`samples`](https://github.
 
 ## Contributing
 
-To contribute, see the [CONTRIBUTING](CONTRIBUTING.html) file and after submitting a CLA, submit pull requests to the [DSPL GitHub repository](https://github.com/google/dspl)
+To contribute, see the [CONTRIBUTING](CONTRIBUTING.html) file and after submitting a CLA, submit pull requests to the [DSPL GitHub repository](https://github.com/google/dspl).

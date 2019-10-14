@@ -27,7 +27,7 @@ Non-goals of this document:
 
 * Mapping to existing formats and standards: SDMX, W3C RDF data cube, DSPL, etc. Interoperability with other formats is important, and will be covered in future revisions.
 * Shared concepts across datasets (à la [SDMX Content guidelines](https://sdmx.org/?page_id=4345)) will be defined in future revisions.
-* Shared annotations/footnotes will be defined in future revisions.
+* Shared annotations will be defined in future revisions.
 * Nested dimensions will be defined in future revisions.
 
 ## Background
@@ -62,7 +62,7 @@ We introduce the following constructs:
 * **Observation**: A "data point" with one or more measure values for specified dimension values.
 * **DimensionValue**: A possible or observed value for a given dimension.
 * **MeasureValue**: The observed value of a measure.
-* **StatisticalAnnotation**: A footnote or other explanatory or methodological annotation for a measurement.
+* **StatisticalAnnotation**: An explanatory or methodological annotation for a measurement.
 
 While most of the constructs above describe "metadata" about the dataset, we also need to represent actual data. The preferred way of providing this data is to use CSV tables. An equivalent triple representation is also supported.
 
@@ -76,7 +76,7 @@ Many statistical datasets include data from multiple providers. The [CreativeWor
 
 #### Identifiers
 
-JSON-LD objects can be assigned URIs (or rather, [IRIs](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier)) using the `@id` property. Within a file, these can refer to the file's location using an empty identifier, or document-unique IDs using fragments like `#age_year_slice`. This can be used to give permanent identifiers to datasets, their dimensions, measures, and footnotes, and to the timeseries within them.
+JSON-LD objects can be assigned URIs (or rather, [IRIs](https://en.wikipedia.org/wiki/Internationalized_Resource_Identifier)) using the `@id` property. Within a file, these can refer to the file's location using an empty identifier, or document-unique IDs using fragments like `#age_year_slice`. This can be used to give permanent identifiers to datasets, their dimensions, measures, and annotations, and to the timeseries within them.
 
 ### Schema
 
@@ -116,11 +116,11 @@ A dataset that contains statistical data. It has the following properties, in ad
    </td>
   </tr>
   <tr>
-   <td>footnote
+   <td>annotation
    </td>
    <td>StatisticalAnnotation or URL
    </td>
-   <td>A footnote defined in this dataset, or the URL of a CSV table containing the footnote definitions. See section “[Footnotes](#footnotes)” for more details.
+   <td>an annotation defined in this dataset, or the URL of a CSV table containing the annotation definitions. See section “[Annotations](#annotations)” for more details.
    </td>
   </tr>
   <tr>
@@ -129,6 +129,14 @@ A dataset that contains statistical data. It has the following properties, in ad
    <td>DataSlice
    </td>
    <td>A slice defined in this dataset.
+   </td>
+  </tr>
+  <tr>
+   <td>footnote
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A footnote applying to this dataset.
    </td>
   </tr>
 </table>
@@ -159,7 +167,7 @@ A dataset that contains statistical data. It has the following properties, in ad
   },
   "measure": …,
   "dimension": …,
-  "footnote": …,
+  "annotation": …,
   "slice": …
 }
 ```
@@ -203,6 +211,14 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
    <td>A string or text indicating the unit of measurement. Useful if you cannot provide a standard unit code for <a href="http://schema.org/unitCode">unitCode</a>.
    </td>
   </tr>
+  <tr>
+   <td>footnote
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A footnote applying to this measure.
+   </td>
+  </tr>
 </table>
 
 #### Examples
@@ -227,9 +243,9 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
 
 Type: Thing > Intangible > CategoricalDimension
 
-Categorical dimensions define the categories that measures can apply to. For instance, countries, genders, age groups, etc. A categorical dimension has a list of possible categories or values, called a codeList (see below). 
+Categorical dimensions define the categories that measures can apply to. For instance, countries, genders, age groups, etc. A categorical dimension has a list of possible categories or values, called a `codeList` (see below). 
 
-A categorical dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s equivalentType. The values in the codeList may specify that they have that type and set any of its properties.
+A categorical dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s `equivalentType`. The values in the `codeList` may specify that they have that type and set any of its properties.
 
 <table>
   <tr>
@@ -257,6 +273,14 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
+   <td>parentDimension
+   </td>
+   <td>CategoricalDimension
+   </td>
+   <td>If specified, the [ID of the] dimension hierarchically containing this dimension.
+   </td>
+  </tr>
+  <tr>
    <td>codeList
    </td>
    <td>DimensionValue or URL
@@ -264,15 +288,24 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    <td>The code values and additional properties for this dimension or the URL of a CSV file containing them.
    </td>
   </tr>
+  <tr>
+   <td>footnote
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A footnote applying to this dimension.
+   </td>
+  </tr>
 </table>
 
 When a code list is provided as a table, the data in the CSV table must follow these conventions:
 
-* The first row of the table is a header that contains the names the columns
-* Each value corresponds to one row in the table. All possible values of the codeList must appear in the table.
-* The first column is called "codeValue", and contains the code for each value
-* Each subsequent column has the name of the property it represents
-    * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en"
+* The first row of the table is a header that contains the names the columns.
+* Each value corresponds to one row in the table. All possible values of the `codeList` must appear in the table.
+* The first column is called "codeValue", and contains the code for each value.
+* Each subsequent column has the name of the property it represents.
+    * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
+    * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
 
 #### Examples
 
@@ -299,13 +332,45 @@ Where the CSV table might begin like this:
 "ag","Agender","Agenre","Agender"
 ```
 
+These have a `parentDimension` relationship:
+
+```
+{
+  "@type": "CategoricalDimension",
+  "@id": "#country_group",
+  "dataset": "#europe_unemployment",
+  "codeList": [{
+    "@type": "DimensionValue",
+    "@id": "#country_group=eu",
+    "dimension": "#country_group",
+    "codeValue": "eu",
+    "name": "European Union members"
+  }, {
+    "@type": "DimensionValue",
+    "@id": "#country_group=non-eu",
+    "dimension": "#country_group",
+    "codeValue": "non-eu",
+    "name": "non-European Union members"
+  }
+},
+{
+  "@type": "CategoricalDimension",
+  "@id": "#country",
+  "dataset": "#europe_unemployment",
+  "parentDimension": "#country_group",
+  "codeList": "countries.csv"
+}
+```
+
+Where CSV file `countries.csv` has a column 'parent' with values of 'eu' or 'non-eu'.
+
 ### TimeDimension
 
 Type: Thing > Intangible > TimeDimension
 
 Time dimensions define times that time series measures apply to. For instance, years, years with quarters, dates, datetimes, etc. 
 
-A time dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s equivalentType. The dateFormat property indicates how to parse timestamps in slice observations, for slices with observations in CSV files.
+A time dimension may correspond to an existing (schema.org) type, in which case that type should be set as the dimension’s `equivalentType`. The `dateFormat` property indicates how to parse timestamps in slice observations, for slices with observations in CSV files.
 
 <table>
   <tr>
@@ -340,12 +405,20 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    <td>A CLDR date format pattern to use for parsing values from a slice CSV file into the dimension’s equivalentType. See <a href="http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns">http://www.unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns</a> for details on these patterns.
    </td>
   </tr>
+  <tr>
+   <td>footnote
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A footnote applying to this dimension.
+   </td>
+  </tr>
 </table>
 
 #### Examples
 
 ```
-{    
+{
   "@type": "TimeDimension",
   "@id": "#month",
   "dataset": "#europe_unemployment",
@@ -358,7 +431,7 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
 
 Thing > Intangible > StatisticalAnnotation
 
-Many statistical datasets use annotate values in observations with footnotes to provide contextual explanations or methodological details. The inherited properties (e.g., name, description, and URL) can be used to provide details.
+Many statistical datasets use annotate values in observations with annotations to provide contextual explanations or methodological details. The inherited properties (e.g., name, description, and URL) can be used to provide details.
 
 <table>
   <tr>
@@ -392,14 +465,14 @@ Many statistical datasets use annotate values in observations with footnotes to 
 ```
 {
   "@type": "StatisticalAnnotation",
-  "@id": "#footnote=p",
+  "@id": "#annotation=p",
   "dataset": "#europe_unemployment",
   "description": "This value is a projection.",
   "codeValue": "p"
 }
 ```
 
-For examples of defining footnotes, see section, “[Footnotes - Examples - Defining Footnotes](#defining-footnotes)”
+For examples of defining annotations, see section, “[Annotations - Examples - Defining Annotations](#defining-annotations)”
 
 ### DimensionValue
 
@@ -407,9 +480,9 @@ Type: Thing > Intangible > StructuredValue > DimensionValue
 
 A dimension’s permitted or observed value.
 
-Values in a codeList must provide a code using the codeValue property, which is used to identify it elsewhere in the dataset (e.g., in observations). These can have additional properties:
+Values in a `codeList` must provide a code using the `codeValue` property, which is used to identify it elsewhere in the dataset (e.g., in observations). These can have additional properties:
 
-* If the dimension has an equivalentType, it should be added to the @type list and its properties can be used directly. 
+* If the dimension has an `equivalentType`, it should be added to the @type list and its properties can be used directly. 
 * Standard schema.org properties from super types can be used as well (e.g., name)
 * Properties not covered by schema.org can be added, through the PropertyValue mechanism.
 
@@ -449,11 +522,19 @@ In an observation, the values for dimensions without codes, such as the timestam
    </td>
   </tr>
   <tr>
+   <td>parent
+   </td>
+   <td>DimensionValue
+   </td>
+   <td>If `parentDimension` is specified, the value in the `parentDimension` for this value.
+   </td>
+  </tr>
+  <tr>
    <td>additionalProperty
    </td>
    <td>PropertyValue
    </td>
-   <td>A property/value pair associated with the code.
+   <td>A property/value pair associated with the dimension value.
    </td>
   </tr>
 </table>
@@ -467,7 +548,7 @@ A DimensionValue with an inherited property (name):
   "@type": "DimensionValue",
   "@id": "#country_group=eu",
   "dimension": "#country_group",
-  "codeValue": "eu"
+  "codeValue": "eu",
   "name": [
     {"@language": "en", "@value": "European Union"},
     {"@language": "fr", "@value": "Union européenne"},
@@ -476,7 +557,7 @@ A DimensionValue with an inherited property (name):
 }
 ```
 
-A DimensionValue in #country’s codeList, with properties from an equivalentType:
+A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType`:
 
 ```
 {
@@ -494,16 +575,13 @@ A DimensionValue in #country’s codeList, with properties from an equivalentTyp
     "@type": "GeoCoordinates",
     "latitude": 47.6965545,
     "longitude": 13.34598005
-  }
-  "additionalProperty": {
-    "@type": "PropertyValue",
-    "propertyID": "country_group",
-    "value": "eu"
-  }
+  },
+  "parent": "#country_group=eu"
 }
 ```
+*Note*: In the above example, `parent` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
 
-A DimensionValue in an Observation can refer to a DimensionValue defined in its CategoricalDimension’s codeList by code:
+Similarly, a DimensionValue in an Observation can refer to a DimensionValue defined in its CategoricalDimension’s `codeList` by code:
 
 ```
 {
@@ -583,6 +661,14 @@ A slice is a grouping of statistical observations that share the same measures a
    <td>A CSV table containing the observations of the slice or a  set of observations that belong to the slice.
    </td>
   </tr>
+  <tr>
+   <td>footnote
+   </td>
+   <td>PropertyValue
+   </td>
+   <td>A footnote applying to this slice.
+   </td>
+  </tr>
 </table>
 
 Slice data can be provided in two equivalent ways:
@@ -639,7 +725,7 @@ A statistical observation holds the individual measurements for a slice, for a g
    </td>
   </tr>
   <tr>
-   <td>dimensionValues
+   <td>dimensionValue
    </td>
    <td>DimensionValue
    </td>
@@ -647,7 +733,7 @@ A statistical observation holds the individual measurements for a slice, for a g
    </td>
   </tr>
   <tr>
-   <td>measureValues
+   <td>measureValue
    </td>
    <td>MeasureValue
    </td>
@@ -662,7 +748,7 @@ A statistical observation holds the individual measurements for a slice, for a g
 {
   "@id": "#country=uk/month=2010-10/sex=m",
   "@type": "Observation",
-  "dimensionValues": [
+  "dimensionValue": [
     {
       "@type": "DimensionValue",
       "dimension": "#country",
@@ -682,7 +768,7 @@ A statistical observation holds the individual measurements for a slice, for a g
       "codeValue": "m"
     }
   ],
-  "measureValues": …
+  "measureValue": …
 }
 ```
 
@@ -690,7 +776,7 @@ A statistical observation holds the individual measurements for a slice, for a g
 
 Type: Thing > Intangible > StructuredValue > QuantitativeValue > MeasureValue
 
-A MeasureValue is a quantitative value that indicates the measure to which it corresponds. It may optionally be annotated with one or more of the footnotes defined in the StatisticalDataset. For example, values for a population measure might use footnotes to distinguish intercensal estimates from counts.
+A MeasureValue is a quantitative value that indicates the measure to which it corresponds. It may optionally be annotated with one or more of the annotations defined in the StatisticalDataset. For example, values for a population measure might use annotations to distinguish intercensal estimates from counts.
 
 <table>
   <tr>
@@ -710,11 +796,11 @@ A MeasureValue is a quantitative value that indicates the measure to which it co
    </td>
   </tr>
   <tr>
-   <td>footnote
+   <td>annotation
    </td>
    <td>StatisticalAnnotation
    </td>
-   <td>A footnote defined in this statistical dataset.
+   <td>an annotation defined in this statistical dataset.
    </td>
   </tr>
   <tr>
@@ -744,27 +830,27 @@ A MeasureValue is a quantitative value that indicates the measure to which it co
 }
 ```
 
-For examples with footnotes, see section, “[Footnotes - Examples - Using Footnotes](#using-footnotes)”.
+For examples with annotations, see section, “[Annotations - Examples - Using Annotations](#using-annotations)”.
 
-## Footnotes
+## Annotations
 
-Many statistical datasets use footnotes on values in observations to provide contextual explanations or methodological details. The footnotes appearing in a dataset can be defined using the StatisticalDataset’s footnote property, either as a URL to a CSV table or inline as JSON-LD objects.  When footnotes are provided as a table, the data in the CSV table must follow these conventions:
+Many statistical datasets use annotations on values in observations to provide contextual explanations or methodological details. The annotations appearing in a dataset can be defined using the StatisticalDataset’s `annotation` property, either as a URL to a CSV table or inline as JSON-LD objects.  When annotations are provided as a table, the data in the CSV table must follow these conventions:
 
 * The first row of the table is a header that contains the names of the columns
-* Each footnote corresponds to one row in the table. All possible values of the footnote list must appear in the table.
-* The first column is called "codeValue", and contains the code value by which to refer to each footnote
+* Each annotation corresponds to one row in the table. All possible values of the annotation list must appear in the table.
+* The first column is called "codeValue", and contains the code value by which to refer to each annotation
 * Each subsequent column has the name of the property it represents, e.g., "name", "description"
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en", "description@en"
 
-References to footnotes appear as footnote values on MeasureValue instances. If these were provided in a CSV table for a slice,
+References to annotations appear as annotation values on MeasureValue instances. If these were provided in a CSV table for a slice,
 
-* The name of a column corresponding to a footnote for a measure starts with that measure’s column name, followed by the asterisk character ‘*’. Cells should have a value of the footnote’s code. Multiple footnote codes can be separated by semicolon characters ‘;’.  If there are no footnotes for a measure, the footnote column may be omitted.
+* The name of a column corresponding to an annotation for a measure starts with that measure’s column name, followed by the asterisk character ‘*’. Cells should have a value of the annotation’s code. Multiple annotation codes can be separated by semicolon characters ‘;’.  If there are no annotations for a measure, the annotation column may be omitted.
 
 ### Examples
 
-#### Defining Footnotes
+#### Defining Annotations
 
-A footnotes CSV table might look like the one from the prior example:
+an annotations CSV table might look like the one from the prior example:
 
 ```
 codeValue,description@en
@@ -773,16 +859,16 @@ r,This value has been revised.
 ```
 
 
-If the footnotes are given as JSON, they might look like this:
+If the annotations are given as JSON, they might look like this:
 
 ```
 {
   "@type": "StatisticalDataset",
   …
-  "footnote": [
+  "annotation": [
     {
       "@type": "StatisticalAnnotation",
-      "@id": "#footnote=p",
+      "@id": "#annotation=p",
       "description": {
         "@language": "en",
         "@value": "This value is a projection."
@@ -791,7 +877,7 @@ If the footnotes are given as JSON, they might look like this:
     },
     {
       "@type": "StatisticalAnnotation",
-      "@id": "#footnote=r",
+      "@id": "#annotation=r",
       "description": {
         "@language": "en",
         "@value": "This value has been revised."
@@ -803,16 +889,16 @@ If the footnotes are given as JSON, they might look like this:
 }
 ```
 
-#### Using Footnotes
+#### Using Annotations
 
-When setting footnotes (possibly more than one, as in the example) on a MeasureValue can be referred to by code:
+When setting annotations (possibly more than one, as in the example) on a MeasureValue can be referred to by code:
 
 ```
 {
   "@type": "MeasureValue",
   "measure": "#unemployment",
   "value": 1448000,
-  "footnote": [
+  "annotation": [
     {
       "@type": "StatisticalAnnotation",
       "codeValue": "p",
@@ -825,7 +911,7 @@ When setting footnotes (possibly more than one, as in the example) on a MeasureV
 }
 ```
 
-When using a CSV table of observations for a slice, a footnote column looks like this:
+When using a CSV table of observations for a slice, an annotation column looks like this:
 
 ```
 country,month,sex,unemployment,unemployment_rate,unemployment*
@@ -845,7 +931,7 @@ A trimmed version with a single observation per slice is at [eurostat-unemployme
 
 ### With CSV Data
 
-Below, all the dimensions, measures, footnotes and slices are defined in CSV files:
+Below, all the dimensions, measures, annotations and slices are defined in CSV files:
 
 ```
 {
@@ -895,7 +981,7 @@ Below, all the dimensions, measures, footnotes and slices are defined in CSV fil
       "equivalentType": "xsd:gYearMonth"
     }
   ],
-  "footnote": "footnotes.csv",
+  "annotation": "annotations.csv",
   "slice": {
     "@type": "DataSlice",
     "dimension": ["#country", "#month"],
@@ -914,7 +1000,7 @@ The country dimension’s code list countries.csv might begin like this:
 "bg","BG","eu","Bulgaria","Bulgarie","Bulgarien","42.72567375","25.4823218"
 ```
 
-The footnote definitions table footnotes.csv might begin like this
+The annotation definitions table annotations.csv might begin like this
 
 ```
 codeValue,description
@@ -1018,22 +1104,22 @@ Below, data for all properties is provided inline as JSON:
       "unitCode": "P1"
     }
   ],
-  "footnote": [
+  "annotation": [
     {
-      "@id": "#footnote=p",
+      "@id": "#annotation=p",
       "@type": "StatisticalAnnotation",
       "dataset": "#europe_unemployment",
       "codeValue": "p",
       "description": "This value is a projection"
     },
     {
-      "@id": "#footnote=r",
+      "@id": "#annotation=r",
       "@type": "StatisticalAnnotation",
       "dataset": "#europe_unemployment",
       "codeValue": "r",
       "description": "This value has been revised"
     }
-  ]
+  ],
   "slice": [
     {
       "@type": "DataSlice",
@@ -1046,7 +1132,7 @@ Below, data for all properties is provided inline as JSON:
           "@id": "#country=at/month=1993-01",
           "@type": "Observation",
           "slice": "#country_total",
-          "dimensionValues": [
+          "dimensionValue": [
             {
               "@type": "DimensionValue",
               "dimension": "#country",
@@ -1058,13 +1144,13 @@ Below, data for all properties is provided inline as JSON:
               "value": "1993-01"
             }
           ],
-          "measureValues": [
+          "measureValue": [
             {
               "@type": "MeasureValue",
               "measure": "#unemployment",
               "value": 171000,
               "unitCode": "IE",
-              "footnote": "#footnote=p"
+              "annotation": "#annotation=p"
             },
             {
               "@type": "MeasureValue",
@@ -1078,4 +1164,191 @@ Below, data for all properties is provided inline as JSON:
     }
   ]
 }
+```
+
+## JSON API considerations
+Per the [JSON-LD API best practices
+draft](https://json-ld.org/spec/latest/json-ld-api-best-practices/#use-json), a
+first consideration of JSON-LD APIs is to produce developer-friendly JSON.
+
+The DSPL 2 JSON format described above has a number of inconvenient features for
+use as the output of a JSON API. These center around its use of arrays instead
+of objects for a number of properties, making lookups cumbersome.  Several of
+these can be simplified by customizing value indexing in the [JSON-LD
+context](https://w3c.github.io/json-ld-syntax/#the-context). Although the
+features are described separately, we anticipate they will be most useful
+when combined.
+
+### Language indexing
+Fields like `name` and `description` support JSON-LD literal values for multilingual values:
+
+```
+    "name": [
+        {"@value": "Germany", "@language": "en"},
+        {"@value": "Deutschland", "@language": "de"},
+        {"@value": "Allemania", "@language": "fr"}
+    ]
+```
+
+we can make this friendlier for data consumers by writing it as a map using [*language indexing*](https://w3c.github.io/json-ld-syntax/#language-indexing). With this context,
+
+```
+    "@context": [
+        {
+            "description": {"@container": "@language"}
+            "name": {"@container": "@language"}
+        },
+        "http://schema.org"
+    ]
+
+```
+
+we can write: 
+
+```
+    "name": {
+        "en": "Germany",
+        "de": "Deutschland",
+        "fr": "Allemange"
+    }
+```
+
+### Data indexing
+Dimension code lists and annotations have a `codeValue` field, and `footnote`
+and `additionalProperty` a `propertyID`, which users will commonly want to look
+up:
+
+```
+    "annotation": [
+        {
+            "@id": "#annotation=p",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "codeValue": "p",
+            "description": "This value is a projection"
+        },
+        {
+            "@id": "#annotation=r",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "codeValue": "r",
+            "description": "This value has been revised"
+        }
+    ]
+```
+
+We can use apply JSON-LD 1.1 [*property-based data
+indexing*](https://w3c.github.io/json-ld-syntax/#property-based-data-indexing)
+in this case. E.g.,
+
+```
+    "@context": [
+        {
+            "@version": 1.1,
+            "codeList": {
+                "@container": "@index",
+                "@index": "schema:codeValue"
+            }
+            "annotation": {
+                "@container": "@index",
+                "@index": "schema:codeValue"
+            }
+        },
+        "http://schema.org"
+    ]
+```
+
+lets us write
+
+```
+    "annotation": {
+        "p": {
+            "@id": "#annotation=p",
+            "@type": "StatisticalAnnotation",
+            "dataset": "#europe_unemployment",
+            "description": "This value is a projection"
+        },
+        "r": {
+          "@id": "#annotation=r",
+          "@type": "StatisticalAnnotation",
+          "dataset": "#europe_unemployment",
+          "description": "This value has been revised"
+        }
+    }
+}
+```
+
+### Node identifier indexing
+In other cases, such as dimensions and measures, a DSPL 2 dataset might have
+lists of these values which would need to be looked up by ID, e.g., to resolve
+ the dimensions or measures in a slice:
+
+```
+    "measure": [
+        {
+            "@id": "#unemployment",
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment (monthly)",
+            "description": "The total number of people unemployed",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q41171",
+            "unitCode": "IE"
+        },
+        {
+            "@id": "#unemployment_rate",
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment rate (monthly)",
+            "description": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed.",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+            "unitCode": "P1"
+        }
+    ]
+```
+
+We can use (*node identifier indexing*)[https://w3c.github.io/json-ld-syntax/#node-identifier-indexing] to write these as ID-keyed objects instead of lists. E.g, 
+
+```
+    "@context": [
+        {
+            "dimension": {
+                "@container": "@id"
+            },
+            "measure": {
+                "@container": "@id"
+            },
+            "slice": {
+                "@container": "@id"
+            }
+        },
+        "http://schema.org"
+    ]
+
+```
+
+lets us write:
+
+```
+    "measure": {
+        "#unemployment": {
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment (monthly)",
+            "description": "The total number of people unemployed",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_nb_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q41171",
+            "unitCode": "IE"
+        },
+        "#unemployment_rate": {
+            "@type": "StatisticalMeasure",
+            "name": "Unemployment rate (monthly)",
+            "description": "The unemployment rate represents unemployed persons as a percentage of the labour force. The labour force is the total number of people employed and unemployed.",
+            "url": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
+            "dataset": "#europe_unemployment",
+            "sameAs": "https://www.wikidata.org/wiki/Q1787954",
+            "unitCode": "P1"
+        }
+    }
 ```
