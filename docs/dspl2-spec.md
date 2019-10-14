@@ -305,7 +305,7 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
-    * If `parentValue` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
+    * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
 
 #### Examples
 
@@ -362,7 +362,7 @@ These have a `parentDimension` relationship:
 }
 ```
 
-Where CSV file `countries.csv` has a column 'parentValue' with values of 'eu' or 'non-eu'.
+Where CSV file `countries.csv` has a column 'parent' with values of 'eu' or 'non-eu'.
 
 ### TimeDimension
 
@@ -522,7 +522,7 @@ In an observation, the values for dimensions without codes, such as the timestam
    </td>
   </tr>
   <tr>
-   <td>parentValue
+   <td>parent
    </td>
    <td>DimensionValue
    </td>
@@ -576,10 +576,10 @@ A DimensionValue in `#country`’s `codeList`, with properties from an `equivale
     "latitude": 47.6965545,
     "longitude": 13.34598005
   },
-  "parentValue": "#country_group=eu"
+  "parent": "#country_group=eu"
 }
 ```
-*Note*: In the above example, `parentValue` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
+*Note*: In the above example, `parent` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
 
 Similarly, a DimensionValue in an Observation can refer to a DimensionValue defined in its CategoricalDimension’s `codeList` by code:
 
