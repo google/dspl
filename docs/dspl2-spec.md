@@ -58,7 +58,7 @@ We introduce the following constructs:
 * **StatisticalMeasure**: A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, …) 
 * **CategoricalDimension**: A category of "things" that a measure can apply to. For example, countries, genders, or age groups. A categorical dimension is associated with a codelist that enumerates its possible values.
 * **TimeDimension**: A time dimension that a measure can apply to. For example, the date of a measurement, or the beginning or end of a duration.
-* **DataSlice** :A container for statistical data. A slice contains related observations of the same set of measures for the same dimensions. For example, population by year, country, and age group.
+* **DataSlice**: A container for statistical data. A slice contains related observations of the same set of measures for the same dimensions. For example, population by year, country, and age group.
 * **Observation**: A "data point" with one or more measure values for specified dimension values.
 * **DimensionValue**: A possible or observed value for a given dimension.
 * **MeasureValue**: The observed value of a measure.
@@ -212,6 +212,14 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
    </td>
   </tr>
   <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name to use for this measure's values in slice observation CSV files.
+   </td>
+  </tr>
+  <tr>
    <td>footnote
    </td>
    <td>PropertyValue
@@ -221,7 +229,7 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
   </tr>
 </table>
 
-If an `identifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  If one is not present and the measure's `@id` has a fragment, the fragment value will be used as the column name.
+If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  If one is not present and the measure's `@id` has a fragment, the fragment value will be used as the column name.
 
 #### Examples
 
@@ -283,6 +291,14 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name to use for this dimension's codes in slice observation CSV files.
+   </td>
+  </tr>
+  <tr>
    <td>codeList
    </td>
    <td>DimensionValue or URL
@@ -309,7 +325,7 @@ When a code list is provided as a table, the data in the CSV table must follow t
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
     * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
 
-If an `identifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
+If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
 
 #### Examples
 
@@ -402,6 +418,14 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    </td>
   </tr>
   <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name to use for this dimension's values in slice observation CSV files.
+   </td>
+  </tr>
+  <tr>
    <td>dateFormat
    </td>
    <td>Text
@@ -419,7 +443,7 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
   </tr>
 </table>
 
-If an `identifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
+If an `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
 
 #### Examples
 
@@ -685,8 +709,9 @@ Slice data can be provided in two equivalent ways:
 When data for a DataSlice is provided as a CSV table, it must follow these conventions:
 
 * The first row of the table is a header that contains the names the columns.
-* The columns corresponding to the slice’s dimensions are named after their corresponding ID fragments.
-* The columns corresponding to the slice’s measures are named after their corresponding ID fragments.
+* The columns corresponding to the slice’s dimensions are named after their corresponding `columnIdentifier`s or `@id`'s fragments.
+* The columns corresponding to the slice’s measures are named after their corresponding `columnIdentifier`s or `@id`'s fragments.
+* The columns for `StatisticalAnnotation`s are named as the corresponding measure's ID, followed by an asterisk (`*`).
 * The table contains one row per observation (i.e., combination of dimension values).
 
 #### Examples
