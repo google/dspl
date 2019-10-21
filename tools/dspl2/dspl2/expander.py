@@ -272,7 +272,7 @@ class Dspl2JsonLdExpander(object):
         footnotes.append(row)
     return footnotes
 
-  def _ExpandSliceData(self, slice, dim_defs_by_id):
+  def _ExpandSliceData(self, slice, dim_defs_by_id, meas_defs_by_id):
     data = []
     with self.getter.Fetch(GetSchemaProp(slice, 'data')) as f:
       reader = DictReader(f)
@@ -284,42 +284,41 @@ class Dspl2JsonLdExpander(object):
         val['measureValues'] = []
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
-          fragment = urlparse(dim).fragment
+          dim_def = dim_defs_by_id.get(dim)
+          col_id = dim_def.get('identifier', urlparse(dim).fragment)
           dim_val = {
               '@type': 'DimensionValue',
               'dimension': dim,
           }
-          dim_def = dim_defs_by_id.get(dim)
           if dim_def:
-            if 'identifier' in dim_def:
-              fragment = dim_def['identifier']
             if GetSchemaProp(dim_def, '@type') == 'CategoricalDimension':
-              dim_val['codeValue'] = row[fragment]
+              dim_val['codeValue'] = row[col_id]
             elif GetSchemaProp(dim_def, '@type') == 'TimeDimension':
               if GetSchemaProp(dim_def, 'equivalentType'):
                 dim_val['value'] = {
                     '@type': GetSchemaProp(dim_def, 'equivalentType'),
-                    '@value': row[fragment]
+                    '@value': row[col_id]
                 }
               else:
-                dim_val['value'] = row[fragment]
+                dim_val['value'] = row[col_id]
           val['dimensionValues'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
           measure = GetUrl(measure)
-          fragment = urlparse(measure).fragment
+          meas_def = meas_defs_by_id.get(measure)
+          col_id = meas_def.get('identifier', urlparse(measure).fragment)
           val['measureValues'].append({
               '@type': 'MeasureValue',
               'measure': measure,
-              'value': row[fragment]
+              'value': row[col_id]
           })
-          if row.get(fragment + '*'):
+          if row.get(col_id + '*'):
             val['measureValues'][-1]['footnote'] = [
                 {
                     '@type': 'StatisticalAnnotation',
                     'codeValue': footnote
                 }
-                for footnote in row[fragment + '*'].split(';')
+                for footnote in row[col_id + '*'].split(';')
             ]
         data.append(val)
     return data
@@ -335,6 +334,9 @@ class Dspl2JsonLdExpander(object):
     for slice in AsList(GetSchemaProp(json_val, 'slice')):
       dim_defs_by_id = MakeIdKeyedDict(
           AsList(GetSchemaProp(json_val, 'dimension')))
+      meas_defs_by_id = MakeIdKeyedDict(
+          AsList(GetSchemaProp(json_val, 'measure')))
       if isinstance(GetSchemaProp(slice, 'data'), str):
-        slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id)
+        slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id,
+                                              meas_defs_by_id)
     return json_val
