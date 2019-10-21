@@ -291,6 +291,8 @@ class Dspl2JsonLdExpander(object):
           }
           dim_def = dim_defs_by_id.get(dim)
           if dim_def:
+            if 'identifier' in dim_def:
+              fragment = dim_def['identifier']
             if GetSchemaProp(dim_def, '@type') == 'CategoricalDimension':
               dim_val['codeValue'] = row[fragment]
             elif GetSchemaProp(dim_def, '@type') == 'TimeDimension':
