@@ -221,6 +221,8 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
   </tr>
 </table>
 
+If an `identifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  If one is not present and the measure's `@id` has a fragment, the fragment value will be used as the column name.
+
 #### Examples
 
 ```
@@ -306,6 +308,8 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * Each subsequent column has the name of the property it represents.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
     * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
+
+If an `identifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
 
 #### Examples
 
@@ -414,6 +418,8 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    </td>
   </tr>
 </table>
+
+If an `identifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
 
 #### Examples
 
