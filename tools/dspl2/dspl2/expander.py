@@ -300,7 +300,7 @@ class Dspl2JsonLdExpander(object):
                     '@value': row[fragment]
                 }
               else:
-                val['dimensionValues'][-1]['value'] = row[fragment]
+                dim_val['value'] = row[fragment]
           val['dimensionValues'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
