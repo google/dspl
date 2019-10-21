@@ -210,16 +210,19 @@ class Dspl2RdfExpander(object):
       if data_id not in self.subjects:
         with self.getter.Fetch(data_id) as f:
           reader = DictReader(f)
-          for row in reader:
-            row_id = rdflib.URIRef(self._MakeSliceDataRowId(
-                slice_id, dim_data, measure_data, row))
-            self.graph.add((slice_id, SCHEMA.data, row_id))
-            self.graph.add((row_id, rdflib.RDF.type, SCHEMA.Observation))
-            self.graph.add((row_id, SCHEMA.slice, slice_id))
-            for dim, data in dim_data.items():
-              self._ExpandObservationDimensionValue(dim, data, row_id, row)
-            for measure, data in measure_data.items():
-              self._ExpandObservationMeasureValue(measure, data, row_id, row)
+          try:
+            for row in reader:
+              row_id = rdflib.URIRef(self._MakeSliceDataRowId(
+                  slice_id, dim_data, measure_data, row))
+              self.graph.add((slice_id, SCHEMA.data, row_id))
+              self.graph.add((row_id, rdflib.RDF.type, SCHEMA.Observation))
+              self.graph.add((row_id, SCHEMA.slice, slice_id))
+              for dim, data in dim_data.items():
+                self._ExpandObservationDimensionValue(dim, data, row_id, row)
+              for measure, data in measure_data.items():
+                self._ExpandObservationMeasureValue(measure, data, row_id, row)
+          except Exception as e:
+            raise RuntimeError(f"Error processing {data_id} at line {reader.line_num}") from e
 
   def Expand(self):
     for dim in set(self.graph.subjects(
@@ -297,7 +300,7 @@ class Dspl2JsonLdExpander(object):
                     '@value': row[fragment]
                 }
               else:
-                val['dimensionValues'][-1]['value'] = row[fragment]
+                dim_val['value'] = row[fragment]
           val['dimensionValues'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
