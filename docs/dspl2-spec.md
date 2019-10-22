@@ -213,14 +213,6 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
    </td>
   </tr>
   <tr>
-   <td>columnIdentifier
-   </td>
-   <td>Text
-   </td>
-   <td>The column name to use for this measure's values in slice observation CSV files.
-   </td>
-  </tr>
-  <tr>
    <td>footnote
    </td>
    <td>PropertyValue
@@ -229,8 +221,6 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
    </td>
   </tr>
 </table>
-
-If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  Otherwise if the measure's `@id` has a fragment, that fragment will be used as the column name.
 
 #### Examples
 
@@ -341,14 +331,6 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
-   <td>columnIdentifier
-   </td>
-   <td>Text
-   </td>
-   <td>The column name to use for this dimension's codes in slice observation CSV files.
-   </td>
-  </tr>
-  <tr>
    <td>dimensionProperty
    </td>
    <td>DimensionProperty
@@ -389,8 +371,6 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
-
-If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  Otherwise if the dimension's `@id` has a fragment, that fragment will be used as the column name.
 
 If a single `parentProperty` is specified and refers to a `DimensionProperty` whose `propertyType` is a `CategoricalDimension`, that dimension is called the **parent dimension** for this dimension, and its values are the **parent values** for the `DimensionValue`s they occur in.
 
@@ -491,14 +471,6 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    </td>
   </tr>
   <tr>
-   <td>columnIdentifier
-   </td>
-   <td>Text
-   </td>
-   <td>The column name to use for this dimension's values in slice observation CSV files.
-   </td>
-  </tr>
-  <tr>
    <td>dateFormat
    </td>
    <td>Text
@@ -515,8 +487,6 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
    </td>
   </tr>
 </table>
-
-If an `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  Otherwise id dimension's `@id` has a fragment, that fragment will be used as the column name.
 
 #### Examples
 
@@ -717,6 +687,73 @@ Time dimensions need non-code `value`s:
 
 For an example of a dimension value references in an observation, see “[Observation - examples](#observation-examples)”
 
+### SliceDimensionMapping
+
+Type: Thing > Intangible > SliceDimensionMapping
+
+This specifies the mapping from a slice's `dimension` to a particular header column name in the `data` CSV file.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>dimension
+   </td>
+   <td>CategoricalDimension or TimeDimension
+   </td>
+   <td>The dimension whose column name is being specified.
+   </td>
+  </tr>
+  <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name in the slice's `data` CSV corresponding to this dimension.
+   </td>
+  </tr>
+</table>
+
+### SliceMeasureMapping
+
+Type: Thing > Intangible > SliceMeasureMapping
+
+This specifies the mapping from a slice's `measure` to a particular header column name in the `data` CSV file.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>measure
+   </td>
+   <td>StatisticalMeasure
+   </td>
+   <td>The measure whose column name is being specified.
+   </td>
+  </tr>
+  <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name in the slice's `data` CSV corresponding to this measure.
+   </td>
+  </tr>
+</table>
+
+
 ### DataSlice
 
 Type: Thing > Intangible > DataSlice
@@ -743,7 +780,7 @@ A slice is a grouping of statistical observations that share the same measures a
   <tr>
    <td>dimension
    </td>
-   <td>CategoricalDimension or TimeDimension
+   <td>CategoricalDimension or TimeDimension or SliceDimensionMapping
    </td>
    <td>A dimension that is used in this slice.
    </td>
@@ -751,7 +788,7 @@ A slice is a grouping of statistical observations that share the same measures a
   <tr>
    <td>measure
    </td>
-   <td>StatisticalMeasure
+   <td>StatisticalMeasure or SliceMeasureMapping
    </td>
    <td>A measure that is used in this slice.
    </td>
@@ -782,9 +819,9 @@ Slice data can be provided in two equivalent ways:
 When data for a DataSlice is provided as a CSV table, it must follow these conventions:
 
 * The first row of the table is a header that contains the names the columns.
-* The columns corresponding to the slice’s dimensions are named after their corresponding `columnIdentifier`s or `@id`'s fragments.
-* The columns corresponding to the slice’s measures are named after their corresponding `columnIdentifier`s or `@id`'s fragments.
-* The columns for `StatisticalAnnotation`s are named as the corresponding measure's ID, followed by an asterisk (`*`).
+* A column corresponding to a slice `dimension` has a header name of the corresponding `SliceDimensionMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `CategoricalDimension` or `TimeDimension`'s `@id`.
+* A column corresponding to a slice `measure` has a header name of the corresponding `SliceMeasureMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `StatisticalMeasure`'s `@id`.
+* The columns for a measure's `StatisticalAnnotation`s are named as the measure's header name, followed by an asterisk (`*`).
 * The table contains one row per observation (i.e., combination of dimension values).
 
 #### Examples
@@ -795,13 +832,18 @@ When data for a DataSlice is provided as a CSV table, it must follow these conve
   "dataset": "#europe_unemployment",
   "dimension": [
     "#country",
-    "#month"
+    "#month",
+    {
+      "@type": "SliceDimensionMapping", 
+      "dimension": "#age",
+      "columnIdentifier": "ages_code"
+    }
   ],
   "measure": [
     "#unemployment",
     "#unemployment_rate"
   ],
-  "data": "country_total.csv"
+  "data": "country_total_byage.csv"
 }
 ```
 
