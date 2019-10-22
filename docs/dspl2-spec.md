@@ -58,6 +58,7 @@ We introduce the following constructs:
 * **StatisticalMeasure**: A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, …) 
 * **CategoricalDimension**: A category of "things" that a measure can apply to. For example, countries, genders, or age groups. A categorical dimension is associated with a codelist that enumerates its possible values.
 * **TimeDimension**: A time dimension that a measure can apply to. For example, the date of a measurement, or the beginning or end of a duration.
+* **DimensionProperty**: A descriptor for an additional property to populate on the DimensionValues for a dimension.
 * **DataSlice**: A container for statistical data. A slice contains related observations of the same set of measures for the same dimensions. For example, population by year, country, and age group.
 * **Observation**: A "data point" with one or more measure values for specified dimension values.
 * **DimensionValue**: A possible or observed value for a given dimension.
@@ -229,7 +230,7 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
   </tr>
 </table>
 
-If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  If one is not present and the measure's `@id` has a fragment, the fragment value will be used as the column name.
+If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this measure in slice observation CSV files.  Otherwise if the measure's `@id` has a fragment, that fragment will be used as the column name.
 
 #### Examples
 
@@ -247,6 +248,63 @@ If a `columnIdentifier` property is present and string-valued, it will be used a
   "url": "http://ec.europa.eu/eurostat/product?code=une_rt_m&language=en",
   "unitCode": "P1"
 }
+```
+
+### DimensionProperty
+
+Type: Thing > Intangible > DimensionProperty
+
+Categorical dimensions can have additional properties than the ones defined above. Each of these should have a `DimensionProperty` describing its name and type.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>propertyID
+   </td>
+   <td>Text
+   </td>
+   <td>The name of the property in a `DimensionValue` and, if using CSV files for slice data, of the corresponding CSV header.
+   </td>
+  </tr>
+  <tr>
+   <td>propertyType
+   </td>
+   <td>rdfs:Class or CategoricalDimension
+   </td>
+   <td>The type to use for the property's value, if using CSV files for slice data.
+   </td>
+  </tr>
+</table>
+  
+If the `propertyType` is the ID of a `CategoricalDimension`, the corresponding slice CSV values must be code values from that dimension's `codeList`.  
+If it is one of the `schema:DataType` types, the corresponding slice CSV values must be of that type.  
+Otherwise, the type's properties may be specified using a column named `[*propertyID*].[*property of propertyType*]`, with `[*propertyID*]` alone being equivalent to `[*propertyID*].name`.
+
+For example, for the following `DimensionProperty`:
+
+```
+{
+  "@type": "DimensionProperty",
+  "propertyID": "geo",
+  "propertyType": "GeoCoordinates"
+}
+```
+
+The corresponding columns in a slice data CSV file might look like:
+
+```
+…,geo.latitude,geo.longitude
+…,32.318231,-86.902298
+…,63.588753,-154.493062
+…,34.048928,-111.093731
+…,35.20105,-91.831833
 ```
 
 ### CategoricalDimension
@@ -283,19 +341,27 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
-   <td>parentDimension
-   </td>
-   <td>CategoricalDimension
-   </td>
-   <td>If specified, the [ID of the] dimension hierarchically containing this dimension.
-   </td>
-  </tr>
-  <tr>
    <td>columnIdentifier
    </td>
    <td>Text
    </td>
    <td>The column name to use for this dimension's codes in slice observation CSV files.
+   </td>
+  </tr>
+  <tr>
+   <td>dimensionProperty
+   </td>
+   <td>DimensionProperty
+   </td>
+   <td>Type information for each additional property to use on this dimension's `DimensionValue`s.
+   </td>
+  </tr>
+  <tr>
+   <td>parentProperty
+   </td>
+   <td>DimensionProperty
+   </td>
+   <td>The ID of a dimensionProperty for this dimension's parent dimension.
    </td>
   </tr>
   <tr>
@@ -323,9 +389,10 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
-    * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
 
-If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
+If a `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  Otherwise if the dimension's `@id` has a fragment, that fragment will be used as the column name.
+
+If a single `parentProperty` is specified and refers to a `DimensionProperty` whose `propertyType` is a `CategoricalDimension`, that dimension is called the **parent dimension** for this dimension, and its values are the **parent values** for the `DimensionValue`s they occur in.
 
 #### Examples
 
@@ -352,7 +419,7 @@ Where the CSV table might begin like this:
 "ag","Agender","Agenre","Agender"
 ```
 
-These have a `parentDimension` relationship:
+These have a parent-chlid relationship:
 
 ```
 {
@@ -377,12 +444,18 @@ These have a `parentDimension` relationship:
   "@type": "CategoricalDimension",
   "@id": "#country",
   "dataset": "#europe_unemployment",
-  "parentDimension": "#country_group",
+  "dimensionProperty": {
+    "@type": "DimensionProperty",
+    "@id": "#country_group_property",
+    "propertyID": "country_group",
+    "propertyType": "#country_group"
+  },
+  "parentProperty": "#country_group_property",
   "codeList": "countries.csv"
 }
 ```
 
-Where CSV file `countries.csv` has a column 'parent' with values of 'eu' or 'non-eu'.
+Where CSV file `countries.csv` has a column `country_group` with values of `eu` or `non-eu`.
 
 ### TimeDimension
 
@@ -443,7 +516,7 @@ A time dimension may correspond to an existing (schema.org) type, in which case 
   </tr>
 </table>
 
-If an `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  If one is not present and the dimension's `@id` has a fragment, the fragment value will be used as the column name.
+If an `columnIdentifier` property is present and string-valued, it will be used as the column name for this dimension in slice observation CSV files.  Otherwise id dimension's `@id` has a fragment, that fragment will be used as the column name.
 
 #### Examples
 
@@ -587,7 +660,7 @@ A DimensionValue with an inherited property (name):
 }
 ```
 
-A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType`:
+A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType` and a `parentProperty` of `country_group`:
 
 ```
 {
@@ -606,7 +679,7 @@ A DimensionValue in `#country`’s `codeList`, with properties from an `equivale
     "latitude": 47.6965545,
     "longitude": 13.34598005
   },
-  "parent": "#country_group=eu"
+  "country_group": "#country_group=eu"
 }
 ```
 *Note*: In the above example, `parent` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
@@ -629,7 +702,7 @@ Or by ID:
 }
 ```
 
-Time dimensions need non-code values:
+Time dimensions need non-code `value`s:
 
 ```
 {
