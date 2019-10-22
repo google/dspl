@@ -56,6 +56,7 @@ We introduce the following constructs:
 
 * **StatisticalDataset**: A dataset that contains statistical data and the associated metadata
 * **StatisticalMeasure**: A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, …) 
+* **TableMapping**: A descriptor for mapping dimensions, measures, and dimension properties to specific CSV columns.
 * **CategoricalDimension**: A category of "things" that a measure can apply to. For example, countries, genders, or age groups. A categorical dimension is associated with a codelist that enumerates its possible values.
 * **TimeDimension**: A time dimension that a measure can apply to. For example, the date of a measurement, or the beginning or end of a duration.
 * **DimensionProperty**: A descriptor for an additional property to populate on the DimensionValues for a dimension.
@@ -260,7 +261,7 @@ Categorical dimensions can have additional properties than the ones defined abov
    </td>
    <td>Text
    </td>
-   <td>The name of the property in a `DimensionValue` and, if using CSV files for slice data, of the corresponding CSV header.
+   <td>The name of the property in a `DimensionValue`.
    </td>
   </tr>
   <tr>
@@ -296,6 +297,47 @@ The corresponding columns in a slice data CSV file might look like:
 …,34.048928,-111.093731
 …,35.20105,-91.831833
 ```
+
+### TableMapping
+
+Type: Thing > Intangible > TableMapping
+
+This specifies the mapping from an entity to a particular header column name in a CSV file.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>sourceEntity
+   </td>
+   <td>URL
+   </td>
+   <td>The entity (Dimension, Measure, DimensionProperty) whose column name is being specified.
+   </td>
+  </tr>
+  <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name in a related CSV corresponding to this property.
+   </td>
+  </tr>
+  <tr>
+   <td>value
+   </td>
+   <td>DataType
+   </td>
+   <td>The value to use for the specified `sourceEntity`; this specifies a constant-valued virtual column.
+   </td>
+  </tr>
+</table>
 
 ### CategoricalDimension
 
@@ -347,6 +389,14 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
+   <td>tableMapping
+   </td>
+   <td>TableMapping
+   </td>
+   <td>Column mappings for `dimensionProperty` `propertyID`s to `codeList` CSV header names.
+   </td>
+  </tr>
+  <tr>
    <td>codeList
    </td>
    <td>DimensionValue or URL
@@ -370,7 +420,12 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * Each value corresponds to one row in the table. All possible values of the `codeList` must appear in the table.
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
+    * For properties specified in `dimensionProperty`
+       * If a `tableMapping is present, the `tableMapping`'s `columnIdentifier` is the column name.
+       * Otherwise, the  `propertyID` is the column name.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
+
+If a `tableMapping` has a `value` property, this is used instead of the corresponding column in the CSV file, if present.
 
 If a single `parentProperty` is specified and refers to a `DimensionProperty` whose `propertyType` is a `CategoricalDimension`, that dimension is called the **parent dimension** for this dimension, and its values are the **parent values** for the `DimensionValue`s they occur in.
 
@@ -399,7 +454,7 @@ Where the CSV table might begin like this:
 "ag","Agender","Agenre","Agender"
 ```
 
-These have a parent-chlid relationship:
+These have a parent-child relationship:
 
 ```
 {
@@ -432,6 +487,36 @@ These have a parent-chlid relationship:
   },
   "parentProperty": "#country_group_property",
   "codeList": "countries.csv"
+}
+```
+
+This demonstrates a virtual parent column:
+
+```
+{
+  "@type": "CategoricalDimension",
+  "@id": "#state",
+  "dataset": "",
+  "name": "US States",
+  "equivalentType": "State",
+  "dimensionProperty": [{
+    "@type": "DimensionProperty",
+    "@id": "#countryProperty",
+    "propertyID": "containedInPlace",
+    "propertyType": "#country"
+  }, {
+    "@type": "DimensionProperty",
+    "description": "The centroid of the state.",
+    "propertyID": "geo",
+    "propertyType": "GeoCoordinates"
+  }],
+  "parentProperty": "#countryProperty",
+  "tableMapping": {
+    "@type": "TableMapping",
+    "sourceEntity": "#countryProperty",
+    "value:": "US"
+  },
+  "codeList": "states.csv"
 }
 ```
 
@@ -687,73 +772,6 @@ Time dimensions need non-code `value`s:
 
 For an example of a dimension value references in an observation, see “[Observation - examples](#observation-examples)”
 
-### SliceDimensionMapping
-
-Type: Thing > Intangible > SliceDimensionMapping
-
-This specifies the mapping from a slice's `dimension` to a particular header column name in the `data` CSV file.
-
-<table>
-  <tr>
-   <td><strong>Property</strong>
-   </td>
-   <td><strong>Expected type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>dimension
-   </td>
-   <td>CategoricalDimension or TimeDimension
-   </td>
-   <td>The dimension whose column name is being specified.
-   </td>
-  </tr>
-  <tr>
-   <td>columnIdentifier
-   </td>
-   <td>Text
-   </td>
-   <td>The column name in the slice's `data` CSV corresponding to this dimension.
-   </td>
-  </tr>
-</table>
-
-### SliceMeasureMapping
-
-Type: Thing > Intangible > SliceMeasureMapping
-
-This specifies the mapping from a slice's `measure` to a particular header column name in the `data` CSV file.
-
-<table>
-  <tr>
-   <td><strong>Property</strong>
-   </td>
-   <td><strong>Expected type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>measure
-   </td>
-   <td>StatisticalMeasure
-   </td>
-   <td>The measure whose column name is being specified.
-   </td>
-  </tr>
-  <tr>
-   <td>columnIdentifier
-   </td>
-   <td>Text
-   </td>
-   <td>The column name in the slice's `data` CSV corresponding to this measure.
-   </td>
-  </tr>
-</table>
-
-
 ### DataSlice
 
 Type: Thing > Intangible > DataSlice
@@ -780,7 +798,7 @@ A slice is a grouping of statistical observations that share the same measures a
   <tr>
    <td>dimension
    </td>
-   <td>CategoricalDimension or TimeDimension or SliceDimensionMapping
+   <td>CategoricalDimension or TimeDimension
    </td>
    <td>A dimension that is used in this slice.
    </td>
@@ -788,9 +806,17 @@ A slice is a grouping of statistical observations that share the same measures a
   <tr>
    <td>measure
    </td>
-   <td>StatisticalMeasure or SliceMeasureMapping
+   <td>StatisticalMeasure
    </td>
    <td>A measure that is used in this slice.
+   </td>
+  </tr>
+  <tr>
+   <td>tableMapping
+   </td>
+   <td>TableMapping
+   </td>
+   <td>Column mappings for `measure`s or `dimension`s to `data` CSV header names.
    </td>
   </tr>
   <tr>
@@ -819,8 +845,8 @@ Slice data can be provided in two equivalent ways:
 When data for a DataSlice is provided as a CSV table, it must follow these conventions:
 
 * The first row of the table is a header that contains the names the columns.
-* A column corresponding to a slice `dimension` has a header name of the corresponding `SliceDimensionMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `CategoricalDimension` or `TimeDimension`'s `@id`.
-* A column corresponding to a slice `measure` has a header name of the corresponding `SliceMeasureMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `StatisticalMeasure`'s `@id`.
+* A column corresponding to a slice `dimension` has a header name of the corresponding `TableMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `CategoricalDimension` or `TimeDimension`'s `@id`.
+* A column corresponding to a slice `measure` has a header name of the corresponding `TableMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `StatisticalMeasure`'s `@id`.
 * The columns for a measure's `StatisticalAnnotation`s are named as the measure's header name, followed by an asterisk (`*`).
 * The table contains one row per observation (i.e., combination of dimension values).
 
@@ -833,16 +859,17 @@ When data for a DataSlice is provided as a CSV table, it must follow these conve
   "dimension": [
     "#country",
     "#month",
-    {
-      "@type": "SliceDimensionMapping", 
-      "dimension": "#age",
-      "columnIdentifier": "ages_code"
-    }
+    "#age"
   ],
   "measure": [
     "#unemployment",
     "#unemployment_rate"
   ],
+  "tableMapping": {
+    "@type": "tableMapping", 
+    "sourceEntity": "#age",
+    "columnIdentifier": "ages_code"
+  },
   "data": "country_total_byage.csv"
 }
 ```
