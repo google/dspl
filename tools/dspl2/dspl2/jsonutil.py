@@ -16,7 +16,10 @@ def AsList(val):
 
 
 def GetSchemaProp(obj, key, default=None):
-  return obj.get(key, obj.get('schema:' + key, default))
+  try:
+    return obj.get(key, obj.get('schema:' + key, default))
+  except AttributeError as e:
+    raise RuntimeError(f"Unable to find key '{key}' in {obj}") from e
 
 
 def JsonToKwArgsDict(json_val):

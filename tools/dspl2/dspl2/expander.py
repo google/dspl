@@ -11,6 +11,7 @@ from dspl2.jsonutil import (AsList, GetSchemaId, GetSchemaProp, GetUrl,
 from dspl2.rdfutil import (_DataFileFrame, FrameGraph, MakeSparqlSelectQuery,
                            SCHEMA)
 import rdflib
+import sys
 
 
 class Dspl2RdfExpander(object):
@@ -112,7 +113,8 @@ class Dspl2RdfExpander(object):
       if not csv_id:
         csv_id = urldefrag(dim_id).fragment
       if not csv_id:
-        print("Unable to determine CSV ID for dimension", dim_id)
+        print("Unable to determine CSV ID for dimension", dim_id,
+              file=sys.stderr)
         exit(1)
       ret[csv_id] = {
           'id': dim_id,
@@ -143,7 +145,8 @@ class Dspl2RdfExpander(object):
       if not csv_id:
         csv_id = urldefrag(measure_id).fragment
       if not csv_id:
-        print("Unable to determine CSV ID for metric", measure_id)
+        print("Unable to determine CSV ID for metric", measure_id,
+              file=sys.stderr)
         exit(1)
       ret[csv_id] = {
           'id': measure_id,
@@ -245,18 +248,55 @@ class Dspl2JsonLdExpander(object):
   def _ExpandCodeList(self, dim):
     """Load a code list from CSV and return a list of JSON-LD objects."""
     codeList = []
+    dimProps = []
+    tableMappings = {}
+    for dimProp in AsList(GetSchemaProp(dim, 'dimensionProperty')):
+      dimProps.append(dimProp)
+      dimPropId = GetSchemaId(dimProp)
+    for tableMapping in AsList(GetSchemaProp(dim, 'tableMapping')):
+      tableMappings[GetUrl(tableMapping['sourceEntity'])] = tableMapping
+
     with self.getter.Fetch(GetSchemaProp(dim, 'codeList')) as f:
       reader = DictReader(f)
       for row in reader:
+        entry = {}
         if GetSchemaProp(dim, 'equivalentType'):
-          row['@type'] = ['DimensionValue',
-                          GetSchemaProp(dim, 'equivalentType')]
+          entry['@type'] = ['DimensionValue']
+          entry['@type'] += AsList(GetSchemaProp(
+              dim, 'equivalentType'))
         else:
-          row['@type'] = 'DimensionValue'
-        row['@id'] = GetSchemaId(dim) + '='
-        row['@id'] += row['codeValue']
-        row['dimension'] = GetSchemaId(dim)
-        codeList.append(row)
+          entry['@type'] = 'DimensionValue'
+        entry['@id'] = GetSchemaId(dim) + '='
+        entry['@id'] += row['codeValue']
+        entry['dimension'] = GetSchemaId(dim)
+        for dimProp in dimProps:
+          propId = GetSchemaProp(dimProp, 'propertyID')
+          value = dimProp.get('value')
+          if propId:
+            if value:
+              entry[dimProp['propertyID']] = value
+              continue
+            dimPropId = GetSchemaId(dimProp)
+            if dimPropId:
+              tableMapping = tableMappings.get(dimPropId)
+              if tableMapping and 'columnIdentifier' in tableMapping:
+                columnId = tableMapping.get('columnIdentifier')
+              else:
+                columnId = propId
+              for field in row:
+                if field == columnId:
+                  entry[columnId] = row[field]
+                elif field.startswith(columnId + '.'):
+                  entry[columnId] = row.get(columnId, {
+                      '@type': dimProp['propertyType']
+                  })
+                  if isinstance(entry[columnId], str):
+                    entry[columnId] = {
+                        '@type': dimProp['propertyType'],
+                        'name': row['columnId']
+                    }
+                  entry[columnId][field[len(columnId) + 1:]] = row[field]
+        codeList.append(entry)
     return codeList
 
   def _ExpandFootnotes(self, filename, json_val):
@@ -274,6 +314,10 @@ class Dspl2JsonLdExpander(object):
 
   def _ExpandSliceData(self, slice, dim_defs_by_id, meas_defs_by_id):
     data = []
+    tableMappings = {}
+    for tableMapping in AsList(GetSchemaProp(slice, 'tableMapping')):
+      tableMappings[GetUrl(tableMapping['sourceEntity'])] = tableMapping
+
     with self.getter.Fetch(GetSchemaProp(slice, 'data')) as f:
       reader = DictReader(f)
       for row in reader:
@@ -285,7 +329,11 @@ class Dspl2JsonLdExpander(object):
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
           dim_def = dim_defs_by_id.get(dim)
-          col_id = dim_def.get('identifier', urlparse(dim).fragment)
+          tableMapping = tableMappings.get(dim)
+          if tableMapping:
+            col_id = tableMapping['columnIdentifier']
+          else:
+            col_id = urlparse(dim).fragment
           dim_val = {
               '@type': 'DimensionValue',
               'dimension': dim,
@@ -306,7 +354,11 @@ class Dspl2JsonLdExpander(object):
         for measure in AsList(GetSchemaProp(slice, 'measure')):
           measure = GetUrl(measure)
           meas_def = meas_defs_by_id.get(measure)
-          col_id = meas_def.get('identifier', urlparse(measure).fragment)
+          tableMapping = tableMappings.get(measure)
+          if tableMapping:
+            col_id = tableMapping['columnIdentifier']
+          else:
+            col_id = urlparse(measure).fragment
           val['measureValues'].append({
               '@type': 'MeasureValue',
               'measure': measure,
@@ -325,6 +377,7 @@ class Dspl2JsonLdExpander(object):
 
   def Expand(self):
     json_val = FrameGraph(self.getter.graph, frame=_DataFileFrame)
+    import json
     for dim in AsList(GetSchemaProp(json_val, 'dimension')):
       if isinstance(dim.get('codeList'), str):
         dim['codeList'] = self._ExpandCodeList(dim)

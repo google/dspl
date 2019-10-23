@@ -2341,6 +2341,7 @@
 
     "StatisticalDataset": {"@id": "schema:StatisticalDataset"},
     "StatisticalMeasure": {"@id": "schema:StatisticalMeasure"},
+    "TableMapping": {"@id": "schema:TableMapping"},
     "CategoricalDimension": {"@id": "schema:CategoricalDimension"},
     "TimeDimension": {"@id": "schema:TimeDimension"},
     "DataSlice": {"@id": "schema:DataSlice"},
@@ -2350,11 +2351,14 @@
     "dimension": {"@id": "schema:dimension","@type": "@id"},
     "footnote": {"@id": "schema:footnote","@type": "@id"},
     "equivalentType": {"@id": "schema:equivalentType","@type": "@id"},
+    "parentProperty": {"@id": "schema:parentProperty","@type": "@id"},
+    "dimensionProperty": {"@id": "schema:dimensionProperty","@type": "@id"},
+    "sourceEntity": {"@id": "schema:sourceEntity","@type": "@id"},
     "codeList": {"@id": "schema:codeList", "@type": "@id"},
     "datePattern": {"@id": "schema:datePattern"},
     "slice": {"@id": "schema:slice"},
     "data": {"@id": "schema:data", "@type": "@id"},
-    "dimensionValues": {"@id": "schema:dimensionValues"},
-    "measureValues": {"@id": "schema:measureValues"}
+    "dimensionValue": {"@id": "schema:dimensionValue"},
+    "measureValue": {"@id": "schema:measureValue"}
   }
 }

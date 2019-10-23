@@ -22,6 +22,19 @@ _Context = {}
 _DataFileFrame = {
     '@context': [_Context, {'schema': 'http://schema.org/'}],
     '@type': 'StatisticalDataset',
+    'dimension': {
+        'dimensionProperty': {
+            '@embed': '@always'
+        },
+        'parentProperty': {
+            '@embed': '@never'
+        },
+        'tableMapping': {
+            'sourceEntity': {
+                '@embed': '@never'
+             }
+        }
+    },
     'slice': {
         'dimension': {
             '@embed': '@never'
