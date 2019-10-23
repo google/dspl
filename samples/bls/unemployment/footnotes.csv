@@ -1,0 +1,14 @@
+codeValue,description
+1,Data affected by changes in population controls.
+2,Constructed on the 2002 Census Industry Classification from data originally coded on earlier classifications. Official series was not revised.
+3,2000 forward coded on the 2002 Census Occupation Classification. 1983-99 constructed from data originally coded on earlier classifications.
+4,2000 forward coded on the 2002 Census Industry Classification. 1983-99 constructed from data originally coded on earlier classifications.
+7,Data do not meet publication criteria.
+8,This series id code has been discontinued; data are available using the database tool at www.bls.gov/webapps/legacy/cpsatab8.htm.
+9,Data from 1994 through 2002 were revised in February 2014 with updated seasonal adjustments.
+A,Area boundaries do not reflect official OMB definitions.
+N,Not available.
+P,Preliminary.
+V,The survey was not conducted due to bad weather. Interpolated data were seasonally adjusted.
+W,The household survey was not conducted for this month due to bad weather. Data were interpolated.
+Y,Data reflect controlling to interpolated statewide totals because the survey was not conducted.

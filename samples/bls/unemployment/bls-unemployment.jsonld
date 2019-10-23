@@ -1,0 +1,310 @@
+{
+  "@context": "http://schema.org",
+  "@type": "StatisticalDataset",
+  "@id": "",
+  "name": "Unemployment in the U.S.",
+  "description": "Monthly estimates of employment and unemployment for all States, metropolitan areas, counties and cities. National employment and unemployment of the population classified by age, sex, race, and other characteristics. This dataset was prepared by Google based on data downloaded from the Bureau of Labor Statistics (BLS).",
+  "url": "http://www.bls.gov/bls/unemployment.htm",
+  "provider": {
+    "@type": "Organization",
+    "name": "U.S. Bureau of Labor Statistics",
+    "description": "U.S. Bureau of Labor Statistics",
+    "url": "http://www.bls.gov"
+  },
+  "license": "https://www.usa.gov/government-works",
+  "spatialCoverage": {
+    "@type": "Country",
+    "name": "United States of America",
+    "identifier": {
+      "@type": "PropertyValue",
+      "propertyID": "ISO 3166-1 alpha-2",
+      "value": "US"
+    }
+  },
+  "temporalCoverage": "1948-01/2019-09",
+  "measure": [
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#employed",
+      "dataset": "",
+      "name": "Employed",
+      "description": "The total number of people employed",
+      "url": "http://www.bls.gov/cps/cps_htgm.htm",
+      "unitCode": "IE"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#labor_force",
+      "dataset": "",
+      "name": "Labor force",
+      "description": "The total civilian labor force",
+      "url": "http://www.bls.gov/cps/cps_htgm.htm",
+      "unitCode": "IE"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#unemployed",
+      "dataset": "",
+      "name": "Unemployed",
+      "description": "The total number of people unemployed",
+      "url": "http://www.bls.gov/cps/cps_htgm.htm",
+      "unitCode": "IE"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#unemployment_rate",
+      "dataset": "",
+      "name": "Unemployment rate",
+      "description": "The percent of the labor force that is unemployed.",
+      "url": "http://www.bls.gov/cps/cps_htgm.htm",
+      "unitCode": "P1",
+      "sameAs": "https://www.wikidata.org/wiki/Property:P1198"
+    }
+  ],
+  "dimension": [
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#country",
+      "dataset": "",
+      "name": "country",
+      "equivalentType": "Country",
+      "codeList": {
+        "@type": "DimensionValue",
+        "@id": "#country=US",
+        "codeValue": "US",
+        "name": "United States"
+      }
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#state",
+      "dataset": "",
+      "name": "States",
+      "equivalentType": "State",
+      "dimensionProperty": [{
+        "@type": "DimensionProperty",
+        "@id": "#countryProperty",
+        "propertyID": "containedInPlace",
+        "propertyType": "#country"
+      }, {
+        "@type": "DimensionProperty",
+        "propertyID": "geo",
+        "propertyType": "GeoCoordinates"
+      }],
+      "parentProperty": "#countryProperty",
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#countryProperty",
+        "value:": "US"
+      },
+      "codeList": "states.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#county",
+      "dataset": "",
+      "name": "Counties",
+      "equivalentType": "AdministrativeArea",
+      "dimensionProperty": [{
+        "@type": "DimensionProperty",
+        "@id": "#stateProperty",
+        "propertyID": "containedInPlace",
+        "propertyType": "#state"
+      }, {
+        "@type": "DimensionProperty",
+        "propertyID": "geo",
+        "propertyType": "GeoCoordinates"
+      }],
+      "parentProperty": "#stateProperty",
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#stateProperty",
+        "columnIdentifier": "state"
+      },
+      "codeList": "counties.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#metro_area",
+      "dataset": "",
+      "name": "Metropolitan areas",
+      "dimensionProperty": "#stateProperty",
+      "parentProperty": "#stateProperty",
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#stateProperty",
+        "columnIdentifier": "state"
+      },
+      "codeList": "metro_areas.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#city",
+      "dataset": "",
+      "name": "Cities and towns",
+      "equivalentType": "City",
+      "dimensionProperty": [
+        "#stateProperty",
+        {
+          "@type": "DimensionProperty",
+          "propertyID": "geo",
+          "propertyType": "GeoCoordinates"
+        }
+      ],
+      "parentProperty": "#stateProperty",
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#stateProperty",
+        "columnIdentifier": "state"
+      },
+      "codeList": "cities.csv"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#seasonality",
+      "dataset": "",
+      "name": "Seasonality",
+      "description": "Whether values are seasonally adjusted or not",
+      "url": "http://www.bls.gov/dolfaq/bls_ques25.htm",
+      "codeList": [
+        {
+          "@type": "DimensionValue",
+          "@id": "#seasonality=S",
+          "codeValue": "S",
+          "name": "Seasonally adjusted"
+        },
+        {
+          "@type": "DimensionValue",
+          "@id": "#seasonality=U",
+          "codeValue": "U",
+          "name": "Not seasonally adjusted"
+        }
+      ]
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#sex",
+      "dataset": "",
+      "name": "Sex",
+      "codeList": [
+        {
+          "@type": "DimensionValue",
+          "@id": "#sex=1",
+          "codeValue": "1",
+          "name": "Men"
+        },
+        {
+          "@type": "DimensionValue",
+          "@id": "#sex=2",
+          "codeValue": "2",
+          "name": "Women"
+        }
+      ]
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#age",
+      "dataset": "",
+      "name": "Age",
+      "description": "Age group",
+      "codeList": "age.csv"
+    },
+    {
+      "@type": "TimeDimension",
+      "@id": "#month",
+      "dataset": "",
+      "name": "Month",
+      "equvalentType": "xsd:gYearMonth",
+      "dateFormat": "MMM yyyy"
+    }
+  ],
+  "annotation": "footnotes.csv",
+  "slice": [
+    {
+      "@type": "DataSlice",
+      "@id": "#totalUnemploymentMonthly",
+      "dataset": "",
+      "dimension": ["#country", "#seasonality", "#month"],
+      "measure": ["#employed", "#labor_force", "#unemployed", "#unemployment_rate"],
+      "data": "totalUnemploymentMonthly.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#totalUnemploymentMonthly_ByAge",
+      "dataset": "",
+      "dimension": ["#country", "#seasonality", "#age", "#month"],
+      "measure": ["#employed", "#labor_force", "#unemployed", "#unemployment_rate"],
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#age",
+        "columnIdentifier": "ages_code"
+      },
+      "data": "totalUnemploymentMonthly_ByAge.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#totalUnemploymentMonthly_BySex",
+      "dataset": "",
+      "dimension": ["#country", "#seasonality", "#sex", "#month"],
+      "measure": ["#employed", "#labor_force", "#unemployed", "#unemployment_rate"],
+      "tableMapping": {
+        "@type": "TableMapping",
+        "sourceEntity": "#sex",
+        "columnIdentifier": "sexs_code"
+      },
+      "data": "totalUnemploymentMonthly_BySex.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#totalUnemploymentMonthly_BySex_ByAge",
+      "dataset": "",
+      "dimension": ["#country", "#seasonality", "#sex", "#age", "#month"],
+      "measure": ["#employed", "#labor_force", "#unemployed", "#unemployment_rate"],
+      "tableMapping": [
+        {
+          "@type": "TableMapping",
+          "sourceEntity": "#age",
+          "columnIdentifier": "ages_code"
+        },
+        {
+          "@type": "TableMapping",
+          "sourceEntity": "#sex",
+          "columnIdentifier": "sexs_code"
+        }
+      ],
+      "data": "totalUnemploymentMonthly_BySex_ByAge.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#statesUnemploymentMonthly",
+      "dataset": "",
+      "dimension": ["#state", "#seasonality", "#month"],
+      "measure": ["#employed", "#unemployed", "#unemployment_rate"],
+      "data": "statesUnemploymentMonthly.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#countiesUnemploymentMonthly",
+      "dataset": "",
+      "dimension": ["#county", "#seasonality", "#month"],
+      "measure": ["#employed", "#unemployed", "#unemployment_rate"],
+      "data": "countiesUnemploymentMonthly.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#metroAreasUnemploymentMonthly",
+      "dataset": "",
+      "dimension": ["#metro_area", "#seasonality", "#month"],
+      "measure": ["#employed", "#unemployed", "#unemployment_rate"],
+      "data": "metroAreasUnemploymentMonthly.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "@id": "#citiesUnemploymentMonthly",
+      "dataset": "",
+      "dimension": ["#city", "#seasonality", "#month"],
+      "measure": ["#employed", "#unemployed", "#unemployment_rate"],
+      "data": "citiesUnemploymentMonthly.csv"
+    }
+  ]
+}
