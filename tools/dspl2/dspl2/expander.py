@@ -259,7 +259,7 @@ class Dspl2JsonLdExpander(object):
     with self.getter.Fetch(GetSchemaProp(dim, 'codeList')) as f:
       reader = DictReader(f)
       for row in reader:
-        entry = {}
+        entry = {k: v for k, v in row.items()}
         if GetSchemaProp(dim, 'equivalentType'):
           entry['@type'] = ['DimensionValue']
           entry['@type'] += AsList(GetSchemaProp(
@@ -276,6 +276,7 @@ class Dspl2JsonLdExpander(object):
             if value:
               entry[dimProp['propertyID']] = value
               continue
+            columnId = propId
             dimPropId = GetSchemaId(dimProp)
             if dimPropId:
               tableMapping = tableMappings.get(dimPropId)
@@ -283,19 +284,22 @@ class Dspl2JsonLdExpander(object):
                 columnId = tableMapping.get('columnIdentifier')
               else:
                 columnId = propId
-              for field in row:
-                if field == columnId:
-                  entry[columnId] = row[field]
-                elif field.startswith(columnId + '.'):
-                  entry[columnId] = row.get(columnId, {
-                      '@type': dimProp['propertyType']
-                  })
-                  if isinstance(entry[columnId], str):
-                    entry[columnId] = {
-                        '@type': dimProp['propertyType'],
-                        'name': row['columnId']
-                    }
-                  entry[columnId][field[len(columnId) + 1:]] = row[field]
+            for field in row:
+              if field == columnId:
+                if columnId != propId:
+                  entry[propId] = entry[columnId]
+                  del entry[columnId]
+              elif field.startswith(columnId + '.'):
+                entry[columnId] = entry.get(columnId, {
+                    '@type': dimProp['propertyType']
+                })
+                if isinstance(entry[columnId], str):
+                  entry[columnId] = {
+                      '@type': dimProp['propertyType'],
+                      'name': row['columnId']
+                  }
+                entry[columnId][field[len(columnId) + 1:]] = entry[field]
+                del entry[field]
         codeList.append(entry)
     return codeList
 
@@ -375,21 +379,22 @@ class Dspl2JsonLdExpander(object):
         data.append(val)
     return data
 
-  def Expand(self):
+  def Expand(self, *, expandDimensions=True, expandSlices=True):
     json_val = FrameGraph(self.getter.graph, frame=_DataFileFrame)
-    import json
-    for dim in AsList(GetSchemaProp(json_val, 'dimension')):
-      if isinstance(dim.get('codeList'), str):
-        dim['codeList'] = self._ExpandCodeList(dim)
+    if expandDimensions:
+      for dim in AsList(GetSchemaProp(json_val, 'dimension')):
+        if isinstance(dim.get('codeList'), str):
+          dim['codeList'] = self._ExpandCodeList(dim)
     if isinstance(GetSchemaProp(json_val, 'footnote'), str):
       json_val['footnote'] = self._ExpandFootnotes(
           GetSchemaProp(json_val, 'footnote'), json_val)
-    for slice in AsList(GetSchemaProp(json_val, 'slice')):
-      dim_defs_by_id = MakeIdKeyedDict(
-          AsList(GetSchemaProp(json_val, 'dimension')))
-      meas_defs_by_id = MakeIdKeyedDict(
-          AsList(GetSchemaProp(json_val, 'measure')))
-      if isinstance(GetSchemaProp(slice, 'data'), str):
-        slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id,
-                                              meas_defs_by_id)
+    if expandSlices:
+      for slice in AsList(GetSchemaProp(json_val, 'slice')):
+        dim_defs_by_id = MakeIdKeyedDict(
+            AsList(GetSchemaProp(json_val, 'dimension')))
+        meas_defs_by_id = MakeIdKeyedDict(
+            AsList(GetSchemaProp(json_val, 'measure')))
+        if isinstance(GetSchemaProp(slice, 'data'), str):
+          slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id,
+                                                meas_defs_by_id)
     return json_val
