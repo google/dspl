@@ -252,7 +252,6 @@ class Dspl2JsonLdExpander(object):
     tableMappings = {}
     for dimProp in AsList(GetSchemaProp(dim, 'dimensionProperty')):
       dimProps.append(dimProp)
-      dimPropId = GetSchemaId(dimProp)
     for tableMapping in AsList(GetSchemaProp(dim, 'tableMapping')):
       tableMappings[GetUrl(tableMapping['sourceEntity'])] = tableMapping
 
@@ -333,6 +332,8 @@ class Dspl2JsonLdExpander(object):
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
           dim_def = dim_defs_by_id.get(dim)
+          if dim_def is None:
+            raise RuntimeError("Unable to find definition for dimension " + dim)
           tableMapping = tableMappings.get(dim)
           if tableMapping:
             col_id = tableMapping['columnIdentifier']
@@ -389,11 +390,11 @@ class Dspl2JsonLdExpander(object):
       json_val['footnote'] = self._ExpandFootnotes(
           GetSchemaProp(json_val, 'footnote'), json_val)
     if expandSlices:
+      dim_defs_by_id = MakeIdKeyedDict(
+          AsList(GetSchemaProp(json_val, 'dimension')))
+      meas_defs_by_id = MakeIdKeyedDict(
+          AsList(GetSchemaProp(json_val, 'measure')))
       for slice in AsList(GetSchemaProp(json_val, 'slice')):
-        dim_defs_by_id = MakeIdKeyedDict(
-            AsList(GetSchemaProp(json_val, 'dimension')))
-        meas_defs_by_id = MakeIdKeyedDict(
-            AsList(GetSchemaProp(json_val, 'measure')))
         if isinstance(GetSchemaProp(slice, 'data'), str):
           slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id,
                                                 meas_defs_by_id)
