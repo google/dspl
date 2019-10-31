@@ -11,6 +11,7 @@ from dspl2.jsonutil import (AsList, GetSchemaId, GetSchemaProp, GetUrl,
 from dspl2.rdfutil import (_DataFileFrame, FrameGraph, MakeSparqlSelectQuery,
                            SCHEMA)
 import rdflib
+import sys
 
 
 class Dspl2RdfExpander(object):
@@ -112,7 +113,8 @@ class Dspl2RdfExpander(object):
       if not csv_id:
         csv_id = urldefrag(dim_id).fragment
       if not csv_id:
-        print("Unable to determine CSV ID for dimension", dim_id)
+        print("Unable to determine CSV ID for dimension", dim_id,
+              file=sys.stderr)
         exit(1)
       ret[csv_id] = {
           'id': dim_id,
@@ -143,7 +145,8 @@ class Dspl2RdfExpander(object):
       if not csv_id:
         csv_id = urldefrag(measure_id).fragment
       if not csv_id:
-        print("Unable to determine CSV ID for metric", measure_id)
+        print("Unable to determine CSV ID for metric", measure_id,
+              file=sys.stderr)
         exit(1)
       ret[csv_id] = {
           'id': measure_id,
@@ -245,18 +248,58 @@ class Dspl2JsonLdExpander(object):
   def _ExpandCodeList(self, dim):
     """Load a code list from CSV and return a list of JSON-LD objects."""
     codeList = []
+    dimProps = []
+    tableMappings = {}
+    for dimProp in AsList(GetSchemaProp(dim, 'dimensionProperty')):
+      dimProps.append(dimProp)
+    for tableMapping in AsList(GetSchemaProp(dim, 'tableMapping')):
+      tableMappings[GetUrl(tableMapping['sourceEntity'])] = tableMapping
+
     with self.getter.Fetch(GetSchemaProp(dim, 'codeList')) as f:
       reader = DictReader(f)
       for row in reader:
+        entry = {k: v for k, v in row.items()}
         if GetSchemaProp(dim, 'equivalentType'):
-          row['@type'] = ['DimensionValue',
-                          GetSchemaProp(dim, 'equivalentType')]
+          entry['@type'] = ['DimensionValue']
+          entry['@type'] += AsList(GetSchemaProp(
+              dim, 'equivalentType'))
         else:
-          row['@type'] = 'DimensionValue'
-        row['@id'] = GetSchemaId(dim) + '='
-        row['@id'] += row['codeValue']
-        row['dimension'] = GetSchemaId(dim)
-        codeList.append(row)
+          entry['@type'] = 'DimensionValue'
+        entry['@id'] = GetSchemaId(dim) + '='
+        entry['@id'] += row['codeValue']
+        entry['dimension'] = GetSchemaId(dim)
+        for dimProp in dimProps:
+          propId = GetSchemaProp(dimProp, 'propertyID')
+          value = dimProp.get('value')
+          if propId:
+            if value:
+              entry[dimProp['propertyID']] = value
+              continue
+            columnId = propId
+            dimPropId = GetSchemaId(dimProp)
+            if dimPropId:
+              tableMapping = tableMappings.get(dimPropId)
+              if tableMapping and 'columnIdentifier' in tableMapping:
+                columnId = tableMapping.get('columnIdentifier')
+              else:
+                columnId = propId
+            for field in row:
+              if field == columnId:
+                if columnId != propId:
+                  entry[propId] = entry[columnId]
+                  del entry[columnId]
+              elif field.startswith(columnId + '.'):
+                entry[columnId] = entry.get(columnId, {
+                    '@type': dimProp['propertyType']
+                })
+                if isinstance(entry[columnId], str):
+                  entry[columnId] = {
+                      '@type': dimProp['propertyType'],
+                      'name': row['columnId']
+                  }
+                entry[columnId][field[len(columnId) + 1:]] = entry[field]
+                del entry[field]
+        codeList.append(entry)
     return codeList
 
   def _ExpandFootnotes(self, filename, json_val):
@@ -272,8 +315,12 @@ class Dspl2JsonLdExpander(object):
         footnotes.append(row)
     return footnotes
 
-  def _ExpandSliceData(self, slice, dim_defs_by_id):
+  def _ExpandSliceData(self, slice, dim_defs_by_id, meas_defs_by_id):
     data = []
+    tableMappings = {}
+    for tableMapping in AsList(GetSchemaProp(slice, 'tableMapping')):
+      tableMappings[GetUrl(tableMapping['sourceEntity'])] = tableMapping
+
     with self.getter.Fetch(GetSchemaProp(slice, 'data')) as f:
       reader = DictReader(f)
       for row in reader:
@@ -284,55 +331,71 @@ class Dspl2JsonLdExpander(object):
         val['measureValues'] = []
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
-          fragment = urlparse(dim).fragment
+          dim_def = dim_defs_by_id.get(dim)
+          if dim_def is None:
+            raise RuntimeError("Unable to find definition for dimension " + dim)
+          tableMapping = tableMappings.get(dim)
+          if tableMapping:
+            col_id = tableMapping['columnIdentifier']
+          else:
+            col_id = urlparse(dim).fragment
           dim_val = {
               '@type': 'DimensionValue',
               'dimension': dim,
           }
-          dim_def = dim_defs_by_id.get(dim)
           if dim_def:
             if GetSchemaProp(dim_def, '@type') == 'CategoricalDimension':
-              dim_val['codeValue'] = row[fragment]
+              dim_val['codeValue'] = row[col_id]
             elif GetSchemaProp(dim_def, '@type') == 'TimeDimension':
               if GetSchemaProp(dim_def, 'equivalentType'):
                 dim_val['value'] = {
                     '@type': GetSchemaProp(dim_def, 'equivalentType'),
-                    '@value': row[fragment]
+                    '@value': row[col_id]
                 }
               else:
-                dim_val['value'] = row[fragment]
+                dim_val['value'] = row[col_id]
           val['dimensionValues'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
           measure = GetUrl(measure)
-          fragment = urlparse(measure).fragment
+          meas_def = meas_defs_by_id.get(measure)
+          tableMapping = tableMappings.get(measure)
+          if tableMapping:
+            col_id = tableMapping['columnIdentifier']
+          else:
+            col_id = urlparse(measure).fragment
           val['measureValues'].append({
               '@type': 'MeasureValue',
               'measure': measure,
-              'value': row[fragment]
+              'value': row[col_id]
           })
-          if row.get(fragment + '*'):
+          if row.get(col_id + '*'):
             val['measureValues'][-1]['footnote'] = [
                 {
                     '@type': 'StatisticalAnnotation',
                     'codeValue': footnote
                 }
-                for footnote in row[fragment + '*'].split(';')
+                for footnote in row[col_id + '*'].split(';')
             ]
         data.append(val)
     return data
 
-  def Expand(self):
+  def Expand(self, *, expandDimensions=True, expandSlices=True):
     json_val = FrameGraph(self.getter.graph, frame=_DataFileFrame)
-    for dim in AsList(GetSchemaProp(json_val, 'dimension')):
-      if isinstance(dim.get('codeList'), str):
-        dim['codeList'] = self._ExpandCodeList(dim)
+    if expandDimensions:
+      for dim in AsList(GetSchemaProp(json_val, 'dimension')):
+        if isinstance(dim.get('codeList'), str):
+          dim['codeList'] = self._ExpandCodeList(dim)
     if isinstance(GetSchemaProp(json_val, 'footnote'), str):
       json_val['footnote'] = self._ExpandFootnotes(
           GetSchemaProp(json_val, 'footnote'), json_val)
-    for slice in AsList(GetSchemaProp(json_val, 'slice')):
+    if expandSlices:
       dim_defs_by_id = MakeIdKeyedDict(
           AsList(GetSchemaProp(json_val, 'dimension')))
-      if isinstance(GetSchemaProp(slice, 'data'), str):
-        slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id)
+      meas_defs_by_id = MakeIdKeyedDict(
+          AsList(GetSchemaProp(json_val, 'measure')))
+      for slice in AsList(GetSchemaProp(json_val, 'slice')):
+        if isinstance(GetSchemaProp(slice, 'data'), str):
+          slice['data'] = self._ExpandSliceData(slice, dim_defs_by_id,
+                                                meas_defs_by_id)
     return json_val

@@ -22,14 +22,6 @@ _Context = {}
 _DataFileFrame = {
     '@context': [_Context, {'schema': 'http://schema.org/'}],
     '@type': 'StatisticalDataset',
-    'slice': {
-        'dimension': {
-            '@embed': '@never'
-        },
-        'measure': {
-            '@embed': '@never'
-        },
-    }
 }
 _FullFrame = {
     '@context': [_Context, {'schema': 'http://schema.org/'}],
@@ -40,6 +32,11 @@ _FullFrame = {
         },
         'measure': {
             '@embed': '@never'
+        },
+        'tableMapping': {
+            'sourceEntity': {
+                '@embed': '@never'
+            }
         },
         'data': {
             'dimensionValues': {
@@ -109,7 +106,7 @@ def FrameGraph(graph, frame=_FullFrame):
       '@context': _Context,
       '@graph': AsList(json_val)
   }
-  framed = jsonld.frame(json_val, frame)
+  framed = jsonld.frame(json_val, frame, {'embed': '@always'})
   framed['@context'] = 'http://schema.org'
   for items in framed['@graph']:
     framed.update(items)

@@ -56,9 +56,11 @@ We introduce the following constructs:
 
 * **StatisticalDataset**: A dataset that contains statistical data and the associated metadata
 * **StatisticalMeasure**: A quantifiable phenomenon or indicator being observed or calculated (e.g., average rainfall, population, percentage of forested land, …) 
+* **TableMapping**: A descriptor for mapping dimensions, measures, and dimension properties to specific CSV columns.
 * **CategoricalDimension**: A category of "things" that a measure can apply to. For example, countries, genders, or age groups. A categorical dimension is associated with a codelist that enumerates its possible values.
 * **TimeDimension**: A time dimension that a measure can apply to. For example, the date of a measurement, or the beginning or end of a duration.
-* **DataSlice** :A container for statistical data. A slice contains related observations of the same set of measures for the same dimensions. For example, population by year, country, and age group.
+* **DimensionProperty**: A descriptor for an additional property to populate on the DimensionValues for a dimension.
+* **DataSlice**: A container for statistical data. A slice contains related observations of the same set of measures for the same dimensions. For example, population by year, country, and age group.
 * **Observation**: A "data point" with one or more measure values for specified dimension values.
 * **DimensionValue**: A possible or observed value for a given dimension.
 * **MeasureValue**: The observed value of a measure.
@@ -239,6 +241,104 @@ A quantifiable phenomenon or indicator being observed or calculated (e.g., avera
 }
 ```
 
+### DimensionProperty
+
+Type: Thing > Intangible > DimensionProperty
+
+Categorical dimensions can have additional properties than the ones defined above. Each of these should have a `DimensionProperty` describing its name and type.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>propertyID
+   </td>
+   <td>Text
+   </td>
+   <td>The name of the property in a `DimensionValue`.
+   </td>
+  </tr>
+  <tr>
+   <td>propertyType
+   </td>
+   <td>rdfs:Class or CategoricalDimension
+   </td>
+   <td>The type to use for the property's value, if using CSV files for slice data.
+   </td>
+  </tr>
+</table>
+  
+If the `propertyType` is the ID of a `CategoricalDimension`, the corresponding slice CSV values must be code values from that dimension's `codeList`.  
+If it is one of the `schema:DataType` types, the corresponding slice CSV values must be of that type.  
+Otherwise, the type's properties may be specified using a column named `[*propertyID*].[*property of propertyType*]`, with `[*propertyID*]` alone being equivalent to `[*propertyID*].name`.
+
+For example, for the following `DimensionProperty`:
+
+```
+{
+  "@type": "DimensionProperty",
+  "propertyID": "geo",
+  "propertyType": "GeoCoordinates"
+}
+```
+
+The corresponding columns in a slice data CSV file might look like:
+
+```
+…,geo.latitude,geo.longitude
+…,32.318231,-86.902298
+…,63.588753,-154.493062
+…,34.048928,-111.093731
+…,35.20105,-91.831833
+```
+
+### TableMapping
+
+Type: Thing > Intangible > TableMapping
+
+This specifies the mapping from an entity to a particular header column name in a CSV file.
+
+<table>
+  <tr>
+   <td><strong>Property</strong>
+   </td>
+   <td><strong>Expected type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>sourceEntity
+   </td>
+   <td>URL
+   </td>
+   <td>The entity (Dimension, Measure, DimensionProperty) whose column name is being specified.
+   </td>
+  </tr>
+  <tr>
+   <td>columnIdentifier
+   </td>
+   <td>Text
+   </td>
+   <td>The column name in a related CSV corresponding to this property.
+   </td>
+  </tr>
+  <tr>
+   <td>value
+   </td>
+   <td>DataType
+   </td>
+   <td>The value to use for the specified `sourceEntity`; this specifies a constant-valued virtual column.
+   </td>
+  </tr>
+</table>
+
 ### CategoricalDimension
 
 Type: Thing > Intangible > CategoricalDimension
@@ -273,11 +373,27 @@ A categorical dimension may correspond to an existing (schema.org) type, in whic
    </td>
   </tr>
   <tr>
-   <td>parentDimension
+   <td>dimensionProperty
    </td>
-   <td>CategoricalDimension
+   <td>DimensionProperty
    </td>
-   <td>If specified, the [ID of the] dimension hierarchically containing this dimension.
+   <td>Type information for each additional property to use on this dimension's `DimensionValue`s.
+   </td>
+  </tr>
+  <tr>
+   <td>parentProperty
+   </td>
+   <td>DimensionProperty
+   </td>
+   <td>The ID of a dimensionProperty for this dimension's parent dimension.
+   </td>
+  </tr>
+  <tr>
+   <td>tableMapping
+   </td>
+   <td>TableMapping
+   </td>
+   <td>Column mappings for `dimensionProperty` `propertyID`s to `codeList` CSV header names.
    </td>
   </tr>
   <tr>
@@ -304,8 +420,14 @@ When a code list is provided as a table, the data in the CSV table must follow t
 * Each value corresponds to one row in the table. All possible values of the `codeList` must appear in the table.
 * The first column is called "codeValue", and contains the code for each value.
 * Each subsequent column has the name of the property it represents.
+    * For properties specified in `dimensionProperty`
+       * If a `tableMapping is present, the `tableMapping`'s `columnIdentifier` is the column name.
+       * Otherwise, the  `propertyID` is the column name.
     * If the values are in a specific language, the code of the language should be used as a suffix, e.g., "name@en".
-    * If `parent` is present, its values should be `codeValue`s for the containing `DimensionValue`s in the `parentDimension`.
+
+If a `tableMapping` has a `value` property, this is used instead of the corresponding column in the CSV file, if present.
+
+If a single `parentProperty` is specified and refers to a `DimensionProperty` whose `propertyType` is a `CategoricalDimension`, that dimension is called the **parent dimension** for this dimension, and its values are the **parent values** for the `DimensionValue`s they occur in.
 
 #### Examples
 
@@ -332,7 +454,7 @@ Where the CSV table might begin like this:
 "ag","Agender","Agenre","Agender"
 ```
 
-These have a `parentDimension` relationship:
+These have a parent-child relationship:
 
 ```
 {
@@ -357,12 +479,48 @@ These have a `parentDimension` relationship:
   "@type": "CategoricalDimension",
   "@id": "#country",
   "dataset": "#europe_unemployment",
-  "parentDimension": "#country_group",
+  "dimensionProperty": {
+    "@type": "DimensionProperty",
+    "@id": "#country_group_property",
+    "propertyID": "country_group",
+    "propertyType": "#country_group"
+  },
+  "parentProperty": "#country_group_property",
   "codeList": "countries.csv"
 }
 ```
 
-Where CSV file `countries.csv` has a column 'parent' with values of 'eu' or 'non-eu'.
+This demonstrates a virtual parent column:
+
+```
+{
+  "@type": "CategoricalDimension",
+  "@id": "#state",
+  "dataset": "",
+  "name": "US States",
+  "equivalentType": "State",
+  "dimensionProperty": [{
+    "@type": "DimensionProperty",
+    "@id": "#countryProperty",
+    "propertyID": "containedInPlace",
+    "propertyType": "#country"
+  }, {
+    "@type": "DimensionProperty",
+    "description": "The centroid of the state.",
+    "propertyID": "geo",
+    "propertyType": "GeoCoordinates"
+  }],
+  "parentProperty": "#countryProperty",
+  "tableMapping": {
+    "@type": "TableMapping",
+    "sourceEntity": "#countryProperty",
+    "value:": "US"
+  },
+  "codeList": "states.csv"
+}
+```
+
+Where CSV file `countries.csv` has a column `country_group` with values of `eu` or `non-eu`.
 
 ### TimeDimension
 
@@ -557,7 +715,7 @@ A DimensionValue with an inherited property (name):
 }
 ```
 
-A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType`:
+A DimensionValue in `#country`’s `codeList`, with properties from an `equivalentType` and a `parentProperty` of `country_group`:
 
 ```
 {
@@ -576,7 +734,7 @@ A DimensionValue in `#country`’s `codeList`, with properties from an `equivale
     "latitude": 47.6965545,
     "longitude": 13.34598005
   },
-  "parent": "#country_group=eu"
+  "country_group": "#country_group=eu"
 }
 ```
 *Note*: In the above example, `parent` is given by ID rather than as a DimensionValue object with `codeValue` of 'eu'.  Processing software should behave the same with either form.
@@ -599,7 +757,7 @@ Or by ID:
 }
 ```
 
-Time dimensions need non-code values:
+Time dimensions need non-code `value`s:
 
 ```
 {
@@ -654,6 +812,14 @@ A slice is a grouping of statistical observations that share the same measures a
    </td>
   </tr>
   <tr>
+   <td>tableMapping
+   </td>
+   <td>TableMapping
+   </td>
+   <td>Column mappings for `measure`s or `dimension`s to `data` CSV header names.
+   </td>
+  </tr>
+  <tr>
    <td>data
    </td>
    <td>URL or Observation
@@ -679,8 +845,9 @@ Slice data can be provided in two equivalent ways:
 When data for a DataSlice is provided as a CSV table, it must follow these conventions:
 
 * The first row of the table is a header that contains the names the columns.
-* The columns corresponding to the slice’s dimensions are named after their corresponding ID fragments.
-* The columns corresponding to the slice’s measures are named after their corresponding ID fragments.
+* A column corresponding to a slice `dimension` has a header name of the corresponding `TableMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `CategoricalDimension` or `TimeDimension`'s `@id`.
+* A column corresponding to a slice `measure` has a header name of the corresponding `TableMapping`'s `columnIdentifier`, if provided, or the fragment part of the corresponding `StatisticalMeasure`'s `@id`.
+* The columns for a measure's `StatisticalAnnotation`s are named as the measure's header name, followed by an asterisk (`*`).
 * The table contains one row per observation (i.e., combination of dimension values).
 
 #### Examples
@@ -691,13 +858,19 @@ When data for a DataSlice is provided as a CSV table, it must follow these conve
   "dataset": "#europe_unemployment",
   "dimension": [
     "#country",
-    "#month"
+    "#month",
+    "#age"
   ],
   "measure": [
     "#unemployment",
     "#unemployment_rate"
   ],
-  "data": "country_total.csv"
+  "tableMapping": {
+    "@type": "tableMapping", 
+    "sourceEntity": "#age",
+    "columnIdentifier": "ages_code"
+  },
+  "data": "country_total_byage.csv"
 }
 ```
 

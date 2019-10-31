@@ -6195,9 +6195,14 @@
     {
       "@id": "http://schema.org/propertyID",
       "@type": "rdf:Property",
-      "http://schema.org/domainIncludes": {
-        "@id": "http://schema.org/PropertyValue"
-      },
+      "http://schema.org/domainIncludes": [
+        {
+          "@id": "http://schema.org/PropertyValue"
+        },
+        {
+          "@id": "http://schema.org/DimensionProperty"
+        }
+      ],
       "http://schema.org/rangeIncludes": [
         {
           "@id": "http://schema.org/URL"
@@ -10706,6 +10711,9 @@
         },
         {
           "@id": "http://schema.org/MonetaryAmount"
+        },
+        {
+          "@id": "http://schema.org/TableMapping"
         }
       ],
       "http://schema.org/rangeIncludes": [
@@ -33501,6 +33509,33 @@
       }
     },
     {
+      "@id": "http://schema.org/DimensionProperty",
+      "@type": "rdfs:Class",
+      "rdfs:label": "DimensionProperty",
+      "rdfs:comment": "A mapping for a property of a dimension.",
+      "rdfs:subClassOf": {
+        "@id": "http://schema.org/Intangible"
+      }
+    },
+    {
+      "@id": "http://schema.org/TableMapping",
+      "@type": "rdfs:Class",
+      "rdfs:label": "TableMapping",
+      "rdfs:comment": "A mapping for an entity to a CSV file header name.",
+      "rdfs:subClassOf": {
+        "@id": "http://schema.org/Intangible"
+      }
+    },
+    {
+      "@id": "http://schema.org/MeasureValue",
+      "@type": "rdfs:Class",
+      "rdfs:label": "MeasureValue",
+      "rdfs:comment": "Measure values in observations are property values that may be annotated with footnotes. For example, a population dataset might use a footnote to distinguish model estimates from direct counts.",
+      "rdfs:subClassOf": {
+        "@id": "http://schema.org/QuantitativeValue"
+      }
+    },
+    {
       "@id": "http://schema.org/measure",
       "@type": "rdf:Property",
       "rdfs:label": "measure",
@@ -33647,9 +33682,9 @@
       ]
     },
     {
-      "@id": "http://schema.org/dimensionValues",
+      "@id": "http://schema.org/dimensionValue",
       "@type": "rdf:Property",
-      "rdfs:label": "dimensionValues",
+      "rdfs:label": "dimensionValue",
       "http://schema.org/domainIncludes": {
         "@id": "http://schema.org/Observation"
       },
@@ -33658,15 +33693,69 @@
       }
     },
     {
-      "@id": "http://schema.org/measureValues",
+      "@id": "http://schema.org/measureValue",
       "@type": "rdf:Property",
-      "rdfs:label": "measureValues",
+      "rdfs:label": "measureValue",
       "http://schema.org/domainIncludes": {
         "@id": "http://schema.org/Observation"
       },
       "http://schema.org/rangeIncludes": {
         "@id": "http://schema.org/MeasureValue"
       }
+    },
+    {
+      "@id": "http://schema.org/tableMapping",
+      "@type": "rdf:Property",
+      "rdfs:label": "tableMapping",
+      "http://schema.org/domainIncludes": [
+        {
+          "@id": "http://schema.org/DataSlice"
+        },
+        {
+          "@id": "http://schema.org/CategoricalDimension"
+        }
+      ],
+      "http://schema.org/rangeIncludes": {
+        "@id": "http://schema.org/TableMapping"
+      }
+    },
+    {
+      "@id": "http://schema.org/sourceEntity",
+      "@type": "rdf:Property",
+      "rdfs:label": "tableMapping",
+      "http://schema.org/domainIncludes": {
+        "@id": "http://schema.org/TableMapping"
+      },
+      "http://schema.org/rangeIncludes": {
+        "@id": "http://schema.org/URL"
+      }
+    },
+    {
+      "@id": "http://schema.org/columnIdentifier",
+      "@type": "rdf:Property",
+      "rdfs:label": "columnIdentifier",
+      "http://schema.org/domainIncludes": {
+        "@id": "http://schema.org/TableMapping"
+      },
+      "http://schema.org/rangeIncludes": {
+        "@id": "http://schema.org/Text"
+      }
+    },    
+    {
+      "@id": "http://schema.org/propertyType",
+      "@type": "rdf:Property",
+      "rdfs:label": "propertyType",
+      "http://schema.org/domainIncludes": {
+        "@id": "http://schema.org/DimensionProperty"
+      },
+      "http://schema.org/rangeIncludes": [
+        {
+          "@id": "rdfs:Class"
+        },
+        {
+          "@id": "http://schema.org/CategoricalDimension"
+        }
+      ]
     }
   ],
   "@id": "http://schema.org/#3.6"

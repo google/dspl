@@ -15,7 +15,7 @@ from urllib.parse import urljoin, urlparse
 from dspl2.rdfutil import LoadGraph, SelectFromGraph
 
 
-def _ProcessDspl2File(filename, file, *, type=''):
+def _ProcessDspl2File(filename, fileobj, *, type=''):
   if any([filename.endswith('.html'),
           type.startswith('text/html')]):
     data = extruct.extract(file.read(), uniform='True')
@@ -31,7 +31,7 @@ def _ProcessDspl2File(filename, file, *, type=''):
   if any([filename.endswith('.json'),
           filename.endswith('.jsonld'),
           type.startswith('application/ld+json')]):
-    json_val = json.load(file)
+    json_val = json.load(fileobj)
     return LoadGraph(json_val, filename)
 
 
@@ -91,7 +91,7 @@ class HybridFileGetter(object):
   def _load_file(base, rel=None):
     uri = urlparse(base)
     if rel:
-      uri = urljoin(base, rel)
+      uri = urlparse(urljoin(base, rel))
     if not uri.scheme or uri.scheme == 'file':
       return Path(uri.path).open()
     elif uri.scheme == 'http' or uri.scheme == 'https':
@@ -103,7 +103,7 @@ class HybridFileGetter(object):
     self.base = json_uri
     self.graph = _ProcessDspl2File(
         json_uri,
-        json.load(HybridFileGetter._load_file(json_uri)))
+        HybridFileGetter._load_file(json_uri))
 
   def Fetch(self, uri):
     return HybridFileGetter._load_file(self.base, uri)
