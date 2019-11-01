@@ -39,12 +39,12 @@ _FullFrame = {
             }
         },
         'data': {
-            'dimensionValues': {
+            'dimensionValue': {
                 'dimension': {
                     '@embed': '@never'
                 }
             },
-            'measureValues': {
+            'measureValue': {
                 'measure': {
                     '@embed': '@never'
                 },

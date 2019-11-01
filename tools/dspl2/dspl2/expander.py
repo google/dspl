@@ -171,7 +171,7 @@ class Dspl2RdfExpander(object):
 
   def _ExpandObservationDimensionValue(self, dim, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, SCHEMA.dimensionValues, node_id))
+    self.graph.add((row_id, SCHEMA.dimensionValue, node_id))
     self.graph.add((node_id, rdflib.RDF.type, SCHEMA.DimensionValue))
     self.graph.add((node_id, SCHEMA.dimension, data['id']))
     for dim_type in data['type']:
@@ -190,7 +190,7 @@ class Dspl2RdfExpander(object):
 
   def _ExpandObservationMeasureValue(self, measure, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, SCHEMA.measureValues, node_id))
+    self.graph.add((row_id, SCHEMA.measureValue, node_id))
     self.graph.add((node_id, rdflib.RDF.type, SCHEMA.MeasureValue))
     for unit_code in data['unit_code']:
       self.graph.add((node_id, SCHEMA.unitCode, rdflib.Literal(unit_code)))
@@ -327,8 +327,8 @@ class Dspl2JsonLdExpander(object):
         val = {}
         val['@type'] = 'Observation'
         val['slice'] = GetSchemaId(slice)
-        val['dimensionValues'] = []
-        val['measureValues'] = []
+        val['dimensionValue'] = []
+        val['measureValue'] = []
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
           dim_def = dim_defs_by_id.get(dim)
@@ -354,7 +354,7 @@ class Dspl2JsonLdExpander(object):
                 }
               else:
                 dim_val['value'] = row[col_id]
-          val['dimensionValues'].append(dim_val)
+          val['dimensionValue'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
           measure = GetUrl(measure)
@@ -364,13 +364,13 @@ class Dspl2JsonLdExpander(object):
             col_id = tableMapping['columnIdentifier']
           else:
             col_id = urlparse(measure).fragment
-          val['measureValues'].append({
+          val['measureValue'].append({
               '@type': 'MeasureValue',
               'measure': measure,
               'value': row[col_id]
           })
           if row.get(col_id + '*'):
-            val['measureValues'][-1]['footnote'] = [
+            val['measureValue'][-1]['footnote'] = [
                 {
                     '@type': 'StatisticalAnnotation',
                     'codeValue': footnote
