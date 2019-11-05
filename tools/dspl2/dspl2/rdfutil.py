@@ -39,12 +39,12 @@ _FullFrame = {
             }
         },
         'data': {
-            'dimensionValues': {
+            'dimensionValue': {
                 'dimension': {
                     '@embed': '@never'
                 }
             },
-            'measureValues': {
+            'measureValue': {
                 'measure': {
                     '@embed': '@never'
                 },
@@ -100,7 +100,7 @@ def LoadGraph(input, public_id):
 
 
 def FrameGraph(graph, frame=_FullFrame):
-  serialized = graph.serialize(format='json-ld', indent=2)
+  serialized = graph.serialize(format='json-ld')
   json_val = json.loads(serialized)
   json_val = {
       '@context': _Context,

@@ -4,6 +4,7 @@
 # license that can be found in the LICENSE file or at
 # https://developers.google.com/open-source/licenses/bsd
 
+from collections import defaultdict
 from csv import DictReader
 from urllib.parse import urlparse, urldefrag
 from dspl2.jsonutil import (AsList, GetSchemaId, GetSchemaProp, GetUrl,
@@ -21,24 +22,80 @@ class Dspl2RdfExpander(object):
     self.graph = getter.graph
     self.subjects = set(self.graph.subjects())
 
-  def _ExpandDimensionValue(self, dim, equivalentTypes, row_id, row):
+  def _GetTableMappings(self, subject):
+    tableMappings = []
+    tableMappingIds = self.graph.objects(
+        subject=subject, predicate=SCHEMA.tableMapping)
+    for tableMappingId in tableMappingIds:
+      val = {
+          'sourceEntity': self.graph.value(tableMappingId, SCHEMA.sourceEntity),
+          'columnIdentifier': self.graph.value(tableMappingId, SCHEMA.columnIdentifier),
+          'value': self.graph.value(tableMappingId, SCHEMA.value),
+      }
+      tableMappings.append(val)
+    return tableMappings
+
+  def _GetDimensionProperties(self, dim):
+    dimensionProperties = []
+    dimensionPropertyIds = self.graph.objects(
+        subject=dim, predicate=SCHEMA.dimensionProperty)
+    for dimensionPropertyId in dimensionPropertyIds:
+      val = {
+          'propertyID': str(self.graph.value(dimensionPropertyId, SCHEMA.propertyID)),
+          'propertyType': self.graph.value(dimensionPropertyId, SCHEMA.propertyType),
+      }
+      dimensionProperties.append(val)
+    return dimensionProperties
+
+  def _AddDimensionValueTriple(self, subject, key, val, dimensionProperties,
+                               tableMappings):
+    dot = key.find('.')
+    if dot >= 0:
+      subobjPred = getattr(SCHEMA, key[:dot])
+      subobjNode = self.graph.value(subject=subject,
+                                    predicate=subobjPred)
+      if not subobjNode:
+        subobjNode = rdflib.BNode()
+        self.graph.add((subject, subobjPred, subobjNode))
+        for dimensionProperty in dimensionProperties:
+          if dimensionProperty['propertyID'] == str(key[:dot]):
+            if dimensionProperty['propertyType']:
+              if (None, SCHEMA.dimension, dimensionProperty['propertyType']) not in self.graph:
+                self.graph.add((subobjNode, rdflib.RDF.type,
+                                dimensionProperty['propertyType']))
+              break
+      self._AddDimensionValueTriple(subobjNode, key[dot + 1:], val,
+                                    dimensionProperties, tableMappings)
+      return
+    lang = None
+    at = key.find('@')
+    if at >= 0:
+      key = key[:at]
+      obj = rdflib.Literal(val, language=key[at + 1:])
+    else:
+      obj = rdflib.Literal(val)
+    predicate = getattr(SCHEMA, key)
+    for tableMapping in tableMappings:
+      if tableMapping['columnIdentifier'] == key:
+        if tableMapping['sourceEntity']:
+          predicate = tableMapping['sourceEntity']
+          break
+    self.graph.add((subject, predicate, obj))
+
+  def _ExpandDimensionValue(self, dim, equivalentTypes, row_id, row,
+                            dimensionProperties, tableMappings):
+    subject = rdflib.URIRef(row_id)
     self.graph.add((dim, SCHEMA.codeList, row_id))
-    self.graph.add((rdflib.URIRef(row_id), rdflib.RDF.type,
+    self.graph.add((subject, rdflib.RDF.type,
                     SCHEMA.DimensionValue))
     self.graph.add(
-        (rdflib.URIRef(row_id), SCHEMA.dimension, dim))
+        (subject, SCHEMA.dimension, dim))
     for type_id in equivalentTypes:
-      self.graph.add((rdflib.URIRef(row_id), rdflib.RDF.type,
+      self.graph.add((subject, rdflib.RDF.type,
                       rdflib.URIRef(type_id)))
     for key, val in row.items():
-      fields = key.split('@')
-      if len(fields) > 1:
-        # A language code is specified
-        self.graph.add((rdflib.URIRef(row_id), getattr(SCHEMA, fields[0]),
-                        rdflib.Literal(val, language=fields[1])))
-      else:
-        self.graph.add((rdflib.URIRef(row_id), getattr(SCHEMA, key),
-                        rdflib.Literal(val)))
+      self._AddDimensionValueTriple(subject, key, val, dimensionProperties,
+                                    tableMappings)
 
   def _ExpandCodeList(self, dim):
     # Set up the DimensionValue's triples.
@@ -53,6 +110,8 @@ class Dspl2RdfExpander(object):
     equivalentTypes = self.graph.objects(
         subject=dim,
         predicate=SCHEMA.equivalentType)
+    dimensionProperties = self._GetDimensionProperties(dim)
+    tableMappings = self._GetTableMappings(dim)
     for codeList in self.graph.objects(
         subject=dim,
         predicate=SCHEMA.codeList):
@@ -63,7 +122,8 @@ class Dspl2RdfExpander(object):
           for row in reader:
             self._ExpandDimensionValue(
                 dim, equivalentTypes,
-                rdflib.URIRef(id_prefix + row['codeValue']), row)
+                rdflib.URIRef(id_prefix + row['codeValue']), row,
+                dimensionProperties, tableMappings)
 
   def _ExpandFootnotes(self):
     for result in self.graph.query(
@@ -91,7 +151,7 @@ class Dspl2RdfExpander(object):
                 self.graph.add((row_id, getattr(SCHEMA, key),
                                 rdflib.Literal(val)))
 
-  def _GetDimensionDataForSlice(self, slice_id):
+  def _GetDimensionDataForSlice(self, slice_id, tableMappings):
     ret = {}
     dims = sorted(
         self.graph.objects(
@@ -104,14 +164,11 @@ class Dspl2RdfExpander(object):
       dim_equiv_types = list(self.graph.objects(
           subject=dim_id,
           predicate=SCHEMA.equivalentType))
-      csv_id = None
-      for identifier in self.graph.objects(
-          subject=dim_id,
-          predicate=SCHEMA.identifier):
-        csv_id = identifier
-        break
-      if not csv_id:
-        csv_id = urldefrag(dim_id).fragment
+      csv_id = urldefrag(dim_id).fragment
+      for tableMapping in tableMappings:
+        if tableMapping['sourceEntity'] == dim_id:
+          csv_id = str(tableMapping['columnIdentifier'])
+          break
       if not csv_id:
         print("Unable to determine CSV ID for dimension", dim_id,
               file=sys.stderr)
@@ -123,7 +180,7 @@ class Dspl2RdfExpander(object):
       }
     return ret
 
-  def _GetMeasureDataForSlice(self, slice_id):
+  def _GetMeasureDataForSlice(self, slice_id, tableMappings):
     ret = {}
     measures = sorted(
         self.graph.objects(
@@ -136,14 +193,11 @@ class Dspl2RdfExpander(object):
       unit_texts = list(self.graph.objects(
           subject=measure_id,
           predicate=SCHEMA.unitText))
-      csv_id = None
-      for identifier in self.graph.objects(
-          subject=measure_id,
-          predicate=SCHEMA.identifier):
-        csv_id = identifier
-        break
-      if not csv_id:
-        csv_id = urldefrag(measure_id).fragment
+      csv_id = urldefrag(measure_id).fragment
+      for tableMapping in tableMappings:
+        if tableMapping['sourceEntity'] == measure_id:
+          csv_id = str(tableMapping['columnIdentifier'])
+          break
       if not csv_id:
         print("Unable to determine CSV ID for metric", measure_id,
               file=sys.stderr)
@@ -155,14 +209,20 @@ class Dspl2RdfExpander(object):
       }
     return ret
 
-  def _MakeSliceDataRowId(self, slice_id, dims, measures, row):
+  def _MakeSliceDataRowId(self, slice_id, dims, measures, row, tableMappings):
     ret = str(slice_id)
     if not urldefrag(slice_id).fragment:
       ret += '#'
     else:
       ret += '/'
     for dim in dims:
-      ret += dim + '=' + row[dim]
+      dim_key = dim
+      for tableMapping in tableMappings:
+        if tableMapping['sourceEntity'] == dim:
+          if tableMapping['columnIdentifier']:
+            dim_key = str(tableMapping['columnIdentifier'])
+          break
+      ret += dim + '=' + row[dim_key]
       ret += '/'
     for measure in measures:
       ret += measure
@@ -171,7 +231,7 @@ class Dspl2RdfExpander(object):
 
   def _ExpandObservationDimensionValue(self, dim, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, SCHEMA.dimensionValues, node_id))
+    self.graph.add((row_id, SCHEMA.dimensionValue, node_id))
     self.graph.add((node_id, rdflib.RDF.type, SCHEMA.DimensionValue))
     self.graph.add((node_id, SCHEMA.dimension, data['id']))
     for dim_type in data['type']:
@@ -190,7 +250,7 @@ class Dspl2RdfExpander(object):
 
   def _ExpandObservationMeasureValue(self, measure, data, row_id, row):
     node_id = rdflib.BNode()
-    self.graph.add((row_id, SCHEMA.measureValues, node_id))
+    self.graph.add((row_id, SCHEMA.measureValue, node_id))
     self.graph.add((node_id, rdflib.RDF.type, SCHEMA.MeasureValue))
     for unit_code in data['unit_code']:
       self.graph.add((node_id, SCHEMA.unitCode, rdflib.Literal(unit_code)))
@@ -205,8 +265,9 @@ class Dspl2RdfExpander(object):
       self.graph.add((footnote_id, SCHEMA.codeValue, rdflib.Literal(footnote)))
 
   def _ExpandSliceData(self, slice_id):
-    dim_data = self._GetDimensionDataForSlice(slice_id)
-    measure_data = self._GetMeasureDataForSlice(slice_id)
+    tableMappings = self._GetTableMappings(slice_id)
+    dim_data = self._GetDimensionDataForSlice(slice_id, tableMappings)
+    measure_data = self._GetMeasureDataForSlice(slice_id, tableMappings)
     for data_id in self.graph.objects(
         subject=slice_id,
         predicate=SCHEMA.data):
@@ -216,7 +277,7 @@ class Dspl2RdfExpander(object):
           try:
             for row in reader:
               row_id = rdflib.URIRef(self._MakeSliceDataRowId(
-                  slice_id, dim_data, measure_data, row))
+                  slice_id, dim_data, measure_data, row, tableMappings))
               self.graph.add((slice_id, SCHEMA.data, row_id))
               self.graph.add((row_id, rdflib.RDF.type, SCHEMA.Observation))
               self.graph.add((row_id, SCHEMA.slice, slice_id))
@@ -327,8 +388,8 @@ class Dspl2JsonLdExpander(object):
         val = {}
         val['@type'] = 'Observation'
         val['slice'] = GetSchemaId(slice)
-        val['dimensionValues'] = []
-        val['measureValues'] = []
+        val['dimensionValue'] = []
+        val['measureValue'] = []
         for dim in AsList(GetSchemaProp(slice, 'dimension')):
           dim = GetUrl(dim)
           dim_def = dim_defs_by_id.get(dim)
@@ -354,7 +415,7 @@ class Dspl2JsonLdExpander(object):
                 }
               else:
                 dim_val['value'] = row[col_id]
-          val['dimensionValues'].append(dim_val)
+          val['dimensionValue'].append(dim_val)
 
         for measure in AsList(GetSchemaProp(slice, 'measure')):
           measure = GetUrl(measure)
@@ -364,13 +425,13 @@ class Dspl2JsonLdExpander(object):
             col_id = tableMapping['columnIdentifier']
           else:
             col_id = urlparse(measure).fragment
-          val['measureValues'].append({
+          val['measureValue'].append({
               '@type': 'MeasureValue',
               'measure': measure,
               'value': row[col_id]
           })
           if row.get(col_id + '*'):
-            val['measureValues'][-1]['footnote'] = [
+            val['measureValue'][-1]['footnote'] = [
                 {
                     '@type': 'StatisticalAnnotation',
                     'codeValue': footnote

@@ -188,26 +188,26 @@ def CheckRdfConstraints(warnings, graph):
   if excess_measures:
     warnings.append(f'RDF: undefined measures found in slice: {excess_measures}; expected={measures}')
 
-  # Check all measurevalue footnotes are present
+  # Check all measurevalue annotations are present
   results = SelectFromGraph(
       graph,
       ('?ds', 'a', 'schema:StatisticalDataset'),
-      ('?ds', 'schema:footnote', '?footnote'),
-      ('?footnote', 'schema:codeValue', '?codeValue'),
+      ('?ds', 'schema:annotation', '?annotation'),
+      ('?annotation', 'schema:codeValue', '?codeValue'),
   )
-  footnotes = set(result['codeValue'] for result in results)
-  if not footnotes:
-    warnings.append('RDF: No dataset footnotes found')
+  annotations = set(result['codeValue'] for result in results)
+  if not annotations:
+    warnings.append('RDF: No dataset annotations found')
   results = SelectFromGraph(
       graph,
       ('?val', 'a', 'schema:MeasureValue'),
-      ('?val', 'schema:footnote', '?footnote'),
-      ('?footnote', 'schema:codeValue', '?codeValue'),
+      ('?val', 'schema:annotation', '?annotation'),
+      ('?annotation', 'schema:codeValue', '?codeValue'),
   )
-  slice_footnotes = set(result['codeValue'] for result in results)
-  excess_footnotes = slice_footnotes - footnotes
-  if excess_footnotes:
-    warnings.append(f'RDF: undefined footnotes found in slice: {excess_footnotes}; expected={footnotes}')
+  slice_annotations = set(result['codeValue'] for result in results)
+  excess_annotations = slice_annotations - annotations
+  if excess_annotations:
+    warnings.append(f'RDF: undefined annotations found in slice: {excess_annotations}; expected={annotations}')
 
 
 def ValidateDspl2(dataset, getter):
