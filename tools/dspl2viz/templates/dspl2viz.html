@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <title>DSPL 2 Dataset Visualizer</title>
+    <link rel="stylesheet" href="/static/dspl2viz.css">
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.7.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@4.0.0-beta.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@5.1.3"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="vegalite-container">
+      <textarea id="vegalite-input" rows="40"></textarea>
+    </div>
+    <div id="dataset-explorer">
+      <div id="measure-explorer">
+      </div>
+      <div id="slice-explorer">
+      </div>
+      <div id="dimension-explorer">
+      </dim>
+    </div>
+    <div id="chart-container">
+      <div id="chart"></div>
+    </div>
+    <script src="/static/dspl2viz.js"></script>
+  </body>
+</html>
