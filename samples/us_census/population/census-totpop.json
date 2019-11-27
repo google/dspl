@@ -1,0 +1,431 @@
+{
+  "@context": "http://schema.org",
+  "@id": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+  "@type": "StatisticalDataset",
+  "name": "Population in the U.S.",
+  "description": "Population estimates for US States, counties, cities and other places, by sex and gender. This dataset was prepared by Google based on data downloaded from U.S. Census Bureau, Population Division.",
+  "url": "https://www.census.gov/programs-surveys/popest/data/data-sets.html",
+  "provider": {
+    "@type": "Organization",
+    "name": "U.S. Bureau of Labor Statistics",
+    "description": "U.S. Bureau of Labor Statistics",
+    "url": "http://www.bls.gov"
+  },
+  "measure": [
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#population",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q1613416",
+      "name": "Population",
+      "description": "Estimates of the resident population as of July 1 of each year",
+      "url": "https://www.census.gov/glossary/#term_Populationestimates"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#NPOPCHG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q386191",
+      "name": "Numeric population change",
+      "description": "Numeric change in resident total population",
+      "url": "https://www.census.gov/glossary/#term_Numericpopulationchange"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#BIRTHS",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Births",
+      "description": "Births",
+      "url": "https://www.census.gov/glossary/#term_Births"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#DEATHS",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Deaths",
+      "description": "Deaths",
+      "url": "https://www.census.gov/glossary/#term_Deaths"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#NATURALINC",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Natural increase",
+      "description": "Natural increase",
+      "url": "https://www.census.gov/glossary/#term_Naturalincrease"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#INTERNATIONALMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q11936732",
+      "name": "Net international migration",
+      "description": "Net international migration",
+      "url": "https://www.census.gov/glossary/#term_Netinternationalmigration"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#DOMESTICMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q11880444",
+      "name": "Net domestic migration",
+      "description": "Net domestic migration",
+      "url": "https://www.census.gov/glossary/#term_Netdomesticmigration"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#NETMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Net migration",
+      "description": "Net migration",
+      "url": "https://www.census.gov/glossary/#term_Netmigration"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RBIRTH",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q203516",
+      "name": "Birth rate",
+      "description": "Birth rate",
+      "url": "https://www.census.gov/glossary/#term_Births"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RDEATH",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q58702",
+      "name": "Death rate",
+      "description": "Death rate",
+      "url": "https://www.census.gov/glossary/#term_Deaths"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RNATURALINC",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q2822899",
+      "name": "Natural increase rate",
+      "description": "Natural increase rate",
+      "url": "https://www.census.gov/glossary/#term_Naturalincrease"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RINTERNATIONALMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Net international migration rate",
+      "description": "Net international migration rate",
+      "url": "https://www.census.gov/glossary/#term_Netinternationalmigration"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RDOMESTICMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "name": "Net domestic migration rate",
+      "description": "Net domestic migration rate",
+      "url": "https://www.census.gov/glossary/#term_Netdomesticmigration"
+    },
+    {
+      "@type": "StatisticalMeasure",
+      "@id": "#RNETMIG",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "sameAs": "https://www.wikidata.org/wiki/Q733683",
+      "name": "Net migration rate",
+      "description": "Net migration rate",
+      "url": "https://www.census.gov/glossary/#term_Netmigration"
+    }
+  ],
+  "dimension": [
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#country",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "country.csv",
+      "equivalentType": "Country"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#state",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "states.csv",
+      "equivalentType": "State"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#county",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "counties.csv",
+      "equivalentType": "AdministrativeArea"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#sub_county",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "sub_counties.csv",
+      "equivalentType": "AdministrativeArea"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#place",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "places.csv",
+      "equivalentType": "AdministrativeArea"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#cons_city",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "cons_cities.csv",
+      "equivalentType": "City"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#age_group",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "age_groups.csv",
+      "equivalentType": "typicalAgeRange"
+    },
+    {
+      "@type": "CategoricalDimension",
+      "@id": "#sex",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "codeList": "sexes.csv",
+      "equivalentType": "gender"
+    },
+    {
+      "@type": "TimeDimension",
+      "@id": "#year",
+      "dataset": "http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "equivalentType": "xsd:gYear"
+    }
+  ],
+  "slice": [
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#country",
+        "#year"
+      ],
+      "measure": [
+        "#population",
+        "#NPOPCHG",
+        "#BIRTHS",
+        "#DEATHS",
+        "#NATURALINC",
+        "#INTERNATIONALMIG",
+        "#NETMIG",
+        "#RBIRTH",
+        "#RDEATH",
+        "#RNATURALINC",
+        "#RINTERNATIONALMIG",
+        "#RNETMIG"
+      ],
+      "data": "country_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#country",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "country_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#country",
+        "#sex",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "country_sex_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#country",
+        "#sex",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "country_sex_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#state",
+        "#year"
+      ],
+      "measure": [
+        "#population",
+        "#NPOPCHG",
+        "#BIRTHS",
+        "#DEATHS",
+        "#NATURALINC",
+        "#INTERNATIONALMIG",
+        "#DOMESTICMIG",
+        "#NETMIG",
+        "#RBIRTH",
+        "#RDEATH",
+        "#RNATURALINC",
+        "#RINTERNATIONALMIG",
+        "#RDOMESTICMIG",
+        "#RNETMIG"
+      ],
+      "data": "state_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#state",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "state_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#state",
+        "#sex",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "state_sex_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#state",
+        "#sex",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "state_sex_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#county",
+        "#year"
+      ],
+      "measure": [
+        "#population",
+        "#NPOPCHG",
+        "#BIRTHS",
+        "#DEATHS",
+        "#NATURALINC",
+        "#INTERNATIONALMIG",
+        "#DOMESTICMIG",
+        "#NETMIG",
+        "#RBIRTH",
+        "#RDEATH",
+        "#RNATURALINC",
+        "#RINTERNATIONALMIG",
+        "#RDOMESTICMIG",
+        "#RNETMIG"
+      ],
+      "data": "county_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#county",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "county_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#county",
+        "#sex",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "county_sex_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#county",
+        "#sex",
+        "#age_group",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "county_sex_age_group_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#cons_city",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "cons_city_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#sub_county",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "sub_county_slice.csv"
+    },
+    {
+      "@type": "DataSlice",
+      "dataset": "#http://www.google.com/publicdata/dataset/uscensus-population-ep",
+      "dimension": [
+        "#place",
+        "#year"
+      ],
+      "measure": [
+        "#population"
+      ],
+      "data": "place_slice.csv"
+    }
+  ]
+}
