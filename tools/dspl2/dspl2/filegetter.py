@@ -18,7 +18,7 @@ from dspl2.rdfutil import LoadGraph, SelectFromGraph
 def _ProcessDspl2File(filename, fileobj, *, type=''):
   if any([filename.endswith('.html'),
           type.startswith('text/html')]):
-    data = extruct.extract(file.read(), uniform='True')
+    data = extruct.extract(fileobj.read(), uniform='True')
     return LoadGraph({
         '@context': 'http://schema.org',
         '@graph': [
