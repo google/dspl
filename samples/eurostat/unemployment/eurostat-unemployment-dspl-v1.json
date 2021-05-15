@@ -32,16 +32,16 @@
      "contactPoint": [
        {
          "@type":"ContactPoint",
-         "name": "Eurostat Multilingual User Support Network"
+         "name": "Eurostat Multilingual User Support Network",
          "contactType": "Central Support",
-         "telephone":"+352 4301 36789",
+         "telephone":"+352 4301 36789"
        },
        {
          "@type":"ContactPoint",
-         "name": "Eurostat Multilingual User Support Network"
+         "name": "Eurostat Multilingual User Support Network",
          "contactType": "Republic of Ireland",
          "availableLanguage": "en",
-         "telephone":"+353 151 33080",
+         "telephone":"+353 151 33080"
        }
      ]
   },
